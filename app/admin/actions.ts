@@ -53,13 +53,11 @@ export async function createClientAccount(
   await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
 
   if (name.length < 2) return { error: "Informe o nome do cliente." };
   if (!email.includes("@")) return { error: "Informe um e-mail válido." };
-  if (password.length < 6) return { error: "A senha precisa ter pelo menos 6 caracteres." };
 
-  const result = await createClient({ name, email, password });
+  const result = await createClient({ name, email });
   if ("error" in result) {
     return { error: result.error ?? "Não foi possível criar o cliente." };
   }
@@ -76,7 +74,7 @@ export async function removeClient(formData: FormData) {
   await deleteReportsForClient(id);
   await deleteAccount(id);
   revalidatePath("/admin");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   redirect("/admin");
 }
 
@@ -163,7 +161,7 @@ export async function publishReport(
     buffer && storedFile ? { buffer, storedFile } : undefined,
   );
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/admin");
   redirect(`/admin?cliente=${clientId}`);
 }
@@ -174,7 +172,7 @@ export async function removeReport(formData: FormData) {
   const clientId = String(formData.get("clientId") ?? "");
   if (!id) return;
   await deleteReport(id);
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/admin");
   redirect(clientId ? `/admin?cliente=${clientId}` : "/admin");
 }

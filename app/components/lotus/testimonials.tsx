@@ -1,0 +1,68 @@
+import { SectionShell } from "@/app/components/lotus/section-shell";
+
+const testimonials = [
+  {
+    name: "Ana Ribeiro",
+    role: "Head de Marketing",
+    quote:
+      "Finalmente um lugar onde o cliente vê só o que importa. Menos reunião explicando planilha.",
+  },
+  {
+    name: "Felipe Costa",
+    role: "Agência de performance",
+    quote:
+      "Publicamos o período e o dashboard atualiza. O time ganhou horas por mês.",
+  },
+  {
+    name: "Juliana Moraes",
+    role: "E-commerce",
+    quote:
+      "Google e Meta lado a lado mudou como priorizamos budget entre canais.",
+  },
+  {
+    name: "Ricardo Alves",
+    role: "Growth lead",
+    quote:
+      "Login simples, visual limpo. É o tipo de produto que a diretoria entende de primeira.",
+  },
+];
+
+function Stars() {
+  return (
+    <div className="flex gap-0.5 text-[13px] text-foreground" aria-label="5 estrelas">
+      {"★★★★★"}
+    </div>
+  );
+}
+
+export function LotusTestimonials() {
+  return (
+    <SectionShell id="testimonials" title="Amado por equipes no mundo inteiro">
+      <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">
+        {testimonials.map((item) => (
+          <article
+            key={item.name}
+            className="min-w-[260px] shrink-0 snap-start rounded-xl border border-border bg-surface p-5 md:min-w-0"
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="h-10 w-10 shrink-0 rounded-full border border-border bg-surface-elevated"
+                aria-hidden
+              />
+              <div>
+                <p className="text-sm font-medium">{item.name}</p>
+                <p className="text-[12px] text-muted-foreground">{item.role}</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Stars />
+            </div>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              &ldquo;{item.quote}&rdquo;
+            </p>
+          </article>
+        ))}
+      </div>
+    </SectionShell>
+  );
+}

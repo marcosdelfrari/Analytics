@@ -2,16 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BrandMark } from "@/app/components/brand-mark";
 import { logout } from "@/app/login/actions";
 import { authEnabled } from "@/lib/auth-config";
 
-export function Sidebar({
-  mode,
-  eyebrow,
-}: {
-  mode: "client" | "admin";
-  eyebrow?: string;
-}) {
+export function Sidebar({ mode }: { mode: "client" | "admin" }) {
   const pathname = usePathname();
   const items = authEnabled
     ? mode === "admin"
@@ -20,9 +15,9 @@ export function Sidebar({
           { href: "/parametros", label: "Parâmetros" },
           { href: "/encurtador", label: "Encurtador" },
         ]
-      : [{ href: "/", label: "Dashboard" }]
+      : [{ href: "/dashboard", label: "Dashboard" }]
     : [
-        { href: "/", label: "Dashboard" },
+        { href: "/dashboard", label: "Dashboard" },
         { href: "/admin", label: "Painel" },
         { href: "/parametros", label: "Parâmetros" },
         { href: "/encurtador", label: "Encurtador" },
@@ -30,16 +25,8 @@ export function Sidebar({
 
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r border-border bg-background">
-      <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-        <div className="flex h-7 w-7 items-center justify-center border border-border bg-surface-elevated">
-          <span className="font-mono text-xs text-foreground">A</span>
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium tracking-tight">Analytics</p>
-          <p className="truncate text-[11px] text-muted">
-            {eyebrow ?? (mode === "admin" ? "Painel admin" : "Portal do cliente")}
-          </p>
-        </div>
+      <div className="flex h-14 items-center justify-center border-b border-border px-4">
+        <BrandMark />
       </div>
       <nav className="flex flex-1 flex-col gap-0.5 p-2">
         {items.map((item) => {

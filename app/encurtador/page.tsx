@@ -15,7 +15,6 @@ function Loading() {
   return (
     <AppShell
       mode="admin"
-      eyebrow="Encurtador"
       title="Links"
       subtitle="Carregando atalhos"
     >
@@ -35,7 +34,7 @@ async function Shortener({
   if (authEnabled) {
     const session = await getSession();
     if (!session) redirect("/login");
-    if (session.role !== "admin") redirect("/");
+    if (session.role !== "admin") redirect("/dashboard");
   }
 
   const { url } = await searchParams;
@@ -49,7 +48,6 @@ async function Shortener({
   return (
     <AppShell
       mode="admin"
-      eyebrow="Encurtador"
       title="Links"
       subtitle="Atalhos para campanhas"
     >

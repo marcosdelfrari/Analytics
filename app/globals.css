@@ -32,8 +32,11 @@
   --color-negative: var(--negative);
   --color-google: var(--google);
   --color-meta: var(--meta);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sora), sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-barlow: var(--font-barlow-condensed), sans-serif;
+  --font-roboto: var(--font-roboto-flex), sans-serif;
+  --font-saira: var(--font-saira-condensed), sans-serif;
 }
 
 * {
@@ -43,7 +46,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sora), sans-serif;
 }
 
 ::selection {

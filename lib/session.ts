@@ -1,6 +1,20 @@
+import { openAccess, sealAccess } from "@/lib/access-code";
 import type { Session } from "@/lib/types";
 
 export const sessionCookie = "analytics_session";
+
+export function sessionCookieOptions(origin?: string) {
+  const secure = origin
+    ? origin.startsWith("https://")
+    : process.env.NODE_ENV === "production";
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    path: "/",
+    secure,
+    maxAge: 60 * 60 * 24 * 14,
+  };
+}
 
 const encoder = new TextEncoder();
 
@@ -36,7 +50,16 @@ async function hmacKey() {
 }
 
 export async function signSession(session: Session) {
-  const payload = toBase64Url(encoder.encode(JSON.stringify(session)));
+  const payload = toBase64Url(
+    encoder.encode(
+      JSON.stringify({
+        userId: session.userId,
+        name: session.name,
+        email: session.email,
+        access: await sealAccess(session.email, session.role),
+      }),
+    ),
+  );
   const signature = await crypto.subtle.sign(
     "HMAC",
     await hmacKey(),
@@ -59,11 +82,21 @@ export async function readSession(token: string | undefined | null): Promise<Ses
   if (!valid) return null;
 
   try {
-    const session = JSON.parse(new TextDecoder().decode(fromBase64Url(payload))) as Session;
-    if (!session.userId || (session.role !== "admin" && session.role !== "client")) {
-      return null;
-    }
-    return session;
+    const stored = JSON.parse(new TextDecoder().decode(fromBase64Url(payload))) as {
+      userId?: string;
+      name?: string;
+      email?: string;
+      access?: string;
+    };
+    if (!stored.userId || !stored.email || !stored.access) return null;
+    const role = await openAccess(stored.email, stored.access);
+    if (!role) return null;
+    return {
+      userId: stored.userId,
+      role,
+      name: stored.name ?? stored.email,
+      email: stored.email,
+    };
   } catch {
     return null;
   }

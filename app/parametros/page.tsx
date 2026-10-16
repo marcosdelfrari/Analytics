@@ -10,7 +10,6 @@ function Loading() {
   return (
     <AppShell
       mode="admin"
-      eyebrow="Parâmetros"
       title="URL"
       subtitle="Carregando montador"
     >
@@ -26,13 +25,12 @@ async function Builder() {
   if (authEnabled) {
     const session = await getSession();
     if (!session) redirect("/login");
-    if (session.role !== "admin") redirect("/");
+    if (session.role !== "admin") redirect("/dashboard");
   }
 
   return (
     <AppShell
       mode="admin"
-      eyebrow="Parâmetros"
       title="URL"
       subtitle="Monte o destino da campanha"
     >

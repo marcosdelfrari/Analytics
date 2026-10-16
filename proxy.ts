@@ -4,8 +4,20 @@ import { authEnabled } from "@/lib/auth-config";
 import { readSession, sessionCookie } from "@/lib/session";
 
 export async function proxy(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/s/")) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/s/") || /\.[a-zA-Z0-9]+$/.test(pathname)) {
     return NextResponse.next();
+  }
+
+  if (pathname === "/" && request.nextUrl.searchParams.has("code")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/api/auth/google/callback";
+    return NextResponse.rewrite(url);
+  }
+
+  if (pathname === "/" && request.nextUrl.searchParams.has("error")) {
+    return NextResponse.redirect(new URL("/login?erro=cancelado", request.url));
   }
 
   if (!authEnabled) {
@@ -15,21 +27,20 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const { pathname } = request.nextUrl;
   const session = await readSession(request.cookies.get(sessionCookie)?.value);
-  const isLogin = pathname === "/login";
+  const isPublic =
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname.startsWith("/api/auth/google");
 
-  if (!session && !isLogin) {
+  if (!session && !isPublic) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (session && isLogin) {
-    const destination = session.role === "admin" ? "/admin" : "/";
+  if (session && pathname === "/login") {
+    const destination =
+      session.role === "admin" ? "/admin" : "/dashboard";
     return NextResponse.redirect(new URL(destination, request.url));
-  }
-
-  if (session?.role === "admin" && pathname === "/") {
-    return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   if (
@@ -38,7 +49,7 @@ export async function proxy(request: NextRequest) {
       pathname.startsWith("/encurtador") ||
       pathname.startsWith("/parametros"))
   ) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();

@@ -17,7 +17,7 @@ export function CreateClientForm() {
       <div className="border-b border-border px-4 py-3">
         <h2 className="text-sm font-medium">Novo cliente</h2>
         <p className="text-[12px] text-muted">
-          O cliente entra com esse e-mail e vê só o próprio dashboard
+          O cliente entra com a conta Google desse e-mail
         </p>
       </div>
       <div className="grid gap-4 p-4">
@@ -28,16 +28,6 @@ export function CreateClientForm() {
         <label className="block text-[12px] text-muted-foreground">
           E-mail
           <input name="email" type="email" required className={fieldClass} />
-        </label>
-        <label className="block text-[12px] text-muted-foreground">
-          Senha inicial
-          <input
-            name="password"
-            type="text"
-            required
-            minLength={6}
-            className={fieldClass}
-          />
         </label>
       </div>
       {state?.error && (
