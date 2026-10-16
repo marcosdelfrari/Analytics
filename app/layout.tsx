@@ -7,6 +7,8 @@ import {
   Sora,
 } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
+import { WebMcpTools } from "@/app/components/webmcp";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -57,7 +59,23 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="pt-BR"
       className={`${sora.variable} ${barlowCondensed.variable} ${robotoFlex.variable} ${sairaCondensed.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-RCZZNB8EZZ"
+          strategy="beforeInteractive"
+        />
+        <Script id="google-tag" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-RCZZNB8EZZ');
+          `}
+        </Script>
+        <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json" />
+      </head>
       <body className="min-h-full bg-background text-foreground">
+        <WebMcpTools />
         {children}
       </body>
     </html>

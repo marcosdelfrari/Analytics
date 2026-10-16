@@ -1,0 +1,46 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Lótus Analytics",
+    "version": "1.0.0",
+    "summary": "API pública da Lótus para status e descoberta.",
+    "description": "Superfície pública da Lótus. A autenticação, o painel e o encurtador não fazem parte deste contrato."
+  },
+  "servers": [{ "url": "/" }],
+  "components": {
+    "securitySchemes": {
+      "google": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "/.well-known/openid-configuration",
+        "description": "Login com Google via authorization code. O emissor, os endpoints e o JWKS estão no documento de descoberta."
+      }
+    }
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Status da API",
+        "responses": {
+          "200": {
+            "description": "Serviço disponível",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "ok"
+                    }
+                  },
+                  "required": ["status"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

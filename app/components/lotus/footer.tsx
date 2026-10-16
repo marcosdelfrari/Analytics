@@ -79,10 +79,19 @@ export function LotusFooter() {
             Fique por dentro das atualizações da plataforma e dos novos
             recursos.
           </p>
-          <form className="mt-4 flex gap-2" action="#" method="post">
+          <form
+            className="mt-4 flex gap-2"
+            action="#"
+            method="post"
+            toolname="subscribe-newsletter"
+            tooldescription="Cadastra um e-mail para receber novidades da Lótus."
+          >
             <input
               type="email"
+              name="email"
+              required
               placeholder="Seu e-mail"
+              toolparamdescription="E-mail que vai receber as novidades da Lótus."
               className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm outline-none ring-foreground/20 placeholder:text-muted focus:ring-2"
               aria-label="Seu e-mail"
             />

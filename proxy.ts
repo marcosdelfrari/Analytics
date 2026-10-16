@@ -1,60 +1,30 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { authEnabled } from "@/lib/auth-config";
-import { readSession, sessionCookie } from "@/lib/session";
+import { acceptsMarkdown } from "@/lib/html-to-markdown";
 
-export async function proxy(request: NextRequest) {
+const discoveryLinks =
+  '</.well-known/api-catalog>; rel="api-catalog", </sitemap.xml>; rel="describedby"';
+
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  if (pathname.startsWith("/s/") || /\.[a-zA-Z0-9]+$/.test(pathname)) {
-    return NextResponse.next();
-  }
-
-  if (pathname === "/" && request.nextUrl.searchParams.has("code")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/api/auth/google/callback";
-    return NextResponse.redirect(url);
-  }
-
-  if (pathname === "/" && request.nextUrl.searchParams.has("error")) {
-    return NextResponse.redirect(new URL("/login?erro=cancelado", request.url));
-  }
-
-  if (!authEnabled) {
-    if (request.nextUrl.pathname === "/login") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-    return NextResponse.next();
-  }
-
-  const session = await readSession(request.cookies.get(sessionCookie)?.value);
-  const isPublic =
-    pathname === "/" ||
-    pathname === "/login" ||
-    pathname.startsWith("/api/auth/google");
-
-  if (!session && !isPublic) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (session && pathname === "/login") {
-    const destination =
-      session.role === "admin" ? "/admin" : "/dashboard";
-    return NextResponse.redirect(new URL(destination, request.url));
-  }
-
   if (
-    session?.role === "client" &&
-    (pathname.startsWith("/admin") ||
-      pathname.startsWith("/encurtador") ||
-      pathname.startsWith("/parametros"))
+    pathname === "/" &&
+    request.headers.get("x-lotus-source") !== "1" &&
+    acceptsMarkdown(request.headers.get("accept"))
   ) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = "/internal/markdown";
+    return NextResponse.rewrite(url);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  if (pathname === "/") {
+    response.headers.append("Link", discoveryLinks);
+    response.headers.append("Vary", "Accept");
+  }
+  return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: "/",
 };
