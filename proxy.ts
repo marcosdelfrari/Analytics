@@ -13,7 +13,7 @@ export async function proxy(request: NextRequest) {
   if (pathname === "/" && request.nextUrl.searchParams.has("code")) {
     const url = request.nextUrl.clone();
     url.pathname = "/api/auth/google/callback";
-    return NextResponse.rewrite(url);
+    return NextResponse.redirect(url);
   }
 
   if (pathname === "/" && request.nextUrl.searchParams.has("error")) {

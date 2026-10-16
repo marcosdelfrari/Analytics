@@ -6,6 +6,8 @@ const errors: Record<string, string> = {
   cancelado: "Login cancelado.",
   invalido: "Não foi possível entrar com o Google. Tente de novo.",
   config: "Login com Google ainda não está configurado.",
+  servidor:
+    "O servidor não conseguiu gravar o acesso. A pasta data precisa existir e permitir escrita.",
 };
 
 export default function LoginPage({
