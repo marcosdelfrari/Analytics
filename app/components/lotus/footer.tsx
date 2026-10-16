@@ -2,15 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 const menuLinks = [
-  { href: "#services", label: "Serviços" },
+  { href: "#benefits", label: "Benefícios" },
   { href: "#how-it-works", label: "Como funciona" },
-  { href: "#pricing", label: "Preços" },
-  { href: "#faq", label: "FAQ" },
-];
-
-const legalLinks = [
-  { href: "https://marcosdelfrari.com", label: "marcosdelfrari.com" },
-  { href: "/login", label: "Login" },
+  { href: "#pricing", label: "Planos" },
+  { href: "#faq", label: "Perguntas frequentes" },
 ];
 
 export function LotusFooter() {
@@ -29,7 +24,8 @@ export function LotusFooter() {
             <span className="text-base font-thin tracking-wide">Lótus</span>
           </Link>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            Portal de analytics para mídia paga. Uma tecnologia{" "}
+            Mais clareza para acompanhar e apresentar resultados de mídia paga.
+            Uma tecnologia{" "}
             <a
               href="https://marcosdelfrari.com"
               className="text-foreground underline-offset-2 hover:underline"
@@ -42,7 +38,7 @@ export function LotusFooter() {
 
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted">
-            Menu
+            Navegação
           </p>
           <ul className="mt-4 space-y-2 text-sm">
             {menuLinks.map((link) => (
@@ -60,41 +56,40 @@ export function LotusFooter() {
 
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted">
-            Legal
+            Acesso
           </p>
           <ul className="mt-4 space-y-2 text-sm">
-            {legalLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
+            <li>
+              <a
+                href="/api/auth/google"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Entrar
+              </a>
+            </li>
           </ul>
         </div>
 
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted">
-            Newsletter
+            Receba as novidades do Lótus.
           </p>
           <p className="mt-4 text-sm text-muted-foreground">
-            Novidades sobre produto e analytics.
+            Fique por dentro das atualizações da plataforma e dos novos
+            recursos.
           </p>
           <form className="mt-4 flex gap-2" action="#" method="post">
             <input
               type="email"
-              placeholder="seu@email.com"
+              placeholder="Seu e-mail"
               className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm outline-none ring-foreground/20 placeholder:text-muted focus:ring-2"
-              aria-label="E-mail para newsletter"
+              aria-label="Seu e-mail"
             />
             <button
               type="submit"
               className="shrink-0 rounded-md bg-foreground px-3 py-2 text-[13px] font-medium text-background"
             >
-              Enviar
+              Quero receber
             </button>
           </form>
         </div>
@@ -102,16 +97,14 @@ export function LotusFooter() {
 
       <div className="border-t border-border-subtle">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-6 text-[12px] text-muted-foreground sm:flex-row sm:px-6 lg:px-8">
-          <p>© 2026 Lótus · marcosdelfrari.com</p>
+          <p>© 2026 Lótus. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4">
             <a href="https://marcosdelfrari.com" className="hover:text-foreground">
-              Privacidade
+              Termos de uso
             </a>
-            <span className="flex gap-3" aria-label="Redes sociais">
-              <span className="h-8 w-8 rounded-full border border-border bg-surface" />
-              <span className="h-8 w-8 rounded-full border border-border bg-surface" />
-              <span className="h-8 w-8 rounded-full border border-border bg-surface" />
-            </span>
+            <a href="https://marcosdelfrari.com" className="hover:text-foreground">
+              Política de privacidade
+            </a>
           </div>
         </div>
       </div>

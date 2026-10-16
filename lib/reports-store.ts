@@ -16,12 +16,16 @@ async function ensureStore() {
 }
 
 export async function listReports(clientId?: string): Promise<PublishedReport[]> {
-  await ensureStore();
-  const raw = await readFile(indexPath, "utf8");
-  const reports = JSON.parse(raw) as PublishedReport[];
-  return reports
-    .filter((report) => (clientId ? report.clientId === clientId : true))
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  try {
+    await ensureStore();
+    const raw = await readFile(indexPath, "utf8");
+    const reports = JSON.parse(raw) as PublishedReport[];
+    return reports
+      .filter((report) => (clientId ? report.clientId === clientId : true))
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  } catch {
+    return [];
+  }
 }
 
 export async function getReport(id: string): Promise<PublishedReport | null> {

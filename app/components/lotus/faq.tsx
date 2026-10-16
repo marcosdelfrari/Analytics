@@ -5,24 +5,29 @@ import { SectionShell } from "@/app/components/lotus/section-shell";
 
 const items = [
   {
-    question: "O Lótus substitui o Google Ads ou Meta Ads?",
+    question: "Criar uma conta é gratuito?",
     answer:
-      "Não. Ele consolida e apresenta os dados que sua equipe publica, para o cliente acompanhar performance sem acessar cada plataforma.",
+      "Sim. Você pode criar sua conta gratuitamente e acessar o ambiente inicial da plataforma. A contratação de um plano é necessária para utilizar os recursos.",
   },
   {
-    question: "Como faço login?",
+    question: "O que posso ver depois de me cadastrar?",
     answer:
-      "Use Entrar com Google na página de login. Contas novas podem se cadastrar; o acesso ao dashboard depende da configuração da sua organização.",
+      "Você encontrará exemplos de telas que apresentam a estrutura da plataforma. Eles servem para conhecer o ambiente, mas não permitem utilizar as funcionalidades antes da assinatura.",
   },
   {
-    question: "Posso baixar relatórios antigos?",
+    question: "O cadastro gratuito inclui um período de teste?",
     answer:
-      "Sim. Quando um período inclui arquivo anexado, o download aparece no histórico do dashboard.",
+      "Não. O cadastro gratuito dá acesso ao ambiente de apresentação, com exemplos de telas e recursos bloqueados. O uso das funcionalidades é liberado após a contratação de um plano.",
   },
   {
-    question: "Quem publica os números no portal?",
+    question: "Como faço para contratar um plano?",
     answer:
-      "Usuários admin da sua operação publicam períodos e métricas; clientes visualizam apenas o que foi liberado para eles.",
+      "Depois de entrar na sua conta, clique em “Ver planos” na tela inicial. Compare as opções disponíveis e escolha o plano que atende à sua necessidade.",
+  },
+  {
+    question: "Ao contratar, todos os recursos são liberados?",
+    answer:
+      "O acesso depende do plano escolhido. Antes de contratar, consulte os recursos e limites incluídos em cada opção.",
   },
 ];
 

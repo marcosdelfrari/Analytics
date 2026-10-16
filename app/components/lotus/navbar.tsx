@@ -2,11 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 const links = [
-  { href: "#services", label: "Serviços" },
+  { href: "#benefits", label: "Benefícios" },
   { href: "#how-it-works", label: "Como funciona" },
-  { href: "#testimonials", label: "Depoimentos" },
-  { href: "#pricing", label: "Preços" },
-  { href: "#faq", label: "FAQ" },
+  { href: "#pricing", label: "Planos" },
+  { href: "#faq", label: "Perguntas frequentes" },
 ];
 
 export function LotusNavbar() {
@@ -24,7 +23,7 @@ export function LotusNavbar() {
             />
           </Link>
 
-          <nav className="hidden flex-1 items-center justify-center gap-1 md:flex">
+          <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
             {links.map((link) => (
               <a
                 key={link.href}
@@ -36,13 +35,13 @@ export function LotusNavbar() {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-2">
-            <Link
-              href="/login"
+          <div className="ml-auto flex items-center">
+            <a
+              href="/api/auth/google"
               className="rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-90"
             >
-              Começar agora
-            </Link>
+              Entrar
+            </a>
           </div>
         </div>
       </div>

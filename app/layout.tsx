@@ -47,7 +47,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Lótus — Analytics de mídia paga",
   description:
-    "Lótus centraliza Google Ads e Meta Ads em um portal claro para clientes e equipes. Uma tecnologia marcosdelfrari.com.",
+    "Cadastro gratuito para conhecer o Lótus. Recursos liberados mediante assinatura de um plano. Uma tecnologia marcosdelfrari.com.",
   icons: { icon: "/lotuslogo.webp" },
 };
 

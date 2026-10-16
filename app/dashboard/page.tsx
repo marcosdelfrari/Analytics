@@ -36,6 +36,22 @@ async function Overview() {
     if (session.role === "admin") redirect("/admin");
   }
 
+  const title = session?.role === "client" ? session.name : "Dashboard";
+  const freemium = session?.role === "client" && !session.planActive;
+
+  if (freemium) {
+    return (
+      <AppShell
+        mode="client"
+        title={title}
+        subtitle="Nenhum plano ativo"
+        planActive={false}
+      >
+        <ClientFreemiumDashboard />
+      </AppShell>
+    );
+  }
+
   const clientId =
     session?.role === "client"
       ? session.userId
@@ -55,21 +71,6 @@ async function Overview() {
           costPerConversion: 0,
         },
       };
-  const title = session?.role === "client" ? session.name : "Dashboard";
-  const freemium = session?.role === "client" && !session.planActive;
-
-  if (freemium) {
-    return (
-      <AppShell
-        mode="client"
-        title={title}
-        subtitle="Conta gratuita · exemplos bloqueados"
-        planActive={false}
-      >
-        <ClientFreemiumDashboard />
-      </AppShell>
-    );
-  }
 
   return (
     <AppShell mode="client" title={title} subtitle={dashboard.period}>

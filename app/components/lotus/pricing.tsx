@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { SectionShell } from "@/app/components/lotus/section-shell";
+
 
 const plans = [
   {
@@ -49,9 +49,13 @@ export function LotusPricing() {
   return (
     <SectionShell
       id="pricing"
-      title="Preços"
-      subtitle="Por que contratar — e como o Lótus ajuda sua operação a ganhar tempo e confiança."
+      title="Escolha o plano ideal para sua operação."
+      subtitle="Compare os recursos e limites de cada opção. Você pode criar sua conta gratuitamente e contratar seu plano dentro da plataforma."
     >
+      <p className="mb-8 text-center text-sm text-muted-foreground">
+        O cadastro é gratuito. Para utilizar os recursos, é necessário assinar
+        um plano.
+      </p>
       <div className="grid gap-4 lg:grid-cols-3">
         {plans.map((plan) => (
           <article
@@ -75,16 +79,16 @@ export function LotusPricing() {
               </span>
               <span className="text-sm text-muted-foreground">{plan.period}</span>
             </p>
-            <Link
-              href="/login"
+            <a
+              href="/api/auth/google"
               className={`mt-6 block rounded-md px-4 py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90 ${
                 plan.highlighted
                   ? "bg-foreground text-background"
                   : "border border-border text-foreground hover:bg-surface-elevated"
               }`}
             >
-              Começar agora
-            </Link>
+              Entrar
+            </a>
             <ul className="mt-6 flex flex-1 flex-col gap-2.5 border-t border-border-subtle pt-6 text-sm text-muted-foreground">
               {plan.features.map((feature) => (
                 <li key={feature} className="flex gap-2">
@@ -96,6 +100,10 @@ export function LotusPricing() {
           </article>
         ))}
       </div>
+      <p className="mt-8 text-center text-sm text-muted-foreground">
+        Após o cadastro, você poderá escolher e contratar seu plano no ambiente
+        da plataforma.
+      </p>
     </SectionShell>
   );
 }

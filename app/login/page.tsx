@@ -24,7 +24,11 @@ export default function LoginPage({
         <div className="border border-border bg-surface">
           <div className="border-b border-border px-4 py-3">
             <h1 className="text-sm font-medium">Entrar</h1>
-            <p className="text-[12px] text-muted">Entre ou crie a conta com o Google</p>
+            <p className="mt-1 text-[12px] leading-5 text-muted">
+              Se ainda não houver conta, o acesso cria um cadastro de
+              interessado, sem plano. Os recursos são liberados depois da
+              assinatura.
+            </p>
           </div>
           <Suspense>
             <LoginError searchParams={searchParams} />
@@ -35,12 +39,6 @@ export default function LoginPage({
               className="block w-full border border-foreground bg-foreground px-3 py-1.5 text-center text-[12px] text-background"
             >
               Entrar com Google
-            </a>
-            <a
-              href="/api/auth/google?intent=signup"
-              className="mt-2 block w-full border border-border px-3 py-1.5 text-center text-[12px] text-foreground"
-            >
-              Cadastrar com Google
             </a>
           </div>
         </div>

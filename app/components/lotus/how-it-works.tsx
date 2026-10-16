@@ -3,18 +3,18 @@ import { SectionShell } from "@/app/components/lotus/section-shell";
 const steps = [
   {
     step: "01",
-    title: "Conecte sua conta",
-    text: "Entre com Google e receba acesso ao portal do cliente Lótus.",
+    title: "Crie sua conta grátis",
+    text: "Faça seu cadastro e acesse o ambiente inicial da plataforma, sem precisar contratar um plano nessa etapa.",
   },
   {
     step: "02",
-    title: "Receba os períodos",
-    text: "A equipe publica métricas de campanhas; você acompanha em tempo real.",
+    title: "Veja exemplos das telas",
+    text: "Conheça a estrutura da aplicação por meio de exemplos. As funcionalidades permanecem bloqueadas até a contratação de um plano.",
   },
   {
     step: "03",
-    title: "Decida com clareza",
-    text: "Compare plataformas, baixe relatórios e alinhe próximos passos.",
+    title: "Escolha seu plano",
+    text: "Compare as opções disponíveis e assine o plano que atende à sua operação para liberar os recursos incluídos.",
   },
 ];
 
@@ -22,8 +22,8 @@ export function LotusHowItWorks() {
   return (
     <SectionShell
       id="how-it-works"
-      title="Como funciona?"
-      subtitle="Três passos para sair do caos de planilhas e ter um painel confiável."
+      title="Conheça o ambiente antes de escolher seu plano."
+      subtitle="Crie sua conta gratuitamente, veja como a plataforma está organizada e contrate um plano para começar a utilizar os recursos."
     >
       <div className="grid gap-4 md:grid-cols-3">
         {steps.map((item) => (
@@ -38,6 +38,14 @@ export function LotusHowItWorks() {
             </p>
           </div>
         ))}
+      </div>
+      <div className="mt-8 text-center">
+        <a
+          href="/api/auth/google"
+          className="inline-flex rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+        >
+          Entrar
+        </a>
       </div>
     </SectionShell>
   );
