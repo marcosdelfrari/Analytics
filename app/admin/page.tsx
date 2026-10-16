@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { removeClient, removeReport } from "@/app/admin/actions";
+import { removeClient, removeReport, setClientPlan } from "@/app/admin/actions";
 import { CreateClientForm } from "@/app/admin/create-client-form";
 import { PublishForm } from "@/app/admin/publish-form";
 import { AppShell } from "@/app/components/app-shell";
@@ -76,6 +76,9 @@ async function AdminPanel({
                         <p className="font-mono text-[11px] text-muted">
                           {client.email}
                         </p>
+                        <p className="mt-1 text-[11px] text-muted-foreground">
+                          {client.planActive ? "Plano ativo" : "Gratuito"}
+                        </p>
                       </Link>
                     </li>
                   );
@@ -106,15 +109,31 @@ async function AdminPanel({
                   <h2 className="mt-1 text-sm font-medium">{selected.name}</h2>
                   <p className="font-mono text-[11px] text-muted">{selected.email}</p>
                 </div>
-                <form action={removeClient}>
-                  <input type="hidden" name="id" value={selected.id} />
-                  <button
-                    type="submit"
-                    className="border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
-                  >
-                    Remover acesso
-                  </button>
-                </form>
+                <div className="flex flex-wrap items-center gap-2">
+                  <form action={setClientPlan}>
+                    <input type="hidden" name="id" value={selected.id} />
+                    <input
+                      type="hidden"
+                      name="planActive"
+                      value={selected.planActive ? "false" : "true"}
+                    />
+                    <button
+                      type="submit"
+                      className="border border-border px-2.5 py-1.5 text-[12px] hover:bg-surface-elevated"
+                    >
+                      {selected.planActive ? "Desativar plano" : "Ativar plano"}
+                    </button>
+                  </form>
+                  <form action={removeClient}>
+                    <input type="hidden" name="id" value={selected.id} />
+                    <button
+                      type="submit"
+                      className="border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
+                    >
+                      Remover acesso
+                    </button>
+                  </form>
+                </div>
               </section>
               <PublishForm key={selected.id} clientId={selected.id} />
               <section className="border border-border bg-surface">

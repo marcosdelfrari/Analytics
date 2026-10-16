@@ -1,5 +1,5 @@
 import { openAccess, sealAccess } from "@/lib/access-code";
-import type { Session } from "@/lib/types";
+import type { SessionCookie } from "@/lib/types";
 
 export const sessionCookie = "analytics_session";
 
@@ -49,7 +49,7 @@ async function hmacKey() {
   );
 }
 
-export async function signSession(session: Session) {
+export async function signSession(session: SessionCookie) {
   const payload = toBase64Url(
     encoder.encode(
       JSON.stringify({
@@ -68,7 +68,9 @@ export async function signSession(session: Session) {
   return `${payload}.${toBase64Url(new Uint8Array(signature))}`;
 }
 
-export async function readSession(token: string | undefined | null): Promise<Session | null> {
+export async function readSession(
+  token: string | undefined | null,
+): Promise<SessionCookie | null> {
   if (!token) return null;
   const [payload, signature] = token.split(".");
   if (!payload || !signature) return null;

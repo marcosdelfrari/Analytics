@@ -172,20 +172,24 @@ export function HeroPreview() {
         {metrics.map((metric) => (
           <div
             key={metric.id}
-            className={`rounded-lg border px-2.5 py-2 sm:border-border-subtle sm:bg-background/60 sm:px-3 sm:py-3 ${
+            className={`rounded-lg border border-border-subtle bg-background/60 px-2.5 py-2 sm:px-3 sm:py-3 ${
               metric.desktopOnly ? "hidden sm:block" : ""
             } ${
               metric.id === "conversions"
-                ? "border-positive/25 bg-positive/10"
-                : "border-border-subtle bg-background/60"
+                ? "max-sm:border-positive/25 max-sm:bg-gradient-to-br max-sm:from-positive/20 max-sm:via-positive/10 max-sm:to-transparent max-sm:shadow-[inset_0_1px_0_rgba(74,222,128,0.28)]"
+                : ""
             } ${pulsing ? "sm:border-foreground/30" : ""}`}
           >
-            <p className="text-[10px] uppercase tracking-wide text-muted">
+            <p
+              className={`text-[10px] uppercase tracking-wide text-muted ${
+                metric.id === "conversions" ? "max-sm:text-positive/75" : ""
+              }`}
+            >
               {metric.label}
             </p>
             <p
-              className={`mt-1 font-mono text-[13px] tabular-nums sm:text-sm sm:text-foreground ${
-                metric.id === "conversions" ? "text-positive" : ""
+              className={`mt-1 font-mono text-[13px] tabular-nums sm:text-sm ${
+                metric.id === "conversions" ? "max-sm:text-positive" : ""
               }`}
             >
               {metric.value}

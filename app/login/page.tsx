@@ -2,12 +2,12 @@ import { Suspense } from "react";
 import { BrandMark } from "@/app/components/brand-mark";
 
 const errors: Record<string, string> = {
-  "sem-acesso": "Essa conta Google não está cadastrada. Use Cadastrar com Google.",
+  "sem-acesso": "Não foi possível criar sua conta. Tente de novo.",
   cancelado: "Login cancelado.",
   invalido: "Não foi possível entrar com o Google. Tente de novo.",
   config: "Login com Google ainda não está configurado.",
   servidor:
-    "O servidor não conseguiu gravar o acesso. A pasta data precisa existir e permitir escrita.",
+    "Não foi possível concluir o login. Verifique DATABASE_URL e se as migrações do Prisma foram aplicadas.",
 };
 
 export default function LoginPage({

@@ -40,8 +40,7 @@ export async function GET(request: NextRequest) {
 
     await ensureAdminFromEnv();
     let account = await findAccountByEmail(profile.email);
-    const signingUp = request.cookies.get(googleIntentCookie)?.value === "signup";
-    if (!account && signingUp) {
+    if (!account) {
       const created = await createClient({ name: profile.name, email: profile.email });
       account = "error" in created ? await findAccountByEmail(profile.email) : created.account;
     }

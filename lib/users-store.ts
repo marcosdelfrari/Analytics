@@ -1,105 +1,88 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { adminEmail, openAccess, roleForEmail, sealAccess } from "@/lib/access-code";
+import { adminEmail, roleForEmail } from "@/lib/access-code";
+import { prisma } from "@/lib/prisma";
 import type { Account, Role } from "@/lib/types";
+import type { User } from "@/lib/generated/prisma/client";
 
-const dataDir = path.join(process.cwd(), "data");
-const usersPath = path.join(dataDir, "users.json");
+const legacyUsersPath = path.join(process.cwd(), "data", "users.json");
 
-type StoredUser = {
+type LegacyStoredUser = {
   id?: string;
   name?: string;
   email?: string;
-  access?: string;
-  role?: string | boolean;
-  passwordHash?: string;
+  planActive?: boolean;
 };
 
-async function readStoredUsers() {
+function toAccount(user: User): Account {
+  const role = roleForEmail(user.email);
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role,
+    planActive: role === "admin" ? true : user.planActive,
+  };
+}
+
+async function ensureAdminUser() {
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    create: {
+      email: adminEmail,
+      name: "Administrador",
+      role: "admin",
+      planActive: true,
+    },
+    update: {
+      name: "Administrador",
+      role: "admin",
+      planActive: true,
+    },
+  });
+}
+
+async function importLegacyUsersIfEmpty() {
+  const count = await prisma.user.count();
+  if (count > 0) return;
+
+  let rows: LegacyStoredUser[] = [];
   try {
-    const raw = await readFile(usersPath, "utf8");
-    const users = JSON.parse(raw) as StoredUser[];
-    return Array.isArray(users) ? users : [];
+    const raw = await readFile(legacyUsersPath, "utf8");
+    const parsed = JSON.parse(raw) as LegacyStoredUser[];
+    rows = Array.isArray(parsed) ? parsed : [];
   } catch {
-    return null;
+    return;
   }
-}
 
-async function writeUsers(users: Account[]) {
-  await mkdir(dataDir, { recursive: true });
-  const stored = await Promise.all(
-    users.map(async (user) => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      access: await sealAccess(user.email, user.role),
-    })),
-  );
-  await writeFile(usersPath, JSON.stringify(stored, null, 2), "utf8");
-}
-
-function legacyRole(email: string, row: StoredUser): Role | null {
-  if (row.role === "admin" || row.role === "client" || row.role === "true" || row.role === true) {
-    return roleForEmail(email);
+  for (const row of rows) {
+    const email = String(row.email ?? "").trim().toLowerCase();
+    if (!email.includes("@")) continue;
+    const resolvedEmail = email === "admin@analytics.local" ? adminEmail : email;
+    const role = roleForEmail(resolvedEmail);
+    await prisma.user.upsert({
+      where: { email: resolvedEmail },
+      create: {
+        id: row.id,
+        email: resolvedEmail,
+        name: String(row.name ?? "").trim() || resolvedEmail,
+        role,
+        planActive: role === "admin" ? true : row.planActive === true,
+      },
+      update: {},
+    });
   }
-  return null;
 }
 
 async function ensureUsers() {
-  await mkdir(dataDir, { recursive: true });
-  const existing = await readStoredUsers();
-  const users: Account[] = [];
-  let dirty = existing === null;
-
-  for (const row of existing ?? []) {
-    const email = String(row.email ?? "").trim().toLowerCase();
-    if (!row.id || !email.includes("@")) {
-      dirty = true;
-      continue;
-    }
-
-    const resolvedEmail = email === "admin@analytics.local" ? adminEmail : email;
-    if (resolvedEmail !== email) dirty = true;
-
-    const opened = row.access ? await openAccess(resolvedEmail, row.access) : null;
-    const role = opened ?? legacyRole(resolvedEmail, row) ?? roleForEmail(resolvedEmail);
-    if (opened !== role) dirty = true;
-    if ("role" in row || "passwordHash" in row) dirty = true;
-
-    const previous = users.find((user) => user.email === resolvedEmail);
-    if (previous) {
-      dirty = true;
-      continue;
-    }
-
-    users.push({
-      id: row.id,
-      name: String(row.name ?? "").trim() || resolvedEmail,
-      email: resolvedEmail,
-      role,
-    });
-  }
-
-  if (!users.some((user) => user.email === adminEmail)) {
-    users.push({
-      id: randomUUID(),
-      name: "Administrador",
-      email: adminEmail,
-      role: "admin",
-    });
-    dirty = true;
-  }
-
-  const normalized = users.map((user) => ({ ...user, role: roleForEmail(user.email) }));
-  if (normalized.some((user, index) => user.role !== users[index]?.role)) dirty = true;
-
-  if (dirty) await writeUsers(normalized);
-  return normalized;
+  await importLegacyUsersIfEmpty();
+  await ensureAdminUser();
+  const users = await prisma.user.findMany({ orderBy: { createdAt: "asc" } });
+  return users.map(toAccount);
 }
 
 export async function ensureAdminFromEnv() {
-  await ensureUsers();
+  await ensureAdminUser();
 }
 
 export async function listAccounts() {
@@ -112,34 +95,49 @@ export async function listClients() {
 }
 
 export async function findAccountByEmail(email: string) {
-  const users = await ensureUsers();
-  return users.find((user) => user.email === email.trim().toLowerCase()) ?? null;
+  const normalized = email.trim().toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email: normalized } });
+  return user ? toAccount(user) : null;
 }
 
 export async function findAccountById(id: string) {
-  const users = await ensureUsers();
-  return users.find((user) => user.id === id) ?? null;
+  const user = await prisma.user.findUnique({ where: { id } });
+  return user ? toAccount(user) : null;
 }
 
 export async function createClient(input: { name: string; email: string }) {
-  const users = await ensureUsers();
   const email = input.email.trim().toLowerCase();
-  if (users.some((user) => user.email === email)) {
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
     return { error: "Já existe uma conta com esse e-mail." } as const;
   }
 
-  const account: Account = {
-    id: randomUUID(),
-    name: input.name.trim(),
-    email,
-    role: roleForEmail(email),
-  };
-  users.push(account);
-  await writeUsers(users);
-  return { account } as const;
+  const role: Role = roleForEmail(email);
+  const user = await prisma.user.create({
+    data: {
+      name: input.name.trim(),
+      email,
+      role,
+      planActive: role === "admin",
+    },
+  });
+  return { account: toAccount(user) } as const;
 }
 
 export async function deleteAccount(id: string) {
-  const users = await ensureUsers();
-  await writeUsers(users.filter((user) => user.id !== id || user.email === adminEmail));
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user || user.email === adminEmail) return;
+  await prisma.user.delete({ where: { id } });
+}
+
+export async function setClientPlanActive(id: string, planActive: boolean) {
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user || roleForEmail(user.email) !== "client") {
+    return { error: "Cliente não encontrado." } as const;
+  }
+  const updated = await prisma.user.update({
+    where: { id },
+    data: { planActive },
+  });
+  return { account: toAccount(updated) } as const;
 }

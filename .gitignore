@@ -42,3 +42,5 @@ next-env.d.ts
 
 # relatórios enviados localmente
 /data
+
+/lib/generated/prisma

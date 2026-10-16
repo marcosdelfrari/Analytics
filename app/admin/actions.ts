@@ -7,7 +7,12 @@ import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { deleteReport, deleteReportsForClient, saveReport } from "@/lib/reports-store";
 import type { PublishedReport } from "@/lib/types";
-import { createClient, deleteAccount, findAccountById } from "@/lib/users-store";
+import {
+  createClient,
+  deleteAccount,
+  findAccountById,
+  setClientPlanActive,
+} from "@/lib/users-store";
 
 const allowedExtensions = new Set([
   ".pdf",
@@ -164,6 +169,17 @@ export async function publishReport(
   revalidatePath("/dashboard");
   revalidatePath("/admin");
   redirect(`/admin?cliente=${clientId}`);
+}
+
+export async function setClientPlan(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const active = String(formData.get("planActive") ?? "") === "true";
+  if (!id) return;
+  await setClientPlanActive(id, active);
+  revalidatePath("/dashboard");
+  revalidatePath("/admin");
+  redirect(`/admin?cliente=${id}`);
 }
 
 export async function removeReport(formData: FormData) {

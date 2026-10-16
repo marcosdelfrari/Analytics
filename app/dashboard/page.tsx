@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { AppShell } from "@/app/components/app-shell";
+import { ClientFreemiumDashboard } from "@/app/components/client-freemium-dashboard";
 import { MetricCard } from "@/app/components/metric-card";
 import { PlatformCard } from "@/app/components/platform-card";
 import { getSession } from "@/lib/auth";
@@ -55,6 +56,20 @@ async function Overview() {
         },
       };
   const title = session?.role === "client" ? session.name : "Dashboard";
+  const freemium = session?.role === "client" && !session.planActive;
+
+  if (freemium) {
+    return (
+      <AppShell
+        mode="client"
+        title={title}
+        subtitle="Conta gratuita · exemplos bloqueados"
+        planActive={false}
+      >
+        <ClientFreemiumDashboard />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell mode="client" title={title} subtitle={dashboard.period}>

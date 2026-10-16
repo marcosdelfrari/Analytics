@@ -23,13 +23,19 @@ export interface Account {
   name: string;
   email: string;
   role: Role;
+  /** Plano pago liberado para ver dados reais publicados pela equipe. */
+  planActive: boolean;
 }
 
-export interface Session {
+export interface SessionCookie {
   userId: string;
   role: Role;
   name: string;
   email: string;
+}
+
+export interface Session extends SessionCookie {
+  planActive: boolean;
 }
 
 export interface PlatformSummary {
