@@ -14,7 +14,7 @@ const steps = [
   {
     step: "03",
     title: "Escolha seu plano",
-    text: "Compare as opções disponíveis e assine o plano que atende à sua operação para liberar os recursos incluídos.",
+    text: "Compare as opções disponíveis e assine o plano que atende ao seu negócio para liberar os recursos incluídos.",
   },
 ];
 
@@ -44,7 +44,7 @@ export function LotusHowItWorks() {
           href="/api/auth/google"
           className="inline-flex rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
         >
-          Entrar
+          Começar agora
         </a>
       </div>
     </SectionShell>

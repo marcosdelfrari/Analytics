@@ -6,9 +6,9 @@ const plans = [
     name: "Starter",
     price: "R$ 497",
     period: "/mês",
-    description: "Para marcas que começam a centralizar relatórios.",
+    description: "Para quem quer acompanhar um negócio em um só lugar.",
     features: [
-      "1 cliente no portal",
+      "1 negócio no painel",
       "Google Ads ou Meta Ads",
       "Histórico de períodos",
       "Suporte por e-mail",
@@ -19,11 +19,11 @@ const plans = [
     name: "Pro",
     price: "R$ 997",
     period: "/mês",
-    description: "O mais escolhido por agências e times de growth.",
+    description: "Para quem investe em vários canais e quer visão completa.",
     features: [
-      "Até 5 clientes",
+      "Até 5 negócios",
       "Google Ads + Meta Ads",
-      "Publicação de relatórios",
+      "Atualização dos números por período",
       "Encurtador e parâmetros",
       "Suporte prioritário",
     ],
@@ -33,9 +33,9 @@ const plans = [
     name: "Advanced",
     price: "R$ 1.497",
     period: "/mês",
-    description: "Operação completa com escala e onboarding dedicado.",
+    description: "Para operações maiores, com mais pessoas acompanhando os números.",
     features: [
-      "Clientes ilimitados",
+      "Negócios ilimitados",
       "Todas as integrações",
       "Admin multi-usuário",
       "SLA e treinamento",
@@ -49,7 +49,7 @@ export function LotusPricing() {
   return (
     <SectionShell
       id="pricing"
-      title="Escolha o plano ideal para sua operação."
+      title="Escolha o plano ideal para acompanhar seu negócio."
       subtitle="Compare os recursos e limites de cada opção. Você pode criar sua conta gratuitamente e contratar seu plano dentro da plataforma."
     >
       <p className="mb-8 text-center text-sm text-muted-foreground">
@@ -87,7 +87,7 @@ export function LotusPricing() {
                   : "border border-border text-foreground hover:bg-surface-elevated"
               }`}
             >
-              Entrar
+              Começar agora
             </a>
             <ul className="mt-6 flex flex-1 flex-col gap-2.5 border-t border-border-subtle pt-6 text-sm text-muted-foreground">
               {plan.features.map((feature) => (

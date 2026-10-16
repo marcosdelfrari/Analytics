@@ -5,7 +5,7 @@ export function LotusPartners() {
     <section className="border-y border-border-subtle bg-surface/40 px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl text-center">
         <p className="text-sm text-muted-foreground">
-          Confiado por equipes de marketing em
+          Empresas que acompanham seus resultados em
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           {slots.map((i) => (

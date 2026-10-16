@@ -47,7 +47,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Lótus — Analytics de mídia paga",
   description:
-    "Cadastro gratuito para conhecer o Lótus. Recursos liberados mediante assinatura de um plano. Uma tecnologia marcosdelfrari.com.",
+    "Acompanhe os resultados do marketing e da mídia paga do seu negócio em um painel claro. Cadastro gratuito; recursos mediante plano. Uma tecnologia marcosdelfrari.com.",
   icons: { icon: "/lotuslogo.webp" },
 };
 

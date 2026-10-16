@@ -4,27 +4,27 @@ const benefits = [
   {
     title: "Resultados em um só lugar",
     description:
-      "Reúna os principais indicadores das campanhas em uma apresentação organizada e fácil de consultar.",
+      "Reúna os principais números das suas campanhas em um painel fácil de abrir e consultar quando quiser.",
   },
   {
     title: "Indicadores mais claros",
     description:
-      "Dê contexto aos números e facilite a compreensão do desempenho das campanhas.",
+      "Entenda gasto, retorno e evolução sem precisar decifrar relatórios espalhados em vários formatos.",
   },
   {
-    title: "Apresentação profissional",
+    title: "Visão organizada do investimento",
     description:
-      "Valorize o trabalho da sua equipe com uma forma mais organizada de apresentar resultados.",
+      "Acompanhe o que está sendo feito com o orçamento de mídia e se o resultado condiz com o que foi combinado.",
   },
   {
-    title: "Comunicação mais simples",
+    title: "Conversas mais objetivas",
     description:
-      "Use os indicadores para tornar as conversas com seus clientes mais objetivas e bem fundamentadas.",
+      "Alinhe expectativas com agência ou prestador usando os mesmos números, com menos ruído e mais foco.",
   },
   {
-    title: "Foco na análise",
+    title: "Decisão com mais segurança",
     description:
-      "Tenha uma visão organizada das informações para identificar pontos de atenção e orientar os próximos passos.",
+      "Identifique o que merece continuar, ajustar ou pausar antes de renovar ou aumentar o investimento.",
   },
 ];
 
@@ -32,8 +32,8 @@ export function LotusBenefits() {
   return (
     <SectionShell
       id="benefits"
-      title="Mais organização para sua equipe. Mais clareza para seus clientes."
-      subtitle="Apresente as informações das campanhas de forma organizada e facilite a leitura dos resultados por quem precisa acompanhá-los."
+      title="Clareza para o seu negócio. Confiança no que você investe."
+      subtitle="Organize os números das campanhas e acompanhe o desempenho do marketing contratado com mais objetividade."
     >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {benefits.map((item) => (

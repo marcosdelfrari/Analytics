@@ -6,10 +6,10 @@ export function LotusHero() {
       <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-5">
         <div className="order-1 lg:col-start-1">
           <p className="inline-flex items-center rounded-full border border-border bg-surface px-3 py-1 text-[12px] text-muted-foreground">
-            Para agências e equipes de marketing
+            Para quem investe em marketing e mídia paga
           </p>
           <h1 className="mt-6 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.25rem]">
-            Apresente os resultados das suas campanhas com mais clareza.
+            Acompanhe o resultado do marketing que você contratou.
           </h1>
         </div>
 
@@ -33,9 +33,9 @@ export function LotusHero() {
         </div>
 
         <p className="order-3 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg lg:col-start-1">
-          Organize os resultados de mídia paga em um só lugar e facilite a
-          apresentação dos indicadores para seus clientes. Mais clareza para
-          acompanhar as campanhas e mostrar o que cada resultado representa.
+          Veja Google Ads e Meta Ads em um painel organizado e entenda o que
+          seus anúncios estão gerando. Menos dependência de planilhas soltas e
+          mais clareza para avaliar o trabalho que você paga.
         </p>
 
         <div className="order-4 flex flex-wrap items-center gap-3 lg:col-start-1">
@@ -43,7 +43,7 @@ export function LotusHero() {
             href="/api/auth/google"
             className="rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
           >
-            Entrar
+            Começar agora
           </a>
           <a
             href="#how-it-works"

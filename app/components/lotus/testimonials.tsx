@@ -3,27 +3,27 @@ import { SectionShell } from "@/app/components/lotus/section-shell";
 const testimonials = [
   {
     name: "Ana Ribeiro",
-    role: "Head de Marketing",
+    role: "Dona de e-commerce",
     quote:
-      "Finalmente um lugar onde o cliente vê só o que importa. Menos reunião explicando planilha.",
+      "Pela primeira vez consigo ver se o investimento em anúncio está fazendo sentido sem depender só do relatório da agência.",
   },
   {
     name: "Felipe Costa",
-    role: "Agência de performance",
+    role: "Sócio de clínica",
     quote:
-      "Publicamos o período e o dashboard atualiza. O time ganhou horas por mês.",
+      "Abro o painel e já entendo o período. Ficou muito mais fácil cobrar resultado com base em número.",
   },
   {
     name: "Juliana Moraes",
-    role: "E-commerce",
+    role: "Empresária",
     quote:
-      "Google e Meta lado a lado mudou como priorizamos budget entre canais.",
+      "Google e Meta no mesmo lugar me ajudou a decidir onde colocar mais verba sem adivinhar.",
   },
   {
     name: "Ricardo Alves",
-    role: "Growth lead",
+    role: "Dono de franquia",
     quote:
-      "Login simples, visual limpo. É o tipo de produto que a diretoria entende de primeira.",
+      "Visual limpo e direto. É o tipo de ferramenta que eu uso antes de renovar contrato com quem cuida das campanhas.",
   },
 ];
 
@@ -37,7 +37,7 @@ function Stars() {
 
 export function LotusTestimonials() {
   return (
-    <SectionShell id="testimonials" title="Amado por equipes no mundo inteiro">
+    <SectionShell id="testimonials" title="Quem investe em marketing e quer clareza">
       <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">
         {testimonials.map((item) => (
           <article

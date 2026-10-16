@@ -24,7 +24,8 @@ export function LotusFooter() {
             <span className="text-base font-thin tracking-wide">Lótus</span>
           </Link>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            Mais clareza para acompanhar e apresentar resultados de mídia paga.
+            Mais clareza para acompanhar os resultados do marketing e da mídia
+            paga do seu negócio.
             Uma tecnologia{" "}
             <a
               href="https://marcosdelfrari.com"
@@ -64,7 +65,7 @@ export function LotusFooter() {
                 href="/api/auth/google"
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
-                Entrar
+                Começar agora
               </a>
             </li>
           </ul>

@@ -40,7 +40,7 @@ export function LotusNavbar() {
               href="/api/auth/google"
               className="rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-90"
             >
-              Entrar
+              Começar agora
             </a>
           </div>
         </div>
