@@ -12,7 +12,7 @@ import { getSession } from "@/lib/auth";
 import { formatNumber } from "@/lib/format";
 import { listLinks } from "@/lib/links-store";
 
-async function Shortener({
+async function ShortenerPageContent({
   searchParams,
 }: {
   searchParams: Promise<{ url?: string }>;
@@ -115,7 +115,7 @@ export default function ShortenerPage({
 }) {
   return (
     <Suspense fallback={<EncurtadorLoadingFallback />}>
-      <Shortener searchParams={searchParams} />
+      <ShortenerPageContent searchParams={searchParams} />
     </Suspense>
   );
 }

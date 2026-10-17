@@ -19,7 +19,12 @@ export function MobileAppNav({ mode }: { mode: "client" | "admin" }) {
   const menuItems = secondary;
   const showMenu =
     secondary.length > 0 || (mode === "admin" && authEnabled);
-  const columnCount = showMenu ? primary.length + 1 : primary.length;
+  const gridClass =
+    mode === "client"
+      ? "grid-cols-4"
+      : showMenu
+        ? "grid-cols-[repeat(5,minmax(0,1fr))]"
+        : "grid-cols-4";
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -36,10 +41,7 @@ export function MobileAppNav({ mode }: { mode: "client" | "admin" }) {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur-md md:hidden"
         aria-label="Navegação principal"
       >
-        <ul
-          className="grid gap-0"
-          style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
-        >
+        <ul className={`grid min-h-[3.25rem] gap-0 ${gridClass}`}>
           {primary.map((item) => {
             const active = pathname === item.href;
             return (

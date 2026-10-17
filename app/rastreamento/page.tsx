@@ -25,7 +25,7 @@ function formatWhen(value: Date) {
   }).format(value);
 }
 
-async function Installer() {
+async function TrackingPageContent() {
   await connection();
   let mode: "client" | "admin" = "admin";
   let planActive = true;
@@ -172,7 +172,7 @@ function ScriptPanels({
 export default function TrackingPage() {
   return (
     <Suspense fallback={<RastreamentoLoadingFallback />}>
-      <Installer />
+      <TrackingPageContent />
     </Suspense>
   );
 }

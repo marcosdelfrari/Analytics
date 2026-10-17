@@ -66,7 +66,7 @@ export function AppShellLayout({
         <div className="flex h-14 items-center justify-center border-b border-border px-4">
           <BrandMark />
         </div>
-        <div className="flex flex-1 flex-col justify-between">
+        <div className="flex min-h-0 flex-1 flex-col">
           <NavPanel items={items} showLogout />
         </div>
       </aside>

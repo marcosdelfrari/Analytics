@@ -1,20 +1,20 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
+import { redirect } from "next/navigation";
 import { removeClient, removeReport, setClientPlan } from "@/app/admin/actions";
 import { CreateClientForm } from "@/app/admin/create-client-form";
 import { PublishForm } from "@/app/admin/publish-form";
 import { AppShell } from "@/app/components/app-shell";
+import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { formatCurrency, formatNumber } from "@/lib/format";
 import { listReports } from "@/lib/reports-store";
 import { platformLabel } from "@/lib/types";
 import { listClients } from "@/lib/users-store";
-import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
-import { redirect } from "next/navigation";
 
-async function AdminPanel({
+async function AdminPageContent({
   searchParams,
 }: {
   searchParams: Promise<{ cliente?: string }>;
@@ -190,7 +190,7 @@ export default function AdminPage({
 }) {
   return (
     <Suspense fallback={<AdminLoadingFallback />}>
-      <AdminPanel searchParams={searchParams} />
+      <AdminPageContent searchParams={searchParams} />
     </Suspense>
   );
 }

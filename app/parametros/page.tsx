@@ -7,7 +7,7 @@ import { ParametrosLoadingFallback } from "@/app/components/loading-fallbacks";
 import { authEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
 
-async function Builder() {
+async function ParametersPageContent() {
   await connection();
   let mode: "client" | "admin" = "admin";
   let planActive = true;
@@ -37,7 +37,7 @@ async function Builder() {
 export default function ParametersPage() {
   return (
     <Suspense fallback={<ParametrosLoadingFallback />}>
-      <Builder />
+      <ParametersPageContent />
     </Suspense>
   );
 }

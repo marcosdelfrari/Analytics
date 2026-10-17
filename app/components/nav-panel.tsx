@@ -18,7 +18,7 @@ export function NavPanel({
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col gap-0.5 p-2">
+    <nav className="flex min-h-0 flex-1 flex-col gap-0.5 p-2">
       {items.map((item) => {
         const active = pathname === item.href && !item.locked;
         const locked = Boolean(item.locked);
@@ -46,7 +46,10 @@ export function NavPanel({
         );
       })}
       {authEnabled && showLogout && (
-        <form action={logout} className="mt-1 border-t border-border pt-2">
+        <form
+          action={logout}
+          className="mt-auto shrink-0 border-t border-border pt-2"
+        >
           <button
             type="submit"
             className="w-full rounded-sm px-3 py-2.5 text-left text-[13px] text-muted-foreground hover:bg-surface hover:text-foreground"

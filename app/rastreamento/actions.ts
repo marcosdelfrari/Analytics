@@ -36,7 +36,9 @@ export async function addTrackingDomain(
   const site = await requireTrackingSite();
   const host = String(formData.get("host") ?? "");
   const result = await addAllowedDomain(site.id, host);
-  if ("error" in result) return { error: result.error };
+  if ("error" in result) {
+    return { error: result.error ?? "Não foi possível salvar o domínio." };
+  }
   revalidatePath("/rastreamento");
   return { ok: true };
 }
