@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { acceptsMarkdown } from "@/lib/html-to-markdown";
 
 const discoveryLinks =
-  '</.well-known/api-catalog>; rel="api-catalog", </sitemap.xml>; rel="describedby"';
+  '</llms.txt>; rel="describedby", </.well-known/ai-catalog.json>; rel="ai-catalog", </.well-known/api-catalog>; rel="api-catalog", </sitemap.xml>; rel="sitemap"';
 
 export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;

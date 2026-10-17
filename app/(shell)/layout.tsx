@@ -1,4 +1,7 @@
 import type { ReactNode } from "react";
+import { NOINDEX_METADATA } from "@/lib/seo";
+
+export const metadata = NOINDEX_METADATA;
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AppShellChrome } from "@/app/components/app-shell-chrome";

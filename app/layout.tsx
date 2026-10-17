@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import {
   Barlow_Condensed,
   Geist_Mono,
@@ -9,6 +8,7 @@ import {
 import "./globals.css";
 import Script from "next/script";
 import { WebMcpTools } from "@/app/components/webmcp";
+import { buildRootMetadata } from "@/lib/seo";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -46,12 +46,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Lótus — Analytics de mídia paga",
-  description:
-    "Acompanhe os resultados do marketing e da mídia paga do seu negócio em um painel claro. Cadastro gratuito; recursos mediante plano. Uma tecnologia marcosdelfrari.com.",
-  icons: { icon: "/lotuslogo.webp" },
-};
+export const metadata = buildRootMetadata();
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -73,6 +68,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           `}
         </Script>
         <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json" />
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
       </head>
       <body className="min-h-dvh overflow-x-clip bg-background text-foreground">
         <WebMcpTools />

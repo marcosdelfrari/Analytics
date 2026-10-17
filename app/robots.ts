@@ -9,7 +9,9 @@ const privatePaths = [
   "/encurtador",
   "/login",
   "/parametros",
+  "/rastreamento",
   "/relatorios",
+  "/documentacao",
   "/s/",
 ];
 

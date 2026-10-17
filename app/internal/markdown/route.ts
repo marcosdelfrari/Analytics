@@ -2,7 +2,7 @@ import { connection } from "next/server";
 import { estimateMarkdownTokens, htmlToAgentMarkdown } from "@/lib/html-to-markdown";
 
 const discoveryLinks =
-  '</.well-known/api-catalog>; rel="api-catalog", </sitemap.xml>; rel="describedby"';
+  '</llms.txt>; rel="describedby", </.well-known/ai-catalog.json>; rel="ai-catalog", </.well-known/api-catalog>; rel="api-catalog", </sitemap.xml>; rel="sitemap"';
 
 export async function GET(request: Request) {
   await connection();

@@ -12,7 +12,7 @@ const menuLinks = [
 export function LotusFooter() {
   return (
     <footer className="border-t border-border bg-surface/30">
-      <Reveal className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-4 lg:px-8">
+      <Reveal className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
         <div className="lg:col-span-1">
           <Link href="/" className="inline-flex items-center gap-2">
             <Image
@@ -70,39 +70,6 @@ export function LotusFooter() {
               </a>
             </li>
           </ul>
-        </div>
-
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted">
-            Receba as novidades do Lótus.
-          </p>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Fique por dentro das atualizações da plataforma e dos novos
-            recursos.
-          </p>
-          <form
-            className="mt-4 flex gap-2"
-            action="#"
-            method="post"
-            toolname="subscribe-newsletter"
-            tooldescription="Cadastra um e-mail para receber novidades da Lótus."
-          >
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Seu e-mail"
-              toolparamdescription="E-mail que vai receber as novidades da Lótus."
-              className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm outline-none ring-foreground/20 placeholder:text-muted focus:ring-2"
-              aria-label="Seu e-mail"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-md bg-foreground px-3 py-2 text-[13px] font-medium text-background"
-            >
-              Quero receber
-            </button>
-          </form>
         </div>
       </Reveal>
 

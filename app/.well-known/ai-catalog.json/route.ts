@@ -66,6 +66,17 @@ export function GET(request: Request) {
           "qual o linkset de descoberta",
         ],
       },
+      {
+        identifier: `urn:air:${domain}:docs:llms-txt`,
+        displayName: "Índice llms.txt da Lótus",
+        type: "text/plain",
+        url: `${origin}/llms.txt`,
+        representativeQueries: [
+          "o que é a Lótus analytics",
+          "onde está o llms.txt",
+          "links de descoberta para agentes",
+        ],
+      },
     ],
   };
 
