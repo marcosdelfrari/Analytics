@@ -26,17 +26,17 @@ const channels = [
 const benefits = [
   {
     index: "02",
-    title: "Registro de eventos",
+    title: "Script de rastreamento",
     description:
-      "Um script leve no site registra visitas e os eventos que você nomear — clique no WhatsApp, envio de formulário, o que fizer sentido — e mostra de qual campanha cada pessoa veio.",
-    points: ["Visitas", "Eventos nomeados", "Tempo real"],
+      "Um script leve no site liga cada visita à campanha que trouxe a pessoa, e mantém essa origem enquanto ela navega.",
+    points: ["Visitas", "Origem da campanha", "Tempo real"],
   },
   {
     index: "03",
-    title: "Links de campanha no padrão certo",
+    title: "Monitoramento de eventos",
     description:
-      "Monte o exemplo de URL com origem, mídia e campanha para usar no Google Ads e no Meta — é assim que os relatórios sabem separar cada fonte. Para WhatsApp, SMS ou e-mail, onde não dá para configurar URL no anúncio, o encurtador registra o clique no mesmo painel.",
-    points: ["Google e Meta", "Formato para copiar", "WPP · SMS · E-mail"],
+      "Registre as ações que importam — clique no WhatsApp, envio de formulário, o que fizer sentido — e veja quantas vezes cada uma aconteceu, com a campanha de origem.",
+    points: ["Eventos nomeados", "Contagem", "Por campanha"],
   },
   {
     index: "04",
