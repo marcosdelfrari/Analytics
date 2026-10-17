@@ -61,17 +61,17 @@ export function AppShellLayout({
   const items = navItemsForMode(mode);
 
   return (
-    <div className="flex min-h-dvh flex-col md:flex-row">
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-background md:flex">
-        <div className="flex h-14 items-center justify-center border-b border-border px-4">
+    <div className="flex h-dvh min-h-0 flex-col overflow-hidden md:flex-row">
+      <aside className="hidden h-full max-h-dvh w-56 shrink-0 flex-col border-r border-border bg-background md:flex">
+        <div className="flex h-14 shrink-0 items-center justify-center border-b border-border px-4">
           <BrandMark />
         </div>
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <NavPanel items={items} showLogout />
         </div>
       </aside>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <AppHeader
           title={title}
           subtitle={subtitle}
