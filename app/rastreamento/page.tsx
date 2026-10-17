@@ -8,9 +8,9 @@ import { authEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
 import { AllowedDomainsPanel } from "@/app/rastreamento/allowed-domains-panel";
 import { InstallationTestPanel } from "@/app/rastreamento/installation-test-panel";
+import { orderedParamEntries } from "@/lib/tracking-attribution";
 import {
   ensureTrackingSite,
-  jsonStringEntries,
   listAllowedDomains,
   listRecentHits,
   trackingSnippet,
@@ -85,17 +85,15 @@ function ScriptPanels({
     <div className="grid gap-6">
       <AllowedDomainsPanel domains={domains} />
 
-      <InstallationTestPanel hasDomains={domains.length > 0} />
-
       <section className="border border-border bg-surface">
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
           <div>
             <h2 className="text-sm font-medium">Link do tracker</h2>
             <p className="text-[12px] text-muted">
               Recomendado: dentro do <code className="font-mono text-[11px]">&lt;head&gt;</code>,
-              entre as demais tags. O async baixa cedo e registra a visita antes de
-              quem sai rápido da página. Só eventos com a chave desta conta entram na
-              coleta.
+              entre as demais tags. O script envia todos os parâmetros da URL (UTM,
+              gclid, gbraid, gad_source, gad_campaignid, etc.) e mantém na sessão
+              enquanto o visitante navega no site.
             </p>
           </div>
           <CopyButton value={snippet} />
@@ -121,6 +119,8 @@ function ScriptPanels({
         </pre>
       </section>
 
+      <InstallationTestPanel hasDomains={domains.length > 0} />
+
       <section className="border border-border bg-surface">
         <div className="border-b border-border px-4 py-3">
           <h2 className="text-sm font-medium">Últimas coletas</h2>
@@ -135,7 +135,7 @@ function ScriptPanels({
         ) : (
           <ul>
             {hits.map((hit) => {
-              const params = jsonStringEntries(hit.params);
+              const params = orderedParamEntries(hit.params);
               return (
                 <li
                   key={hit.id}

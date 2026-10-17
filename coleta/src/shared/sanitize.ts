@@ -1,4 +1,4 @@
-import { blockedParams } from "./constants.js";
+import { blockedParams, paramValueMaxLength } from "./constants.js";
 
 export function cleanRecord(
   value: unknown,
@@ -15,7 +15,7 @@ export function cleanRecord(
       typeof entry === "number" ||
       typeof entry === "boolean"
     ) {
-      record[name] = String(entry).slice(0, 200);
+      record[name] = String(entry).slice(0, paramValueMaxLength(name));
     }
   }
   return record;

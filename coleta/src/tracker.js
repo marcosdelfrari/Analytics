@@ -43,6 +43,26 @@
     "utm_content",
     "utm_term",
   ];
+  var attributionKeys = campaignKeys.concat([
+    "gclid",
+    "gbraid",
+    "wbraid",
+    "gad_source",
+    "gad_campaignid",
+    "fbclid",
+    "msclkid",
+    "dclid",
+    "ttclid",
+  ]);
+  var longParamKeys = {
+    gclid: 1,
+    gbraid: 1,
+    wbraid: 1,
+    fbclid: 1,
+    msclkid: 1,
+    dclid: 1,
+    ttclid: 1,
+  };
   var blocked = {
     password: 1,
     passwd: 1,
@@ -65,37 +85,52 @@
     );
   }
 
+  function paramMaxLen(name) {
+    return longParamKeys[name.toLowerCase()] ? 512 : 200;
+  }
+
   function readParams() {
     var currentParams = {};
     var search = new URLSearchParams(location.search);
     search.forEach(function (value, name) {
       if (blocked[name.toLowerCase()]) return;
-      currentParams[name] = String(value).slice(0, 200);
+      currentParams[name] = String(value).slice(0, paramMaxLen(name));
     });
 
-    var hasCampaign = campaignKeys.some(function (name) {
+    var shouldPersist = attributionKeys.some(function (name) {
       return currentParams[name];
     });
 
-    try {
-      if (hasCampaign) {
-        sessionStorage.setItem(storageKey, JSON.stringify(currentParams));
-        return currentParams;
-      }
-      var stored = sessionStorage.getItem(storageKey);
-      if (!stored) return currentParams;
-      var parsedParams = JSON.parse(stored);
+    function mergeStored(base) {
       var merged = {};
-      if (parsedParams && typeof parsedParams === "object") {
-        Object.keys(parsedParams).forEach(function (name) {
-          if (typeof parsedParams[name] === "string")
-            merged[name] = parsedParams[name];
-        });
+      try {
+        var stored = sessionStorage.getItem(storageKey);
+        if (stored) {
+          var parsedParams = JSON.parse(stored);
+          if (parsedParams && typeof parsedParams === "object") {
+            Object.keys(parsedParams).forEach(function (name) {
+              if (typeof parsedParams[name] === "string")
+                merged[name] = parsedParams[name];
+            });
+          }
+        }
+      } catch (error) {
+        /* ignore */
       }
-      Object.keys(currentParams).forEach(function (name) {
-        merged[name] = currentParams[name];
+      Object.keys(base).forEach(function (name) {
+        merged[name] = base[name];
       });
       return merged;
+    }
+
+    try {
+      if (shouldPersist) {
+        var persisted = mergeStored(currentParams);
+        sessionStorage.setItem(storageKey, JSON.stringify(persisted));
+        return persisted;
+      }
+      if (!sessionStorage.getItem(storageKey)) return currentParams;
+      return mergeStored(currentParams);
     } catch (error) {
       return currentParams;
     }

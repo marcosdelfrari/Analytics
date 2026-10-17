@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { PlatformLogoLabel } from "@/app/components/platform-logo";
+import { platformTabButtonClass } from "@/lib/platform-ui";
 
 type PlatformTab = "google" | "meta";
 
@@ -26,26 +27,18 @@ export function PlatformTabs({
           role="tab"
           aria-selected={tab === "google"}
           onClick={() => setTab("google")}
-          className={`rounded-sm px-3 py-1.5 text-[12px] font-medium transition-colors ${
-            tab === "google"
-              ? "bg-surface-elevated text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={platformTabButtonClass("google", tab === "google")}
         >
-          <PlatformLogoLabel platform="google" size={16} />
+          <PlatformLogoLabel platform="google" size={18} />
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={tab === "meta"}
           onClick={() => setTab("meta")}
-          className={`rounded-sm px-3 py-1.5 text-[12px] font-medium transition-colors ${
-            tab === "meta"
-              ? "bg-surface-elevated text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={platformTabButtonClass("meta", tab === "meta")}
         >
-          <PlatformLogoLabel platform="meta" size={16} />
+          <PlatformLogoLabel platform="meta" size={18} />
         </button>
       </div>
       <div className="mt-4" role="tabpanel">

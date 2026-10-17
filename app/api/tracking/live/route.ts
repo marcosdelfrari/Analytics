@@ -47,6 +47,7 @@ export async function GET(request: Request) {
     hit: {
       path: hit.path,
       url: hit.url,
+      params: hit.params,
       at: hit.createdAt.toISOString(),
     },
   });

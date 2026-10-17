@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CopyButton } from "@/app/encurtador/copy-button";
+import { PlatformLogo } from "@/app/components/platform-logo";
+import type { Platform } from "@/lib/types";
+import {
+  platformChoiceButtonClass,
+  utmSourcePlatform,
+} from "@/lib/platform-ui";
 
 const fieldClass =
   "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
@@ -15,9 +21,31 @@ const utmFields = [
   { key: "utm_term", label: "Termo", placeholder: "nome do anúncio" },
 ] as const;
 
-const presets = [
-  { label: "Google Ads", source: "google", medium: "cpc" },
-  { label: "Meta Ads", source: "meta", medium: "paid" },
+const googleAdsFields = [
+  { key: "gclid", label: "Clique Google", placeholder: "(auto no anúncio)" },
+  { key: "gbraid", label: "gbraid", placeholder: "(auto no anúncio)" },
+  { key: "gad_source", label: "gad_source", placeholder: "1" },
+  { key: "gad_campaignid", label: "gad_campaignid", placeholder: "24150989666" },
+] as const;
+
+const metaAdsFields = [
+  { key: "fbclid", label: "Clique Meta", placeholder: "(auto no anúncio)" },
+] as const;
+
+const metaSourcePresets = [
+  { label: "Facebook", source: "facebook" },
+  { label: "Instagram", source: "instagram" },
+  { label: "Meta", source: "meta" },
+] as const;
+
+const presets: Array<{
+  label: string;
+  platform: Platform;
+  source: string;
+  medium: string;
+}> = [
+  { label: "Google Ads", platform: "google", source: "google", medium: "cpc" },
+  { label: "Meta Ads", platform: "meta", source: "meta", medium: "paid" },
 ];
 
 interface ExtraParam {
@@ -57,12 +85,21 @@ export function UrlBuilder() {
       field.key,
       utm[field.key] ?? "",
     ]);
+    for (const field of googleAdsFields) {
+      entries.push([field.key, utm[field.key] ?? ""]);
+    }
+    for (const field of metaAdsFields) {
+      entries.push([field.key, utm[field.key] ?? ""]);
+    }
     for (const extra of extras) entries.push([extra.key, extra.value]);
     return entries;
   }, [utm, extras]);
 
   const result = buildUrl(base, params);
   const filled = params.filter(([, value]) => value.trim());
+  const activePlatform = utmSourcePlatform(utm.utm_source ?? "");
+  const metaSourceActive = (source: string) =>
+    (utm.utm_source ?? "").trim().toLowerCase() === source;
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -77,23 +114,35 @@ export function UrlBuilder() {
           </p>
         </div>
         <div className="grid gap-4 p-4">
-          <div className="flex flex-wrap gap-2">
-            {presets.map((preset) => (
-              <button
-                key={preset.label}
-                type="button"
-                onClick={() =>
-                  setUtm((current) => ({
-                    ...current,
-                    utm_source: preset.source,
-                    utm_medium: preset.medium,
-                  }))
-                }
-                className="border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
-              >
-                {preset.label}
-              </button>
-            ))}
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Plataforma de mídia"
+          >
+            {presets.map((preset) => {
+              const active = activePlatform === preset.platform;
+              return (
+                <button
+                  key={preset.label}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    setUtm((current) => ({
+                      ...current,
+                      utm_source: preset.source,
+                      utm_medium: preset.medium,
+                    }))
+                  }
+                  className={platformChoiceButtonClass(preset.platform, active)}
+                >
+                  <PlatformLogo platform={preset.platform} size={20} />
+                  <span>{preset.label}</span>
+                  {active && (
+                    <span className="sr-only"> (selecionado)</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
           <label className="block text-[12px] text-muted-foreground">
             Endereço base
@@ -127,6 +176,114 @@ export function UrlBuilder() {
                 />
               </label>
             ))}
+          </div>
+          <div
+            className={`border-t pt-4 ${
+              activePlatform === "google"
+                ? "border-google/35"
+                : "border-border"
+            }`}
+          >
+            <p className="flex flex-wrap items-center gap-2 text-[12px] text-muted-foreground">
+              <PlatformLogo platform="google" size={16} />
+              <span>
+                Google Ads (auto-tagging) — o script Lótus coleta estes junto
+                com os UTMs quando vêm na URL.
+              </span>
+            </p>
+            <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              {googleAdsFields.map((field) => (
+                <label
+                  key={field.key}
+                  className="block text-[12px] text-muted-foreground"
+                >
+                  {field.label}
+                  <span className="ml-2 font-mono text-[10px] text-muted">
+                    {field.key}
+                  </span>
+                  <input
+                    value={utm[field.key] ?? ""}
+                    placeholder={field.placeholder}
+                    onChange={(event) =>
+                      setUtm((current) => ({
+                        ...current,
+                        [field.key]: event.target.value,
+                      }))
+                    }
+                    className={fieldClass}
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+          <div
+            className={`border-t pt-4 ${
+              activePlatform === "meta" ? "border-meta/35" : "border-border"
+            }`}
+          >
+            <p className="flex flex-wrap items-center gap-2 text-[12px] text-muted-foreground">
+              <PlatformLogo platform="meta" size={16} />
+              <span>
+                Meta Ads — o Meta adiciona{" "}
+                <span className="font-mono text-[11px]">fbclid</span> no clique;
+                o script Lótus coleta junto com os UTMs. Use{" "}
+                <span className="font-mono text-[11px]">utm_source</span>{" "}
+                facebook, instagram ou meta.
+              </span>
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {metaSourcePresets.map((preset) => {
+                const active = metaSourceActive(preset.source);
+                return (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      setUtm((current) => ({
+                        ...current,
+                        utm_source: preset.source,
+                        utm_medium: current.utm_medium?.trim()
+                          ? current.utm_medium
+                          : "paid",
+                      }))
+                    }
+                    className={
+                      active
+                        ? "inline-flex items-center gap-1.5 rounded-sm border border-meta/50 bg-meta/15 px-2.5 py-1.5 text-[12px] font-medium text-foreground ring-2 ring-meta/35"
+                        : "inline-flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
+                    }
+                  >
+                    <PlatformLogo platform="meta" size={14} />
+                    utm_source={preset.source}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              {metaAdsFields.map((field) => (
+                <label
+                  key={field.key}
+                  className="block text-[12px] text-muted-foreground"
+                >
+                  {field.label}
+                  <span className="ml-2 font-mono text-[10px] text-muted">
+                    {field.key}
+                  </span>
+                  <input
+                    value={utm[field.key] ?? ""}
+                    placeholder={field.placeholder}
+                    onChange={(event) =>
+                      setUtm((current) => ({
+                        ...current,
+                        [field.key]: event.target.value,
+                      }))
+                    }
+                    className={fieldClass}
+                  />
+                </label>
+              ))}
+            </div>
           </div>
           <div className="border-t border-border pt-4">
             <div className="flex items-center justify-between gap-3">

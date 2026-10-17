@@ -53,7 +53,7 @@ export function normalizeIncomingEvent(
       url: parsed.toString().slice(0, 2000),
       path: parsed.pathname.slice(0, 500),
       referrer,
-      params: cleanRecord(raw.params, 40),
+      params: cleanRecord(raw.params, 64),
       properties: cleanRecord(raw.properties, 20),
     },
   };

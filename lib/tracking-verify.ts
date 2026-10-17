@@ -119,6 +119,7 @@ export async function findPageviewSince(siteId: string, since: Date) {
     select: {
       path: true,
       url: true,
+      params: true,
       createdAt: true,
     },
   });

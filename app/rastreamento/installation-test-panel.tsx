@@ -5,6 +5,7 @@ import {
   verifyScriptInstallation,
   type InstallVerifyState,
 } from "@/app/rastreamento/actions";
+import { orderedParamEntries } from "@/lib/tracking-attribution";
 
 const fieldClass =
   "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
@@ -15,6 +16,7 @@ const LISTEN_MS = 120_000;
 type LiveHit = {
   path: string;
   url: string;
+  params?: unknown;
   at: string;
 };
 
@@ -172,6 +174,17 @@ export function InstallationTestPanel({
             <div className="text-[12px] text-emerald-700 dark:text-emerald-400">
               <p>Visita recebida com sucesso.</p>
               <p className="mt-1 font-mono text-[11px]">{liveHit.path}</p>
+              {(() => {
+                const paramLine = orderedParamEntries(liveHit.params)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join(" · ");
+                if (!paramLine) return null;
+                return (
+                  <p className="mt-2 break-all text-[11px] text-foreground">
+                    {paramLine}
+                  </p>
+                );
+              })()}
               <p className="mt-1 text-[11px] opacity-80">
                 {new Intl.DateTimeFormat("pt-BR", {
                   dateStyle: "short",

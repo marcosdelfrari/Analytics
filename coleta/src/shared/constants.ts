@@ -22,3 +22,35 @@ export const blockedParams = new Set([
   "code",
   "state",
 ]);
+
+/** Query params de campanha / clique que disparam persistência na sessão. */
+export const attributionParamKeys = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "gclid",
+  "gbraid",
+  "wbraid",
+  "gad_source",
+  "gad_campaignid",
+  "fbclid",
+  "msclkid",
+  "dclid",
+  "ttclid",
+] as const;
+
+const longParamKeys = new Set([
+  "gclid",
+  "gbraid",
+  "wbraid",
+  "fbclid",
+  "msclkid",
+  "dclid",
+  "ttclid",
+]);
+
+export function paramValueMaxLength(key: string): number {
+  return longParamKeys.has(key.toLowerCase()) ? 512 : 200;
+}
