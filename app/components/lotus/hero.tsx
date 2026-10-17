@@ -44,13 +44,18 @@ export function LotusHero() {
           <motion.div
             className="relative overflow-hidden rounded-xl border border-border bg-surface shadow-2xl shadow-black/40"
             animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            transition={{
+              duration: 7,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1,
+            }}
           >
             <div className="hidden items-center gap-2 border-b border-border px-4 py-3 sm:flex">
               <span className="h-2.5 w-2.5 rounded-full bg-border" />
               <span className="h-2.5 w-2.5 rounded-full bg-border" />
               <span className="h-2.5 w-2.5 rounded-full bg-border" />
-              <span className="ml-2 text-[11px] text-muted">lótus — dashboard</span>
+              <span className="ml-2 text-[11px] text-muted">Dashboard</span>
             </div>
             <HeroPreview />
           </motion.div>

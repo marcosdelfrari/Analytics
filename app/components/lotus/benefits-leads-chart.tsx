@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 const CHART_W = 400;
 const CHART_H = 112;
-const PAD_X = 16;
+const PAD_X = 2;
 const PAD_TOP = 12;
 const PAD_BOTTOM = 22;
 
