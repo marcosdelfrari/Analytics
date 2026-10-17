@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
-import { removeClient, removeReport, setClientPlan } from "@/app/admin/actions";
-import { CreateClientForm } from "@/app/admin/create-client-form";
-import { PublishForm } from "@/app/admin/publish-form";
-import { AppShell } from "@/app/components/app-shell";
+import { removeClient, removeReport, setClientPlan } from "@/app/(shell)/admin/actions";
+import { CreateClientForm } from "@/app/(shell)/admin/create-client-form";
+import { PublishForm } from "@/app/(shell)/admin/publish-form";
+import { AppShellMain } from "@/app/components/app-shell";
 import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
@@ -29,9 +29,8 @@ async function AdminPageContent({
   const reports = selected ? await listReports(selected.id) : [];
 
   return (
-    <AppShell
-      mode="admin"
-      title={session?.name ?? "Administrador"}
+    <AppShellMain
+      title={session?.name ?? "Agência"}
       subtitle="Controle dos dashboards"
     >
       <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
@@ -179,7 +178,7 @@ async function AdminPageContent({
           )}
         </div>
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 

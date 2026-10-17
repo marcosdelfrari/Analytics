@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { AppShellLayout } from "@/app/components/app-shell-layout";
+import { AppShellLayout, AppShellMain } from "@/app/components/app-shell-layout";
+import type { ShellMode } from "@/lib/shell-mode";
 
 interface AppShellProps {
-  mode: "client" | "admin";
+  mode: ShellMode;
   title: string;
   subtitle: string;
   planActive?: boolean;
@@ -13,3 +14,5 @@ interface AppShellProps {
 export function AppShell(props: AppShellProps) {
   return <AppShellLayout {...props} />;
 }
+
+export { AppShellMain };

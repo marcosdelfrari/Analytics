@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { AppShell } from "@/app/components/app-shell";
+import { AppShellMain } from "@/app/components/app-shell";
 import { CampaignsLoadingFallback } from "@/app/components/loading-fallbacks";
 import { CampaignsHierarchy } from "@/app/components/campaigns-hierarchy";
 import { PlatformTabs } from "@/app/components/platform-tabs";
@@ -11,8 +11,7 @@ async function CampaignsPageContent() {
   const analytics = await loadClientAnalytics(clientId, planActive);
 
   return (
-    <AppShell
-      mode="client"
+    <AppShellMain
       title={title}
       subtitle={clientSubtitle(planActive, analytics.dashboard.period)}
       planActive={planActive}
@@ -43,7 +42,7 @@ async function CampaignsPageContent() {
           }
         />
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 

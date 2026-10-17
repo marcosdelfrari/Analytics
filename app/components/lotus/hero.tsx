@@ -21,7 +21,7 @@ export function LotusHero() {
             Para quem investe em marketing e mídia paga
           </p>
           <h1 className="mt-6 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.25rem]">
-            Acompanhe o resultado do marketing que você contratou.
+            Transforme o caos dos anúncios em clareza estratégica.
           </h1>
         </motion.div>
 
@@ -63,9 +63,9 @@ export function LotusHero() {
           className="order-3 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg lg:col-start-1"
           variants={fadeUp}
         >
-          Veja Google Ads e Meta Ads em um painel organizado e entenda o que
-          seus anúncios estão gerando. Menos dependência de planilhas soltas e
-          mais clareza para avaliar o trabalho que você paga.
+          Chega de planilhas confusas. Una Google Ads e Meta Ads em um só lugar
+          e tenha transparência total sobre o que cada clique está gerando no
+          seu site. A ponte definitiva entre o investimento e o resultado.
         </motion.p>
 
         <motion.div
@@ -76,7 +76,7 @@ export function LotusHero() {
             href="/api/auth/google"
             className="rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
           >
-            Começar agora
+            Criar meu Dashboard Grátis
           </a>
           <a
             href="#how-it-works"

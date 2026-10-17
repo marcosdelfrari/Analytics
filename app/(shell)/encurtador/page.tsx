@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { CopyButton } from "@/app/encurtador/copy-button";
-import { removeShortLink } from "@/app/encurtador/actions";
-import { ShortenForm } from "@/app/encurtador/shorten-form";
-import { AppShell } from "@/app/components/app-shell";
+import { CopyButton } from "@/app/(shell)/encurtador/copy-button";
+import { removeShortLink } from "@/app/(shell)/encurtador/actions";
+import { ShortenForm } from "@/app/(shell)/encurtador/shorten-form";
+import { AppShellMain } from "@/app/components/app-shell";
 import { EncurtadorLoadingFallback } from "@/app/components/loading-fallbacks";
 import { authEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
@@ -18,7 +18,6 @@ async function ShortenerPageContent({
   searchParams: Promise<{ url?: string }>;
 }) {
   await connection();
-  let mode: "client" | "admin" = "admin";
   let planActive = true;
 
   if (authEnabled) {
@@ -27,7 +26,6 @@ async function ShortenerPageContent({
     if (session.role !== "admin" && session.role !== "client") {
       redirect("/login");
     }
-    mode = session.role === "admin" ? "admin" : "client";
     planActive = session.role === "admin" || session.planActive;
   }
 
@@ -40,8 +38,7 @@ async function ShortenerPageContent({
   const links = await listLinks();
 
   return (
-    <AppShell
-      mode={mode}
+    <AppShellMain
       title="Links"
       subtitle="Atalhos para campanhas"
       planActive={planActive}
@@ -104,7 +101,7 @@ async function ShortenerPageContent({
           )}
         </section>
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 

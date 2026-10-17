@@ -28,7 +28,7 @@ export function NavPanel({
             href={item.href}
             onClick={onNavigate}
             aria-disabled={locked}
-            className={`flex items-center justify-between rounded-sm px-3 py-2.5 text-[13px] transition-colors ${
+            className={`flex cursor-pointer items-center justify-between rounded-sm px-3 py-2.5 text-[13px] transition-colors ${
               active
                 ? "bg-surface-elevated text-foreground"
                 : locked
@@ -52,7 +52,7 @@ export function NavPanel({
         >
           <button
             type="submit"
-            className="w-full rounded-sm px-3 py-2.5 text-left text-[13px] text-muted-foreground hover:bg-surface hover:text-foreground"
+            className="w-full cursor-pointer rounded-sm px-3 py-2.5 text-left text-[13px] text-muted-foreground hover:bg-surface hover:text-foreground"
           >
             Sair
           </button>

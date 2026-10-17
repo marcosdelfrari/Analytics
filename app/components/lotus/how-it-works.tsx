@@ -4,18 +4,18 @@ import { SectionShell } from "@/app/components/lotus/section-shell";
 const steps = [
   {
     step: "01",
-    title: "Crie sua conta grátis",
-    text: "Faça seu cadastro e acesse o ambiente inicial da plataforma, sem precisar contratar um plano nessa etapa.",
+    title: "Conecte e Tagueie",
+    text: "Crie sua conta e utilize nosso construtor de parâmetros para identificar a origem de cada centavo investido nos seus anúncios.",
   },
   {
     step: "02",
-    title: "Veja exemplos das telas",
-    text: "Conheça a estrutura da aplicação por meio de exemplos. As funcionalidades permanecem bloqueadas até a contratação de um plano.",
+    title: "Rastreie em Tempo Real",
+    text: "Instale nosso script leve em seu site e veja as visitas e eventos serem vinculados automaticamente às suas campanhas.",
   },
   {
     step: "03",
-    title: "Escolha seu plano",
-    text: "Compare as opções disponíveis e assine o plano que atende ao seu negócio para liberar os recursos incluídos.",
+    title: "Analise e Otimize",
+    text: "Acesse dashboards profissionais que cruzam gastos de mídia com resultados reais, permitindo decisões baseadas em dados.",
   },
 ];
 
@@ -23,8 +23,8 @@ export function LotusHowItWorks() {
   return (
     <SectionShell
       id="how-it-works"
-      title="Conheça o ambiente antes de escolher seu plano."
-      subtitle="Crie sua conta gratuitamente, veja como a plataforma está organizada e contrate um plano para começar a utilizar os recursos."
+      title="O caminho para uma análise profissional."
+      subtitle="Do primeiro clique à conversão final, tenha o controle total da sua jornada de marketing em três etapas simples."
     >
       <RevealGroup className="grid gap-4 md:grid-cols-3">
         {steps.map((item) => (
@@ -45,7 +45,7 @@ export function LotusHowItWorks() {
           href="/api/auth/google"
           className="inline-flex rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
         >
-          Começar agora
+          Criar meu Dashboard Grátis
         </a>
       </Reveal>
     </SectionShell>

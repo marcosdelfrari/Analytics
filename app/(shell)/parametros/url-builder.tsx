@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { CopyButton } from "@/app/encurtador/copy-button";
+import { CopyButton } from "@/app/(shell)/encurtador/copy-button";
 import { PlatformLogo } from "@/app/components/platform-logo";
 import type { Platform } from "@/lib/types";
 import {
@@ -102,15 +102,36 @@ export function UrlBuilder() {
     (utm.utm_source ?? "").trim().toLowerCase() === source;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid gap-6">
+      <section className="border border-border bg-surface px-4 py-3">
+        <p className="text-[12px] leading-relaxed text-muted-foreground">
+          UTMs e URL de destino são configurados no{" "}
+          <strong className="font-medium text-foreground">Google Ads</strong> ou{" "}
+          <strong className="font-medium text-foreground">Meta Ads</strong>{" "}
+          (sufixo de URL final, parâmetros do anúncio, modelos de acompanhamento).
+          Esta página{" "}
+          <strong className="font-medium text-foreground">não altera</strong> sua
+          campanha: serve só como{" "}
+          <strong className="font-medium text-foreground">
+            exemplo e referência
+          </strong>{" "}
+          de como a URL deve chegar no site. O script Lótus lê a query string na
+          visita; identificadores como{" "}
+          <span className="font-mono text-[11px]">gclid</span> e{" "}
+          <span className="font-mono text-[11px]">fbclid</span> vêm do clique no
+          anúncio, sem precisar digitar aqui.
+        </p>
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <form
         className="border border-border bg-surface"
         onSubmit={(event) => event.preventDefault()}
       >
         <div className="border-b border-border px-4 py-3">
-          <h2 className="text-sm font-medium">Montar URL</h2>
+          <h2 className="text-sm font-medium">Modelo de URL</h2>
           <p className="text-[12px] text-muted">
-            Os parâmetros entram na query string do endereço de destino
+            Simule UTMs e parâmetros de clique para ver o formato final
           </p>
         </div>
         <div className="grid gap-4 p-4">
@@ -360,11 +381,11 @@ export function UrlBuilder() {
       <section className="border border-border bg-surface">
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
           <div>
-            <h2 className="text-sm font-medium">URL pronta</h2>
+            <h2 className="text-sm font-medium">Exemplo de URL final</h2>
             <p className="text-[12px] text-muted">
               {filled.length === 1
-                ? "1 parâmetro"
-                : `${filled.length} parâmetros`}
+                ? "1 parâmetro no exemplo"
+                : `${filled.length} parâmetros no exemplo`}
             </p>
           </div>
           {result.url && <CopyButton value={result.url} />}
@@ -388,11 +409,12 @@ export function UrlBuilder() {
             </>
           ) : (
             <p className="text-[12px] text-muted">
-              Informe o endereço base para ver a URL com os parâmetros.
+              Informe o endereço base para montar o exemplo com os parâmetros.
             </p>
           )}
         </div>
       </section>
+      </div>
     </div>
   );
 }

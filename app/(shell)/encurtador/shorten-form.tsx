@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { createShortLink, type ShortenState } from "@/app/encurtador/actions";
+import { createShortLink, type ShortenState } from "@/app/(shell)/encurtador/actions";
 
 const fieldClass =
   "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";

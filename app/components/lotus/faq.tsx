@@ -6,29 +6,29 @@ import { SectionShell } from "@/app/components/lotus/section-shell";
 
 const items = [
   {
-    question: "Criar uma conta é gratuito?",
+    question: "Como o Lótus Analytics se diferencia do GA4?",
     answer:
-      "Sim. Você pode criar sua conta gratuitamente e acessar o ambiente inicial da plataforma. A contratação de um plano é necessária para utilizar os recursos.",
+      "Diferente do GA4, que pode ser complexo e ter dados amostrados, o Lótus foca na clareza financeira. Nós cruzamos o que você realmente gastou no Google/Meta com o tráfego que chegou ao site, sem complicações.",
   },
   {
-    question: "O que posso ver depois de me cadastrar?",
+    question: "Preciso de um desenvolvedor para instalar?",
     answer:
-      "Você encontrará exemplos de telas que apresentam a estrutura da plataforma. Eles servem para conhecer o ambiente, mas não permitem utilizar as funcionalidades antes da assinatura.",
+      "Não. Você só precisa copiar um único script e colar no cabeçalho (head) do seu site ou via Google Tag Manager. É tão simples quanto instalar um pixel do Facebook.",
   },
   {
-    question: "O cadastro gratuito inclui um período de teste?",
+    question: "Posso gerenciar vários clientes na mesma conta?",
     answer:
-      "Não. O cadastro gratuito dá acesso ao ambiente de apresentação, com exemplos de telas e recursos bloqueados. O uso das funcionalidades é liberado após a contratação de um plano.",
+      "Sim! No plano Business, você entra no modo agência e pode criar dashboards individuais para cada cliente, publicando relatórios específicos para eles.",
   },
   {
-    question: "Como faço para contratar um plano?",
+    question: "Os dados de investimento são atualizados como?",
     answer:
-      "Depois de entrar na sua conta, clique em “Ver planos” na tela inicial. Compare as opções disponíveis e escolha o plano que atende à sua necessidade.",
+      "Você publica os dados de investimento (gasto e conversões) através do painel, garantindo que o dashboard reflita exatamente o que foi acordado e investido no período.",
   },
   {
-    question: "Ao contratar, todos os recursos são liberados?",
+    question: "O encurtador de links substitui o Bitly?",
     answer:
-      "O acesso depende do plano escolhido. Antes de contratar, consulte os recursos e limites incluídos em cada opção.",
+      "Sim, e com a vantagem de que os cliques já são integrados ao seu ecossistema de rastreamento UTM, mantendo tudo sob o mesmo teto e com a sua marca.",
   },
 ];
 

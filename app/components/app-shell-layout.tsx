@@ -2,14 +2,12 @@
 
 import type { ReactNode } from "react";
 import { BrandMark } from "@/app/components/brand-mark";
-import { MobileAppNav } from "@/app/components/mobile-app-nav";
-import { NavPanel } from "@/app/components/nav-panel";
+import { AppShellChrome } from "@/app/components/app-shell-chrome";
 import { PlanUpgradeGate } from "@/app/components/plan-upgrade-gate";
 import { Skeleton } from "@/app/components/skeleton";
-import { navItemsForMode } from "@/lib/nav-items";
+import type { ShellMode } from "@/lib/shell-mode";
 
-type AppShellLayoutProps = {
-  mode: "client" | "admin";
+export type AppShellMainProps = {
   title: string;
   subtitle: string;
   planActive?: boolean;
@@ -50,39 +48,41 @@ function AppHeader({
   );
 }
 
-export function AppShellLayout({
-  mode,
+/** Área principal (header + conteúdo). Use dentro de `(shell)/layout`. */
+export function AppShellMain({
   title,
   subtitle,
   planActive = true,
   headerSkeleton = false,
   children,
-}: AppShellLayoutProps) {
-  const items = navItemsForMode(mode);
-
+}: AppShellMainProps) {
   return (
-    <div className="flex h-dvh min-h-0 flex-col overflow-hidden md:flex-row">
-      <aside className="hidden h-full max-h-dvh w-56 shrink-0 flex-col border-r border-border bg-background md:flex">
-        <div className="flex h-14 shrink-0 items-center justify-center border-b border-border px-4">
-          <BrandMark />
-        </div>
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <NavPanel items={items} showLogout />
-        </div>
-      </aside>
+    <>
+      <AppHeader
+        title={title}
+        subtitle={subtitle}
+        headerSkeleton={headerSkeleton}
+      />
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:p-6 md:pb-6">
+        {planActive ? (
+          children
+        ) : (
+          <PlanUpgradeGate>{children}</PlanUpgradeGate>
+        )}
+      </main>
+    </>
+  );
+}
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <AppHeader
-          title={title}
-          subtitle={subtitle}
-          headerSkeleton={headerSkeleton}
-        />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:p-6 md:pb-6">
-          {planActive ? children : <PlanUpgradeGate>{children}</PlanUpgradeGate>}
-        </main>
-      </div>
+type AppShellLayoutProps = AppShellMainProps & {
+  mode: ShellMode;
+};
 
-      <MobileAppNav mode={mode} />
-    </div>
+/** Shell completo (sidebar + main). Evite em rotas com layout `(shell)`. */
+export function AppShellLayout({ mode, ...mainProps }: AppShellLayoutProps) {
+  return (
+    <AppShellChrome sessionMode={mode}>
+      <AppShellMain {...mainProps} />
+    </AppShellChrome>
   );
 }

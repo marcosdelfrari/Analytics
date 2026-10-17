@@ -4,7 +4,7 @@ import { useActionState, useCallback, useEffect, useRef, useState } from "react"
 import {
   verifyScriptInstallation,
   type InstallVerifyState,
-} from "@/app/rastreamento/actions";
+} from "@/app/(shell)/rastreamento/actions";
 import { orderedParamEntries } from "@/lib/tracking-attribution";
 
 const fieldClass =

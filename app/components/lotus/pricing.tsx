@@ -14,7 +14,7 @@ export function LotusPricing() {
         O cadastro é gratuito. Para utilizar os recursos, é necessário assinar
         um plano.
       </Reveal>
-      <RevealGroup className="grid gap-4 lg:grid-cols-3">
+      <RevealGroup className="grid gap-4 lg:grid-cols-2 max-w-4xl mx-auto">
         {plans.map((plan) => (
           <RevealItem
             key={plan.name}
@@ -49,7 +49,7 @@ export function LotusPricing() {
                   : "border border-border text-foreground hover:bg-surface-elevated"
               }`}
             >
-              Começar agora
+              Criar Dashboard Grátis
             </a>
             <ul className="mt-6 flex flex-1 flex-col gap-2.5 border-t border-border-subtle pt-6 text-sm text-muted-foreground">
               {plan.features.map((feature) => (

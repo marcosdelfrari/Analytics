@@ -8,17 +8,18 @@ import {
   mobilePrimaryNav,
   mobileSecondaryNav,
 } from "@/lib/nav-items";
+import type { ShellMode } from "@/lib/shell-mode";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function MobileAppNav({ mode }: { mode: "client" | "admin" }) {
+export function MobileAppNav({ mode }: { mode: ShellMode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const primary = mobilePrimaryNav(mode);
   const secondary = mobileSecondaryNav(mode);
   const menuItems = secondary;
   const showMenu =
-    secondary.length > 0 || (mode === "admin" && authEnabled);
+    secondary.length > 0 || (mode === "agency" && authEnabled);
   const gridClass =
     mode === "client"
       ? "grid-cols-4"
@@ -48,7 +49,7 @@ export function MobileAppNav({ mode }: { mode: "client" | "admin" }) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex flex-col items-center justify-center px-1 py-2 text-[10px] leading-tight ${
+                  className={`flex cursor-pointer flex-col items-center justify-center px-1 py-2 text-[10px] leading-tight ${
                     active ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
@@ -62,7 +63,7 @@ export function MobileAppNav({ mode }: { mode: "client" | "admin" }) {
               <button
                 type="button"
                 onClick={() => setMenuOpen(true)}
-                className="flex w-full flex-col items-center justify-center px-1 py-2 text-[10px] font-medium leading-tight text-muted-foreground"
+                className="flex w-full cursor-pointer flex-col items-center justify-center px-1 py-2 text-[10px] font-medium leading-tight text-muted-foreground"
                 aria-expanded={menuOpen}
                 aria-haspopup="dialog"
               >
@@ -82,7 +83,7 @@ export function MobileAppNav({ mode }: { mode: "client" | "admin" }) {
         >
           <button
             type="button"
-            className="absolute inset-0 bg-background/70 backdrop-blur-sm"
+            className="absolute inset-0 cursor-pointer bg-background/70 backdrop-blur-sm"
             aria-label="Fechar menu"
             onClick={() => setMenuOpen(false)}
           />
@@ -92,7 +93,7 @@ export function MobileAppNav({ mode }: { mode: "client" | "admin" }) {
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-sm border border-border px-2.5 py-1 text-[12px] text-muted-foreground"
+                className="cursor-pointer rounded-sm border border-border px-2.5 py-1 text-[12px] text-muted-foreground"
               >
                 Fechar
               </button>

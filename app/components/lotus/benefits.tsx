@@ -26,31 +26,31 @@ const channels = [
 const benefits = [
   {
     index: "02",
-    title: "Parâmetros da campanha",
+    title: "Links inteligentes e curtos",
     description:
-      "Monte a URL com origem, mídia, campanha, conteúdo e termo. O rastreamento usa esses valores para separar o que chegou ao site.",
-    points: ["Origem", "Campanha", "Termo"],
+      "Crie URLs amigáveis para suas campanhas e saiba exatamente quantos cliques elas receberam, sem ferramentas externas.",
+    points: ["Encurtador", "Cliques", "Branding"],
   },
   {
     index: "03",
     title: "Script de rastreamento",
     description:
-      "O script na página envia visitas e eventos ligados aos parâmetros da URL, no mesmo painel do investimento.",
-    points: ["Visitas", "Eventos", "URL"],
+      "Um único script leve que conecta as visitas e eventos aos parâmetros da URL, tudo sincronizado no seu painel.",
+    points: ["Visitas", "Eventos", "Tempo Real"],
   },
   {
     index: "04",
-    title: "Histórico do período",
+    title: "Gestão Multi-Cliente",
     description:
-      "Investimento, conversões, CTR e custo por conversão ficam registrados, com o arquivo do período para baixar.",
-    points: ["CTR", "Conversões", "Download"],
+      "Ideal para agências: gerencie múltiplos dashboards e publique relatórios profissionais para cada cliente em segundos.",
+    points: ["Agências", "Relatórios", "Acessos"],
   },
   {
     index: "05",
-    title: "Gasto ao lado do que aconteceu",
+    title: "Gasto vs. Resultado",
     description:
-      "Compare o valor publicado de Google Ads ou Meta Ads com o tráfego e os eventos que esses parâmetros geraram.",
-    points: ["Gasto", "Eventos", "Período"],
+      "Compare o investimento real de Google e Meta com o comportamento do tráfego. Saiba o que realmente converte.",
+    points: ["ROI", "Conformidade", "Decisão"],
   },
 ];
 
@@ -59,7 +59,7 @@ export function LotusBenefits() {
     <SectionShell
       id="benefits"
       title="Clareza para o seu negócio. Confiança no que você investe."
-      subtitle="Acompanhe o investimento em mídia e o tráfego do site, separado pelos parâmetros de cada campanha."
+      subtitle="Toda a inteligência do seu tráfego e investimento, do primeiro clique até a conversão, organizada automaticamente."
     >
       <RevealGroup className="grid gap-3 sm:grid-cols-2">
         <RevealItem className="flex flex-col rounded-xl border border-border bg-surface p-5 sm:col-span-2 sm:p-6 lg:col-span-1 lg:row-span-2">

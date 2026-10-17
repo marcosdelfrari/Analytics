@@ -16,7 +16,7 @@ export function LotusFinalCta() {
             href="/api/auth/google"
             className="mt-8 inline-flex rounded-md bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
           >
-            Começar agora
+            Criar meu Dashboard Grátis
           </a>
           <p className="mt-4 text-[13px] text-muted">
             Cadastro gratuito. Uso dos recursos mediante assinatura.

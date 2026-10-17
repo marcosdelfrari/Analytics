@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { AppShell } from "@/app/components/app-shell";
+import { AppShellMain } from "@/app/components/app-shell";
 import { ReportsLoadingFallback } from "@/app/components/loading-fallbacks";
 import { PlatformTabs } from "@/app/components/platform-tabs";
 import { ReportPlatformPanel } from "@/app/components/report-platform-panel";
@@ -18,8 +18,7 @@ async function ReportsPageContent() {
   const tracking = analytics.siteTracking;
 
   return (
-    <AppShell
-      mode="client"
+    <AppShellMain
       title={title}
       subtitle={clientSubtitle(planActive, analytics.dashboard.period)}
       planActive={planActive}
@@ -84,7 +83,7 @@ async function ReportsPageContent() {
           />
         )}
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 

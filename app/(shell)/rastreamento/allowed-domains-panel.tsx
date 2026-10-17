@@ -5,7 +5,7 @@ import {
   addTrackingDomain,
   deleteTrackingDomain,
   type DomainFormState,
-} from "@/app/rastreamento/actions";
+} from "@/app/(shell)/rastreamento/actions";
 
 const fieldClass =
   "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";

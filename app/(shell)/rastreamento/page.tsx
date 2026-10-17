@@ -1,13 +1,13 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
-import { CopyButton } from "@/app/encurtador/copy-button";
-import { AppShell } from "@/app/components/app-shell";
+import { CopyButton } from "@/app/(shell)/encurtador/copy-button";
+import { AppShellMain } from "@/app/components/app-shell";
 import { RastreamentoLoadingFallback } from "@/app/components/loading-fallbacks";
 import { authEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
-import { AllowedDomainsPanel } from "@/app/rastreamento/allowed-domains-panel";
-import { InstallationTestPanel } from "@/app/rastreamento/installation-test-panel";
+import { AllowedDomainsPanel } from "@/app/(shell)/rastreamento/allowed-domains-panel";
+import { InstallationTestPanel } from "@/app/(shell)/rastreamento/installation-test-panel";
 import { orderedParamEntries } from "@/lib/tracking-attribution";
 import {
   ensureTrackingSite,
@@ -27,7 +27,6 @@ function formatWhen(value: Date) {
 
 async function TrackingPageContent() {
   await connection();
-  let mode: "client" | "admin" = "admin";
   let planActive = true;
 
   if (authEnabled) {
@@ -36,7 +35,6 @@ async function TrackingPageContent() {
     if (session.role !== "admin" && session.role !== "client") {
       redirect("/login");
     }
-    mode = session.role === "admin" ? "admin" : "client";
     planActive = session.role === "admin" || session.planActive;
 
     const site = await ensureTrackingSite(session.userId);
@@ -47,20 +45,18 @@ async function TrackingPageContent() {
     const snippet = trackingSnippet(site.publicKey);
 
     return (
-      <AppShell
-        mode={mode}
+      <AppShellMain
         title="Script"
         subtitle="Chave e script exclusivos desta conta de cliente"
         planActive={planActive}
       >
         <ScriptPanels snippet={snippet} hits={hits} domains={domains} />
-      </AppShell>
+      </AppShellMain>
     );
   }
 
   return (
-    <AppShell
-      mode={mode}
+    <AppShellMain
       title="Script"
       subtitle="Chave e script exclusivos desta conta de cliente"
       planActive={planActive}
@@ -68,7 +64,7 @@ async function TrackingPageContent() {
       <p className="text-[12px] text-muted">
         Entre com uma conta para gerar a chave do script.
       </p>
-    </AppShell>
+    </AppShellMain>
   );
 }
 

@@ -1,17 +1,14 @@
-import { AppShell } from "@/app/components/app-shell";
+import { AppShellMain } from "@/app/components/app-shell";
 import { Skeleton, SkeletonScreenReader } from "@/app/components/skeleton";
 
 export function DashboardLoadingFallback() {
   return (
-    <AppShell mode="client" title="" subtitle="" headerSkeleton>
+    <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando dashboard" />
       <div className="pointer-events-none space-y-6" aria-hidden>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={index}
-              className="border border-border bg-surface p-4"
-            >
+            <div key={index} className="border border-border bg-surface p-4">
               <Skeleton className="h-3 w-24" />
               <Skeleton className="mt-3 h-7 w-28" />
             </div>
@@ -24,23 +21,20 @@ export function DashboardLoadingFallback() {
         </div>
         <div className="grid gap-3 lg:grid-cols-2">
           {Array.from({ length: 2 }).map((_, index) => (
-            <div
-              key={index}
-              className="border border-border bg-surface p-4"
-            >
+            <div key={index} className="border border-border bg-surface p-4">
               <Skeleton className="h-3 w-20" />
               <Skeleton className="mt-4 h-24 w-full" />
             </div>
           ))}
         </div>
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 
 export function ReportsLoadingFallback() {
   return (
-    <AppShell mode="client" title="" subtitle="" headerSkeleton>
+    <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando relatórios" />
       <div className="pointer-events-none space-y-4" aria-hidden>
         <Skeleton className="h-4 w-36" />
@@ -55,13 +49,13 @@ export function ReportsLoadingFallback() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 
 export function CampaignsLoadingFallback() {
   return (
-    <AppShell mode="client" title="" subtitle="" headerSkeleton>
+    <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando campanhas" />
       <div className="pointer-events-none space-y-4" aria-hidden>
         <Skeleton className="h-4 w-32" />
@@ -79,13 +73,13 @@ export function CampaignsLoadingFallback() {
           </div>
         ))}
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 
 export function AdminLoadingFallback() {
   return (
-    <AppShell mode="admin" title="" subtitle="" headerSkeleton>
+    <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando painel" />
       <div className="pointer-events-none grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
         <div className="space-y-4">
@@ -106,13 +100,13 @@ export function AdminLoadingFallback() {
           <Skeleton className="mt-6 h-64 w-full" />
         </div>
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 
 export function EncurtadorLoadingFallback() {
   return (
-    <AppShell mode="admin" title="" subtitle="" headerSkeleton>
+    <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando encurtador" />
       <div className="pointer-events-none grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
         <div className="border border-border bg-surface p-4">
@@ -128,13 +122,13 @@ export function EncurtadorLoadingFallback() {
           ))}
         </div>
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 
 export function RastreamentoLoadingFallback() {
   return (
-    <AppShell mode="admin" title="" subtitle="" headerSkeleton>
+    <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando script" />
       <div className="pointer-events-none space-y-6" aria-hidden>
         <div className="border border-border bg-surface p-4">
@@ -147,13 +141,13 @@ export function RastreamentoLoadingFallback() {
           <Skeleton className="mt-4 h-10 w-full" />
         </div>
       </div>
-    </AppShell>
+    </AppShellMain>
   );
 }
 
 export function ParametrosLoadingFallback() {
   return (
-    <AppShell mode="admin" title="" subtitle="" headerSkeleton>
+    <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando parâmetros" />
       <div className="pointer-events-none border border-border bg-surface p-4">
         <Skeleton className="h-4 w-40" />
@@ -165,6 +159,31 @@ export function ParametrosLoadingFallback() {
         </div>
         <Skeleton className="mt-6 h-24 w-full" />
       </div>
-    </AppShell>
+    </AppShellMain>
+  );
+}
+
+export function DocumentacaoLoadingFallback() {
+  return (
+    <AppShellMain title="" subtitle="" headerSkeleton>
+      <SkeletonScreenReader label="Carregando guia" />
+      <div className="pointer-events-none space-y-4" aria-hidden>
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-6 w-48 max-w-full" />
+        <div className="border border-border bg-surface p-4">
+          <Skeleton className="h-3 w-32" />
+          <Skeleton className="mt-3 h-3 w-full" />
+          <Skeleton className="mt-2 h-3 w-[90%]" />
+        </div>
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="border border-border bg-surface p-4">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="mt-4 h-3 w-full" />
+            <Skeleton className="mt-2 h-3 w-full" />
+            <Skeleton className="mt-2 h-3 w-[75%]" />
+          </div>
+        ))}
+      </div>
+    </AppShellMain>
   );
 }

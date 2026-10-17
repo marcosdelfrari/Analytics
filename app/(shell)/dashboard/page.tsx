@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { AppShell } from "@/app/components/app-shell";
+import { AppShellMain } from "@/app/components/app-shell";
 import { DashboardHome } from "@/app/components/dashboard-home";
 import { DashboardLoadingFallback } from "@/app/components/loading-fallbacks";
 import { loadClientAnalytics } from "@/lib/analytics";
@@ -10,8 +10,7 @@ async function DashboardPageContent() {
   const analytics = await loadClientAnalytics(clientId, planActive);
 
   return (
-    <AppShell
-      mode="client"
+    <AppShellMain
       title={title}
       subtitle={clientSubtitle(planActive, analytics.dashboard.period)}
       planActive={planActive}
@@ -21,7 +20,7 @@ async function DashboardPageContent() {
         evolution={analytics.evolution}
         siteTracking={analytics.siteTracking}
       />
-    </AppShell>
+    </AppShellMain>
   );
 }
 

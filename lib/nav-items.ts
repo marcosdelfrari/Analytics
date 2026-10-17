@@ -1,4 +1,5 @@
 import { authEnabled } from "@/lib/auth-config";
+import type { ShellMode } from "@/lib/shell-mode";
 
 export type NavItem = {
   href: string;
@@ -6,22 +7,24 @@ export type NavItem = {
   locked?: boolean;
 };
 
-export function navItemsForMode(mode: "client" | "admin"): NavItem[] {
+export function navItemsForMode(mode: ShellMode): NavItem[] {
   if (!authEnabled) {
     return [
       { href: "/dashboard", label: "Dashboard" },
       { href: "/admin", label: "Painel" },
-      { href: "/parametros", label: "Parâmetros" },
+      { href: "/documentacao", label: "Guia" },
       { href: "/rastreamento", label: "Script" },
+      { href: "/parametros", label: "Parâmetros" },
       { href: "/encurtador", label: "Encurtador" },
     ];
   }
 
-  if (mode === "admin") {
+  if (mode === "agency") {
     return [
       { href: "/admin", label: "Painel" },
-      { href: "/parametros", label: "Parâmetros" },
+      { href: "/documentacao", label: "Guia" },
       { href: "/rastreamento", label: "Script" },
+      { href: "/parametros", label: "Parâmetros" },
       { href: "/encurtador", label: "Encurtador" },
     ];
   }
@@ -30,24 +33,25 @@ export function navItemsForMode(mode: "client" | "admin"): NavItem[] {
     { href: "/dashboard", label: "Dashboard" },
     { href: "/relatorios", label: "Relatórios" },
     { href: "/campanhas", label: "Campanhas" },
-    { href: "/parametros", label: "Parâmetros" },
+    { href: "/documentacao", label: "Guia" },
     { href: "/rastreamento", label: "Script" },
+    { href: "/parametros", label: "Parâmetros" },
     { href: "/encurtador", label: "Encurtador" },
   ];
 }
 
 /** Atalhos fixos na barra inferior (mobile). */
-export function mobilePrimaryNav(mode: "client" | "admin"): NavItem[] {
+export function mobilePrimaryNav(mode: ShellMode): NavItem[] {
   const items = navItemsForMode(mode);
-  if (mode === "admin") return items;
+  if (mode === "agency") return items;
   return items.filter((item) =>
     ["/dashboard", "/relatorios", "/campanhas"].includes(item.href),
   );
 }
 
-export function mobileSecondaryNav(mode: "client" | "admin"): NavItem[] {
+export function mobileSecondaryNav(mode: ShellMode): NavItem[] {
   const items = navItemsForMode(mode);
-  if (mode === "admin") return [];
+  if (mode === "agency") return [];
   return items.filter(
     (item) => !["/dashboard", "/relatorios", "/campanhas"].includes(item.href),
   );
