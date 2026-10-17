@@ -1,49 +1,7 @@
+import { Reveal, RevealGroup, RevealItem } from "@/app/components/lotus/motion";
 import { SectionShell } from "@/app/components/lotus/section-shell";
 
-
-const plans = [
-  {
-    name: "Starter",
-    price: "R$ 497",
-    period: "/mês",
-    description: "Para quem quer acompanhar um negócio em um só lugar.",
-    features: [
-      "1 negócio no painel",
-      "Google Ads ou Meta Ads",
-      "Histórico de períodos",
-      "Suporte por e-mail",
-    ],
-    highlighted: false,
-  },
-  {
-    name: "Pro",
-    price: "R$ 997",
-    period: "/mês",
-    description: "Para quem investe em vários canais e quer visão completa.",
-    features: [
-      "Até 5 negócios",
-      "Google Ads + Meta Ads",
-      "Atualização dos números por período",
-      "Encurtador e parâmetros",
-      "Suporte prioritário",
-    ],
-    highlighted: true,
-  },
-  {
-    name: "Advanced",
-    price: "R$ 1.497",
-    period: "/mês",
-    description: "Para operações maiores, com mais pessoas acompanhando os números.",
-    features: [
-      "Negócios ilimitados",
-      "Todas as integrações",
-      "Admin multi-usuário",
-      "SLA e treinamento",
-      "Customizações sob consulta",
-    ],
-    highlighted: false,
-  },
-];
+import { subscriptionPlans as plans } from "@/lib/subscription-plans";
 
 export function LotusPricing() {
   return (
@@ -52,13 +10,13 @@ export function LotusPricing() {
       title="Escolha o plano ideal para acompanhar seu negócio."
       subtitle="Compare os recursos e limites de cada opção. Você pode criar sua conta gratuitamente e contratar seu plano dentro da plataforma."
     >
-      <p className="mb-8 text-center text-sm text-muted-foreground">
+      <Reveal className="mb-8 text-center text-sm text-muted-foreground">
         O cadastro é gratuito. Para utilizar os recursos, é necessário assinar
         um plano.
-      </p>
-      <div className="grid gap-4 lg:grid-cols-3">
+      </Reveal>
+      <RevealGroup className="grid gap-4 lg:grid-cols-3">
         {plans.map((plan) => (
-          <article
+          <RevealItem
             key={plan.name}
             className={`relative flex flex-col rounded-xl border p-6 ${
               plan.highlighted
@@ -72,12 +30,16 @@ export function LotusPricing() {
               </span>
             )}
             <h3 className="text-lg font-medium">{plan.name}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{plan.description}</p>
+            <p className="mt-2 min-h-12 text-sm leading-6 text-muted-foreground lg:min-h-[4.5rem]">
+              {plan.description}
+            </p>
             <p className="mt-6 flex items-baseline gap-1">
               <span className="text-3xl font-semibold tracking-tight">
                 {plan.price}
               </span>
-              <span className="text-sm text-muted-foreground">{plan.period}</span>
+              <span className="text-sm text-muted-foreground">
+                {plan.period}
+              </span>
             </p>
             <a
               href="/api/auth/google"
@@ -92,18 +54,20 @@ export function LotusPricing() {
             <ul className="mt-6 flex flex-1 flex-col gap-2.5 border-t border-border-subtle pt-6 text-sm text-muted-foreground">
               {plan.features.map((feature) => (
                 <li key={feature} className="flex gap-2">
-                  <span className="text-foreground" aria-hidden>✓</span>
+                  <span className="text-foreground" aria-hidden>
+                    ✓
+                  </span>
                   {feature}
                 </li>
               ))}
             </ul>
-          </article>
+          </RevealItem>
         ))}
-      </div>
-      <p className="mt-8 text-center text-sm text-muted-foreground">
+      </RevealGroup>
+      <Reveal className="mt-8 text-center text-sm text-muted-foreground">
         Após o cadastro, você poderá escolher e contratar seu plano no ambiente
         da plataforma.
-      </p>
+      </Reveal>
     </SectionShell>
   );
 }

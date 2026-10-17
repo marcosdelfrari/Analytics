@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Reveal } from "@/app/components/lotus/motion";
 
 const menuLinks = [
   { href: "#benefits", label: "Benefícios" },
@@ -11,7 +12,7 @@ const menuLinks = [
 export function LotusFooter() {
   return (
     <footer className="border-t border-border bg-surface/30">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-4 lg:px-8">
+      <Reveal className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-4 lg:px-8">
         <div className="lg:col-span-1">
           <Link href="/" className="inline-flex items-center gap-2">
             <Image
@@ -103,7 +104,7 @@ export function LotusFooter() {
             </button>
           </form>
         </div>
-      </div>
+      </Reveal>
 
       <div className="border-t border-border-subtle">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-6 text-[12px] text-muted-foreground sm:flex-row sm:px-6 lg:px-8">

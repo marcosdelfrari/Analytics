@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,7 +13,12 @@ const links = [
 
 export function LotusNavbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/85 backdrop-blur-md">
+    <motion.header
+      className="sticky top-0 z-50 border-b border-border/80 bg-background/85 backdrop-blur-md"
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4">
           <Link href="/" className="flex shrink-0 items-center" aria-label="Lótus">
@@ -45,6 +53,6 @@ export function LotusNavbar() {
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }

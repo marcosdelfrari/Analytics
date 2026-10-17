@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   exchangeGoogleCode,
   googleIntentCookie,
+  googleLegacyRedirectUri,
   googleRedirectUri,
   googleStateCookie,
   publicOrigin,
@@ -35,7 +36,10 @@ export async function GET(request: NextRequest) {
       return fail(origin, "invalido");
     }
 
-    const profile = await exchangeGoogleCode(code, googleRedirectUri(origin));
+    let profile = await exchangeGoogleCode(code, googleRedirectUri(origin));
+    if (!profile) {
+      profile = await exchangeGoogleCode(code, googleLegacyRedirectUri(origin));
+    }
     if (!profile) return fail(origin, "invalido");
 
     await ensureAdminFromEnv();

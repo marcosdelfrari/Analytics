@@ -1,3 +1,5 @@
+import { Reveal } from "@/app/components/lotus/motion";
+
 type SectionShellProps = {
   id?: string;
   title?: string;
@@ -17,7 +19,7 @@ export function SectionShell({
     <section id={id} className={`px-4 py-16 sm:px-6 lg:px-8 lg:py-24 ${className}`}>
       <div className="mx-auto max-w-6xl">
         {(title || subtitle) && (
-          <header className="mb-10 text-center md:mb-14">
+          <Reveal className="mb-10 text-center md:mb-14">
             {title && (
               <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
                 {title}
@@ -28,7 +30,7 @@ export function SectionShell({
                 {subtitle}
               </p>
             )}
-          </header>
+          </Reveal>
         )}
         {children}
       </div>

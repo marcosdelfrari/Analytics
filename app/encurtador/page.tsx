@@ -6,24 +6,11 @@ import { CopyButton } from "@/app/encurtador/copy-button";
 import { removeShortLink } from "@/app/encurtador/actions";
 import { ShortenForm } from "@/app/encurtador/shorten-form";
 import { AppShell } from "@/app/components/app-shell";
+import { EncurtadorLoadingFallback } from "@/app/components/loading-fallbacks";
 import { authEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
 import { formatNumber } from "@/lib/format";
 import { listLinks } from "@/lib/links-store";
-
-function Loading() {
-  return (
-    <AppShell
-      mode="admin"
-      title="Links"
-      subtitle="Carregando atalhos"
-    >
-      <div className="border border-border bg-surface px-6 py-10 text-sm text-muted">
-        Carregando links
-      </div>
-    </AppShell>
-  );
-}
 
 async function Shortener({
   searchParams,
@@ -31,10 +18,17 @@ async function Shortener({
   searchParams: Promise<{ url?: string }>;
 }) {
   await connection();
+  let mode: "client" | "admin" = "admin";
+  let planActive = true;
+
   if (authEnabled) {
     const session = await getSession();
     if (!session) redirect("/login");
-    if (session.role !== "admin") redirect("/dashboard");
+    if (session.role !== "admin" && session.role !== "client") {
+      redirect("/login");
+    }
+    mode = session.role === "admin" ? "admin" : "client";
+    planActive = session.role === "admin" || session.planActive;
   }
 
   const { url } = await searchParams;
@@ -47,9 +41,10 @@ async function Shortener({
 
   return (
     <AppShell
-      mode="admin"
+      mode={mode}
       title="Links"
       subtitle="Atalhos para campanhas"
+      planActive={planActive}
     >
       <div className="grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
         <ShortenForm origin={origin} initialUrl={url ?? ""} />
@@ -119,7 +114,7 @@ export default function ShortenerPage({
   searchParams: Promise<{ url?: string }>;
 }) {
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<EncurtadorLoadingFallback />}>
       <Shortener searchParams={searchParams} />
     </Suspense>
   );

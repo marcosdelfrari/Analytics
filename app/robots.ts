@@ -4,6 +4,7 @@ import { siteOrigin } from "@/lib/site";
 const privatePaths = [
   "/admin",
   "/api/",
+  "/campanhas",
   "/dashboard",
   "/encurtador",
   "/login",

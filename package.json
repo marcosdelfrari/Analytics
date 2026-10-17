@@ -3,18 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "prisma generate && next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
+    "coleta": "npm start --prefix coleta",
+    "coleta:dev": "npm run dev --prefix coleta",
+    "coleta:worker": "npm run worker --prefix coleta",
     "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "framer-motion": "^14.3.0",
     "next": "16.4.0",
     "pg": "^8.23.1",
     "react": "19.3.0",

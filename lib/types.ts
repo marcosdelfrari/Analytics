@@ -18,6 +18,46 @@ export interface Campaign {
   cpc: number;
 }
 
+export interface AdUnit {
+  id: string;
+  name: string;
+  status: CampaignStatus;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+}
+
+export interface AdGroupNode {
+  id: string;
+  name: string;
+  status: CampaignStatus;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  ads: AdUnit[];
+}
+
+export interface CampaignTreeNode {
+  id: string;
+  name: string;
+  platform: Platform;
+  type: string;
+  status: CampaignStatus;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  adGroups: AdGroupNode[];
+}
+
+export interface EvolutionPoint {
+  label: string;
+  spend: number;
+  conversions: number;
+}
+
 export interface Account {
   id: string;
   name: string;

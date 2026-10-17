@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+coleta/node_modules
+coleta/.npm-cache
 /.pnp
 .pnp.*
 .yarn/*

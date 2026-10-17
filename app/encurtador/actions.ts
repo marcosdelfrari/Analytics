@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
+import { hasActivePlan } from "@/lib/plan";
 import { deleteLink, findLink, saveLink } from "@/lib/links-store";
 
 export type ShortenState = { error: string } | { url: string } | null;
@@ -14,7 +15,8 @@ const codePattern = /^[a-z0-9](?:[a-z0-9-]{1,30}[a-z0-9])?$/;
 async function requireAccess() {
   if (!authEnabled) return;
   const session = await getSession();
-  if (!session || session.role !== "admin") redirect("/login");
+  if (!session) redirect("/login");
+  if (!hasActivePlan(session)) redirect("/dashboard");
 }
 
 function randomCode() {

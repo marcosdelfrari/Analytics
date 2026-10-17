@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const TICK_MS = 2200;
@@ -152,16 +154,32 @@ export function HeroPreview() {
   const platforms = [
     {
       name: "Google Ads",
+      logo: "/google-ads-icon.webp",
+      logoWidth: 16,
+      logoHeight: 16,
       spend: currency(data.google),
       change: changeLabel(data.googleChange),
-      tone: "text-google",
+      tone: "text-google-yellow",
+      shell:
+        "border-google-yellow/25 bg-background/60 bg-gradient-to-br from-google-yellow/20 via-google-yellow/10 to-transparent shadow-[inset_0_1px_0_rgba(251,188,4,0.28)]",
+      desktopShell:
+        "border-google-yellow/25 bg-background bg-gradient-to-br from-google-yellow/20 via-google-yellow/10 to-transparent shadow-[inset_0_1px_0_rgba(251,188,4,0.28)]",
+      bar: "bg-google-yellow/75",
       bars: [42, 55, 48, 70, 64, 82, 76],
     },
     {
       name: "Meta Ads",
+      logo: "/META.webp",
+      logoWidth: 24,
+      logoHeight: 16,
       spend: currency(data.meta),
       change: changeLabel(data.metaChange),
       tone: "text-meta",
+      shell:
+        "border-meta/25 bg-background/60 bg-gradient-to-br from-meta/20 via-meta/10 to-transparent shadow-[inset_0_1px_0_rgba(6,104,225,0.28)]",
+      desktopShell:
+        "border-meta/25 bg-background bg-gradient-to-br from-meta/20 via-meta/10 to-transparent shadow-[inset_0_1px_0_rgba(6,104,225,0.28)]",
+      bar: "bg-meta/75",
       bars: [36, 44, 52, 48, 61, 58, 73],
     },
   ];
@@ -172,24 +190,24 @@ export function HeroPreview() {
         {metrics.map((metric) => (
           <div
             key={metric.id}
-            className={`rounded-lg border border-border-subtle bg-background/60 px-2.5 py-2 sm:px-3 sm:py-3 ${
+            className={`rounded-lg border px-2.5 py-2 sm:px-3 sm:py-3 ${
               metric.desktopOnly ? "hidden sm:block" : ""
             } ${
               metric.id === "conversions"
-                ? "max-sm:border-positive/25 max-sm:bg-gradient-to-br max-sm:from-positive/20 max-sm:via-positive/10 max-sm:to-transparent max-sm:shadow-[inset_0_1px_0_rgba(74,222,128,0.28)]"
-                : ""
-            } ${pulsing ? "sm:border-foreground/30" : ""}`}
+                ? "border-positive/25 bg-background/60 bg-gradient-to-br from-positive/20 via-positive/10 to-transparent shadow-[inset_0_1px_0_rgba(74,222,128,0.28)]"
+                : "border-border-subtle bg-background/60"
+            } ${pulsing && metric.id !== "conversions" ? "sm:border-foreground/30" : ""}`}
           >
             <p
               className={`text-[10px] uppercase tracking-wide text-muted ${
-                metric.id === "conversions" ? "max-sm:text-positive/75" : ""
+                metric.id === "conversions" ? "text-positive/75" : ""
               }`}
             >
               {metric.label}
             </p>
             <p
               className={`mt-1 font-mono text-[13px] tabular-nums sm:text-sm ${
-                metric.id === "conversions" ? "max-sm:text-positive" : ""
+                metric.id === "conversions" ? "text-positive" : ""
               }`}
             >
               {metric.value}
@@ -202,9 +220,18 @@ export function HeroPreview() {
         {platforms.map((platform) => (
           <div
             key={platform.name}
-            className="rounded-lg border border-border-subtle bg-background/60 px-2.5 py-2"
+            className={`rounded-lg border px-2.5 py-2 ${platform.shell}`}
           >
-            <p className={`text-[10px] font-medium ${platform.tone}`}>{platform.name}</p>
+            <div className="flex items-center gap-1.5">
+              <Image
+                src={platform.logo}
+                alt=""
+                width={platform.logoWidth}
+                height={platform.logoHeight}
+                className="h-4 w-auto shrink-0 mix-blend-lighten"
+              />
+              <p className={`text-[10px] font-medium ${platform.tone}`}>{platform.name}</p>
+            </div>
             <p className="mt-1 font-mono text-[13px] tabular-nums">{platform.spend}</p>
           </div>
         ))}
@@ -214,11 +241,20 @@ export function HeroPreview() {
         {platforms.map((platform) => (
           <div
             key={platform.name}
-            className="rounded-lg border border-border-subtle bg-gradient-to-b from-surface-elevated to-background p-4"
+            className={`rounded-lg border p-4 ${platform.desktopShell}`}
           >
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="text-[11px] font-medium">{platform.name}</p>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={platform.logo}
+                    alt=""
+                    width={Math.round(platform.logoWidth * 1.125)}
+                    height={Math.round(platform.logoHeight * 1.125)}
+                    className="h-[18px] w-auto shrink-0 mix-blend-lighten"
+                  />
+                  <p className={`text-[11px] font-medium ${platform.tone}`}>{platform.name}</p>
+                </div>
                 <p className="mt-1 font-mono text-sm tabular-nums">{platform.spend}</p>
               </div>
               <span className="font-mono text-[11px] tabular-nums text-positive">
@@ -227,10 +263,16 @@ export function HeroPreview() {
             </div>
             <div className="mt-4 flex h-14 items-end gap-1.5" aria-hidden>
               {platform.bars.map((height, index) => (
-                <div
+                <motion.div
                   key={`${platform.name}-${index}`}
-                  className="flex-1 rounded-sm bg-foreground/80"
-                  style={{ height: `${height}%` }}
+                  className={`flex-1 rounded-sm ${platform.bar}`}
+                  initial={{ height: 0 }}
+                  animate={{ height: `${height}%` }}
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.35 + index * 0.05,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 />
               ))}
             </div>

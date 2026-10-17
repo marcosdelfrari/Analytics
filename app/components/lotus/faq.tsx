@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { SectionShell } from "@/app/components/lotus/section-shell";
 
@@ -48,15 +49,31 @@ export function LotusFaq() {
                 aria-expanded={open}
               >
                 {item.question}
-                <span className="text-muted-foreground" aria-hidden>
-                  {open ? "−" : "+"}
-                </span>
+                <motion.span
+                  className="text-muted-foreground"
+                  aria-hidden
+                  animate={{ rotate: open ? 45 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  +
+                </motion.span>
               </button>
-              {open && (
-                <p className="px-5 pb-4 text-sm leading-6 text-muted-foreground">
-                  {item.answer}
-                </p>
-              )}
+              <AnimatePresence initial={false}>
+                {open && (
+                  <motion.div
+                    key="answer"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <p className="px-5 pb-4 text-sm leading-6 text-muted-foreground">
+                      {item.answer}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}

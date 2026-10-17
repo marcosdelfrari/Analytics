@@ -6,7 +6,18 @@ const discoveryLinks =
   '</.well-known/api-catalog>; rel="api-catalog", </sitemap.xml>; rel="describedby"';
 
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+
+  if (
+    pathname === "/" &&
+    searchParams.has("code") &&
+    searchParams.has("state")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/api/auth/google/callback";
+    return NextResponse.redirect(url);
+  }
+
   if (
     pathname === "/" &&
     request.headers.get("x-lotus-source") !== "1" &&

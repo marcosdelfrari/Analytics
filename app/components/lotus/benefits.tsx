@@ -1,30 +1,56 @@
+import Image from "next/image";
+import { RevealGroup, RevealItem } from "@/app/components/lotus/motion";
 import { SectionShell } from "@/app/components/lotus/section-shell";
+
+const channels = [
+  {
+    name: "Google Ads",
+    detail: "Investimento e resultado",
+    logo: "/google-ads-icon.webp",
+    logoWidth: 16,
+    logoHeight: 16,
+  },
+  {
+    name: "Meta Ads",
+    detail: "Investimento e resultado",
+    logo: "/META.webp",
+    logoWidth: 24,
+    logoHeight: 16,
+  },
+  {
+    name: "Eventos",
+    detail: "Tráfego por parâmetro",
+  },
+];
 
 const benefits = [
   {
-    title: "Resultados em um só lugar",
+    index: "02",
+    title: "Parâmetros da campanha",
     description:
-      "Reúna os principais números das suas campanhas em um painel fácil de abrir e consultar quando quiser.",
+      "Monte a URL com origem, mídia, campanha, conteúdo e termo. O rastreamento usa esses valores para separar o que chegou ao site.",
+    points: ["Origem", "Campanha", "Termo"],
   },
   {
-    title: "Indicadores mais claros",
+    index: "03",
+    title: "Script de rastreamento",
     description:
-      "Entenda gasto, retorno e evolução sem precisar decifrar relatórios espalhados em vários formatos.",
+      "O script na página envia visitas e eventos ligados aos parâmetros da URL, no mesmo painel do investimento.",
+    points: ["Visitas", "Eventos", "URL"],
   },
   {
-    title: "Visão organizada do investimento",
+    index: "04",
+    title: "Histórico do período",
     description:
-      "Acompanhe o que está sendo feito com o orçamento de mídia e se o resultado condiz com o que foi combinado.",
+      "Investimento, conversões, CTR e custo por conversão ficam registrados, com o arquivo do período para baixar.",
+    points: ["CTR", "Conversões", "Download"],
   },
   {
-    title: "Conversas mais objetivas",
+    index: "05",
+    title: "Gasto ao lado do que aconteceu",
     description:
-      "Alinhe expectativas com agência ou prestador usando os mesmos números, com menos ruído e mais foco.",
-  },
-  {
-    title: "Decisão com mais segurança",
-    description:
-      "Identifique o que merece continuar, ajustar ou pausar antes de renovar ou aumentar o investimento.",
+      "Compare o valor publicado de Google Ads ou Meta Ads com o tráfego e os eventos que esses parâmetros geraram.",
+    points: ["Gasto", "Eventos", "Período"],
   },
 ];
 
@@ -33,21 +59,71 @@ export function LotusBenefits() {
     <SectionShell
       id="benefits"
       title="Clareza para o seu negócio. Confiança no que você investe."
-      subtitle="Organize os números das campanhas e acompanhe o desempenho do marketing contratado com mais objetividade."
+      subtitle="Acompanhe o investimento em mídia e o tráfego do site, separado pelos parâmetros de cada campanha."
     >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <RevealGroup className="grid gap-3 sm:grid-cols-2">
+        <RevealItem className="flex flex-col rounded-xl border border-border bg-surface p-5 sm:col-span-2 sm:p-6 lg:col-span-1 lg:row-span-2">
+          <p className="font-mono text-[11px] uppercase tracking-wide text-muted">
+            01 · Painel
+          </p>
+          <h3 className="mt-3 text-xl font-medium tracking-tight">
+            Resultados em um só lugar
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Veja o investimento publicado e os eventos do site em um painel
+            só, sem juntar planilha e relatório à parte.
+          </p>
+          <ul className="mt-6 flex flex-1 flex-col justify-end gap-2">
+            {channels.map((channel) => (
+              <li
+                key={channel.name}
+                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/50 px-3 py-3"
+              >
+                <span className="flex items-center gap-2.5 text-sm font-medium">
+                  {channel.logo ? (
+                    <Image
+                      src={channel.logo}
+                      alt=""
+                      width={channel.logoWidth}
+                      height={channel.logoHeight}
+                      className="h-4 w-auto shrink-0 mix-blend-lighten"
+                    />
+                  ) : (
+                    <span className="h-1.5 w-1.5 rounded-full bg-positive" aria-hidden />
+                  )}
+                  {channel.name}
+                </span>
+                <span className="text-right text-[12px] text-muted-foreground">
+                  {channel.detail}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </RevealItem>
+
         {benefits.map((item) => (
-          <article
-            key={item.title}
-            className="flex min-h-[160px] flex-col justify-end rounded-xl border border-border bg-surface p-5 transition-colors hover:border-muted"
+          <RevealItem
+            key={item.index}
+            className="flex flex-col rounded-xl border border-border bg-surface p-5"
           >
-            <h3 className="text-base font-medium">{item.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            <p className="font-mono text-[11px] text-muted">{item.index}</p>
+            <h3 className="mt-3 text-base font-medium">{item.title}</h3>
+            <p className="mt-2 flex-1 text-sm leading-6 text-muted-foreground">
               {item.description}
             </p>
-          </article>
+            <ul className="mt-4 flex flex-wrap gap-1.5">
+              {item.points.map((point) => (
+                <li
+                  key={point}
+                  className="rounded-full border border-border-subtle bg-background/60 px-2.5 py-1 text-[11px] text-muted-foreground"
+                >
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </RevealItem>
         ))}
-      </div>
+      </RevealGroup>
     </SectionShell>
   );
 }

@@ -1,3 +1,4 @@
+import { Reveal, RevealGroup, RevealItem } from "@/app/components/lotus/motion";
 import { SectionShell } from "@/app/components/lotus/section-shell";
 
 const steps = [
@@ -25,9 +26,9 @@ export function LotusHowItWorks() {
       title="Conheça o ambiente antes de escolher seu plano."
       subtitle="Crie sua conta gratuitamente, veja como a plataforma está organizada e contrate um plano para começar a utilizar os recursos."
     >
-      <div className="grid gap-4 md:grid-cols-3">
+      <RevealGroup className="grid gap-4 md:grid-cols-3">
         {steps.map((item) => (
-          <div
+          <RevealItem
             key={item.step}
             className="rounded-xl border border-border bg-surface p-6"
           >
@@ -36,17 +37,17 @@ export function LotusHowItWorks() {
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {item.text}
             </p>
-          </div>
+          </RevealItem>
         ))}
-      </div>
-      <div className="mt-8 text-center">
+      </RevealGroup>
+      <Reveal className="mt-8 text-center">
         <a
           href="/api/auth/google"
           className="inline-flex rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
         >
           Começar agora
         </a>
-      </div>
+      </Reveal>
     </SectionShell>
   );
 }

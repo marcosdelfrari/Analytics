@@ -18,7 +18,13 @@ export function publicOrigin(request: NextRequest) {
   return request.nextUrl.origin;
 }
 
+/** URI registrada no Google Cloud (preferencial). */
 export function googleRedirectUri(origin: string) {
+  return `${origin}/api/auth/google/callback`;
+}
+
+/** Compatível com redirect antigo apontando para a home (`/`). */
+export function googleLegacyRedirectUri(origin: string) {
   return `${origin}/`;
 }
 

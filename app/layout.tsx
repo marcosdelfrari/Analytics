@@ -74,7 +74,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </Script>
         <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json" />
       </head>
-      <body className="min-h-full bg-background text-foreground">
+      <body className="min-h-dvh overflow-x-clip bg-background text-foreground">
         <WebMcpTools />
         {children}
       </body>

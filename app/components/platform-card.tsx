@@ -1,20 +1,6 @@
+import { PlatformLogoLabel } from "@/app/components/platform-logo";
 import type { PlatformSummary } from "@/lib/types";
 import { formatChange, formatCurrency, formatNumber } from "@/lib/format";
-
-function PlatformMark({ platform }: { platform: "google" | "meta" }) {
-  if (platform === "google") {
-    return (
-      <span className="font-mono text-[10px] uppercase tracking-wide text-google">
-        Google
-      </span>
-    );
-  }
-  return (
-    <span className="font-mono text-[10px] uppercase tracking-wide text-meta">
-      Meta
-    </span>
-  );
-}
 
 export function PlatformCard({ summary }: { summary: PlatformSummary }) {
   const positive = (summary.spendChange ?? 0) >= 0;
@@ -27,7 +13,7 @@ export function PlatformCard({ summary }: { summary: PlatformSummary }) {
     <div className="border border-border bg-surface p-4">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <PlatformMark platform={summary.platform} />
+          <PlatformLogoLabel platform={summary.platform} size={18} />
           <p className="mt-1 text-sm font-medium">{summary.label}</p>
         </div>
         <span className="border border-border px-2 py-0.5 font-mono text-[10px] text-muted-foreground">

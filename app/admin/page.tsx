@@ -11,17 +11,8 @@ import { formatCurrency, formatNumber } from "@/lib/format";
 import { listReports } from "@/lib/reports-store";
 import { platformLabel } from "@/lib/types";
 import { listClients } from "@/lib/users-store";
+import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { redirect } from "next/navigation";
-
-function Loading() {
-  return (
-    <AppShell mode="admin" title="Painel" subtitle="Carregando clientes">
-      <div className="border border-border bg-surface px-6 py-10 text-sm text-muted">
-        Carregando painel
-      </div>
-    </AppShell>
-  );
-}
 
 async function AdminPanel({
   searchParams,
@@ -198,7 +189,7 @@ export default function AdminPage({
   searchParams: Promise<{ cliente?: string }>;
 }) {
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<AdminLoadingFallback />}>
       <AdminPanel searchParams={searchParams} />
     </Suspense>
   );

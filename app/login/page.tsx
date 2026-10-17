@@ -16,7 +16,7 @@ export default function LoginPage({
   searchParams: Promise<{ erro?: string }>;
 }) {
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
+    <main className="flex min-h-dvh items-center justify-center px-4 pb-[env(safe-area-inset-bottom)]">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-center">
           <BrandMark />
