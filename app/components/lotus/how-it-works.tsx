@@ -4,17 +4,17 @@ import { SectionShell } from "@/app/components/lotus/section-shell";
 const steps = [
   {
     step: "01",
-    title: "Conecte e Tagueie",
-    text: "Crie sua conta e utilize nosso construtor de parâmetros para identificar a origem de cada centavo investido nos seus anúncios.",
+    title: "Conecte e identifique cada campanha",
+    text: "Crie sua conta e monte os links das campanhas no painel para saber de onde vem cada centavo investido nos anúncios.",
   },
   {
     step: "02",
-    title: "Rastreie em Tempo Real",
+    title: "Rastreie em tempo real",
     text: "Instale nosso script leve em seu site e veja as visitas e eventos serem vinculados automaticamente às suas campanhas.",
   },
   {
     step: "03",
-    title: "Analise e Otimize",
+    title: "Analise e otimize",
     text: "Acesse dashboards profissionais que cruzam gastos de mídia com resultados reais, permitindo decisões baseadas em dados.",
   },
 ];

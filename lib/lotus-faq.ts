@@ -21,8 +21,8 @@ export const lotusLandingFaqs = [
       "Você publica os dados de investimento (gasto e conversões) através do painel, garantindo que o dashboard reflita exatamente o que foi acordado e investido no período.",
   },
   {
-    question: "O encurtador de links substitui o Bitly?",
+    question: "Preciso do encurtador se já uso Google ou Meta?",
     answer:
-      "Sim, e com a vantagem de que os cliques já são integrados ao seu ecossistema de rastreamento UTM, mantendo tudo sob o mesmo teto e com a sua marca.",
+      "No Google e Meta, o principal é a URL certa no próprio anúncio — o Lótus ajuda a montar esse formato. O encurtador entra quando a divulgação é por WhatsApp, SMS, e-mail ou link em bio: você não configura parâmetros na plataforma de anúncio, mas ainda quer contar o clique e levar a pessoa para o destino certo.",
   },
 ] as const;

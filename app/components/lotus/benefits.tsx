@@ -5,52 +5,52 @@ import { SectionShell } from "@/app/components/lotus/section-shell";
 const channels = [
   {
     name: "Google Ads",
-    detail: "Investimento e resultado",
+    detail: "Gasto e retorno publicados",
     logo: "/google-ads-icon.webp",
     logoWidth: 16,
     logoHeight: 16,
   },
   {
     name: "Meta Ads",
-    detail: "Investimento e resultado",
+    detail: "Gasto e retorno publicados",
     logo: "/META.webp",
     logoWidth: 24,
     logoHeight: 16,
   },
   {
-    name: "Eventos",
-    detail: "Tráfego por parâmetro",
+    name: "Personalizado",
+    detail: "Outras origens e campanhas",
   },
 ];
 
 const benefits = [
   {
     index: "02",
-    title: "Links inteligentes e curtos",
+    title: "Registro de eventos",
     description:
-      "Crie URLs amigáveis para suas campanhas e saiba exatamente quantos cliques elas receberam, sem ferramentas externas.",
-    points: ["Encurtador", "Cliques", "Branding"],
+      "Um script leve no site registra visitas e os eventos que você nomear — clique no WhatsApp, envio de formulário, o que fizer sentido — e mostra de qual campanha cada pessoa veio.",
+    points: ["Visitas", "Eventos nomeados", "Tempo real"],
   },
   {
     index: "03",
-    title: "Script de rastreamento",
+    title: "Links de campanha no padrão certo",
     description:
-      "Um único script leve que conecta as visitas e eventos aos parâmetros da URL, tudo sincronizado no seu painel.",
-    points: ["Visitas", "Eventos", "Tempo Real"],
+      "Monte o exemplo de URL com origem, mídia e campanha para usar no Google Ads e no Meta — é assim que os relatórios sabem separar cada fonte. Para WhatsApp, SMS ou e-mail, onde não dá para configurar URL no anúncio, o encurtador registra o clique no mesmo painel.",
+    points: ["Google e Meta", "Formato para copiar", "WPP · SMS · E-mail"],
   },
   {
     index: "04",
-    title: "Gestão Multi-Cliente",
+    title: "Gasto e tráfego lado a lado",
     description:
-      "Ideal para agências: gerencie múltiplos dashboards e publique relatórios profissionais para cada cliente em segundos.",
-    points: ["Agências", "Relatórios", "Acessos"],
+      "No mesmo período, compare quanto foi investido em Google e Meta com o que o site registrou de movimento.",
+    points: ["Mesmo período", "Google e Meta", "Leitura rápida"],
   },
   {
     index: "05",
-    title: "Gasto vs. Resultado",
+    title: "Modo agência",
     description:
-      "Compare o investimento real de Google e Meta com o comportamento do tráfego. Saiba o que realmente converte.",
-    points: ["ROI", "Conformidade", "Decisão"],
+      "Um ambiente por cliente, dashboard publicado para cada um e controle de quem entra em cada conta.",
+    points: ["Por cliente", "Relatórios", "Acessos"],
   },
 ];
 
@@ -58,8 +58,8 @@ export function LotusBenefits() {
   return (
     <SectionShell
       id="benefits"
-      title="Clareza para o seu negócio. Confiança no que você investe."
-      subtitle="Toda a inteligência do seu tráfego e investimento, do primeiro clique até a conversão, organizada automaticamente."
+      title="Controle real sobre a mídia que você paga."
+      subtitle="Google Ads, Meta Ads e o tráfego do site no mesmo painel: compare o que foi investido com o que de fato aconteceu, do clique ao resultado."
     >
       <RevealGroup className="grid gap-3 sm:grid-cols-2">
         <RevealItem className="flex flex-col rounded-xl border border-border bg-surface p-5 sm:col-span-2 sm:p-6 lg:col-span-1 lg:row-span-2">
@@ -67,11 +67,11 @@ export function LotusBenefits() {
             01 · Painel
           </p>
           <h3 className="mt-3 text-xl font-medium tracking-tight">
-            Resultados em um só lugar
+            Um painel para comparar tudo
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Veja o investimento publicado e os eventos do site em um painel
-            só, sem juntar planilha e relatório à parte.
+            O que você publicou de investimento, o desempenho dos anúncios e o
+            que acontece no site — reunidos para você decidir com número na mão.
           </p>
           <ul className="mt-6 flex flex-1 flex-col justify-end gap-2">
             {channels.map((channel) => (
