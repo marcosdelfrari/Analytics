@@ -16,7 +16,7 @@ import {
   trackingSnippet,
 } from "@/lib/tracking";
 
-const eventSnippet = `lotus.track("contato", { botao: "whatsapp" });`;
+const eventSnippet = `fractal.track("contato", { botao: "whatsapp" });`;
 
 function formatWhen(value: Date) {
   return new Intl.DateTimeFormat("pt-BR", {

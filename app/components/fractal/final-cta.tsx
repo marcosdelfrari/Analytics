@@ -1,6 +1,6 @@
-import { Reveal } from "@/app/components/lotus/motion";
+import { Reveal } from "@/app/components/fractal/motion";
 
-export function LotusFinalCta() {
+export function FractalFinalCta() {
   return (
     <section className="px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">

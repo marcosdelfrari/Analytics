@@ -35,7 +35,7 @@ export function TrackingPlatformPanel({
           <PlatformLogoLabel platform={platform} size={16} className="normal-case" />
         </p>
         <p className="mt-1 text-[12px] text-muted-foreground">
-          Visitas e eventos com utm_source desta plataforma (script Lótus).
+          Visitas e eventos com utm_source desta plataforma (script Fractal).
         </p>
       </div>
 

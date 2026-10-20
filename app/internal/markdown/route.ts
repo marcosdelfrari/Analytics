@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     cache: "no-store",
     headers: {
       accept: "text/html",
-      "x-lotus-source": "1",
+      "x-fractal-source": "1",
     },
   });
   const html = await htmlResponse.text();

@@ -2,11 +2,11 @@ const html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>API Lótus</title>
+  <title>API Fractal</title>
 </head>
 <body>
-  <h1>API Lótus</h1>
-  <p>Contrato público da Lótus Analytics. A descrição para máquinas está em <a href="/openapi.json">/openapi.json</a>.</p>
+  <h1>API Fractal</h1>
+  <p>Contrato público da Fractal. A descrição para máquinas está em <a href="/openapi.json">/openapi.json</a>.</p>
   <h2>Status</h2>
   <p><code>GET /api/health</code> responde <code>application/json</code> com <code>{"status":"ok"}</code> quando o serviço está disponível.</p>
   <h2>Catálogo</h2>

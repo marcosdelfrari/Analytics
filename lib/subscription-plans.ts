@@ -47,7 +47,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
 
 export function whatsAppCheckoutUrl(planName: string) {
   const text = encodeURIComponent(
-    `Olá! Gostaria de adquirir o plano ${planName} do Lótus Analytics.`,
+    `Olá! Gostaria de adquirir o plano ${planName} do Fractal.`,
   );
   return `https://wa.me/${SALES_WHATSAPP_PATH}?text=${text}`;
 }

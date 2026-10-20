@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HeroPreview } from "@/app/components/lotus/hero-preview";
-import { fadeUp } from "@/app/components/lotus/motion";
+import { HeroPreview } from "@/app/components/fractal/hero-preview";
+import { fadeUp } from "@/app/components/fractal/motion";
 
-export function LotusHero() {
+export function FractalHero() {
   return (
     <section className="px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-20">
       <motion.div

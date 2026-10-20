@@ -20,7 +20,7 @@ export function proxy(request: NextRequest) {
 
   if (
     pathname === "/" &&
-    request.headers.get("x-lotus-source") !== "1" &&
+    request.headers.get("x-fractal-source") !== "1" &&
     acceptsMarkdown(request.headers.get("accept"))
   ) {
     const url = request.nextUrl.clone();

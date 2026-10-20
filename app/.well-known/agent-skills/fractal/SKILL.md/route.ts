@@ -1,7 +1,7 @@
-import { lotusSkillMarkdown } from "@/lib/lotus-skill";
+import { fractalSkillMarkdown } from "@/lib/fractal-skill";
 
 export function GET() {
-  return new Response(lotusSkillMarkdown, {
+  return new Response(fractalSkillMarkdown, {
     status: 200,
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",

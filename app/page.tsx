@@ -1,11 +1,11 @@
-import { LotusFaqJsonLd } from "@/app/components/lotus/faq-json-ld";
-import { LotusLandingPage } from "@/app/components/lotus/landing-page";
+import { FractalFaqJsonLd } from "@/app/components/fractal/faq-json-ld";
+import { FractalLandingPage } from "@/app/components/fractal/landing-page";
 
 export default function Home() {
   return (
     <>
-      <LotusFaqJsonLd />
-      <LotusLandingPage />
+      <FractalFaqJsonLd />
+      <FractalLandingPage />
     </>
   );
 }

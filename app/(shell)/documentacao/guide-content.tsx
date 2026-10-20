@@ -63,7 +63,7 @@ export function GuideContent({ mode }: GuideContentProps) {
       <header className="max-w-2xl">
         <p className="text-[11px] uppercase tracking-wider text-muted">Guia</p>
         <h2 className="mt-1 text-lg font-medium tracking-tight">
-          Como usar o Lótus
+          Como usar o Fractal
         </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           Passo a passo para instalar a coleta no site, alinhar URLs de campanha
@@ -131,7 +131,7 @@ export function GuideContent({ mode }: GuideContentProps) {
 
       <DocSection id="visao-geral" step="01" title="Visão geral">
         <p>
-          O Lótus reúne dois tipos de informação:{" "}
+          O Fractal reúne dois tipos de informação:{" "}
           <strong className="font-medium text-foreground">
             relatórios de mídia paga
           </strong>{" "}
@@ -172,7 +172,7 @@ export function GuideContent({ mode }: GuideContentProps) {
           <li>
             Para botões importantes (WhatsApp, formulário, simulação), dispare{" "}
             <code className="font-mono text-[12px] text-foreground">
-              lotus.track(&quot;nome_do_evento&quot;, {"{ ... }"})
+              fractal.track(&quot;nome_do_evento&quot;, {"{ ... }"})
             </code>{" "}
             depois que o script carregar; a campanha da sessão vai junto no
             evento.
@@ -190,7 +190,7 @@ export function GuideContent({ mode }: GuideContentProps) {
           UTMs e URL final são definidos no{" "}
           <strong className="font-medium text-foreground">Google Ads</strong> ou{" "}
           <strong className="font-medium text-foreground">Meta Ads</strong> — não
-          no Lótus. A página{" "}
+          no Fractal. A página{" "}
           <InternalLink href="/parametros">Parâmetros</InternalLink> monta um{" "}
           <em>exemplo</em> de URL para você copiar o formato correto.
         </p>

@@ -59,7 +59,7 @@ export function TrackingReportPanel({
         <MetricCard
           label="Eventos customizados"
           value={formatNumber(tracking.totals.events)}
-          hint="lotus.track(...)"
+          hint="fractal.track(...)"
         />
       </section>
 

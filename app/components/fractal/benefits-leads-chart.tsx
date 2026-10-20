@@ -8,7 +8,16 @@ const PAD_X = 2;
 const PAD_TOP = 12;
 const PAD_BOTTOM = 22;
 
-const PT_DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] as const;
+/** Rótulos fixos — gráfico decorativo na landing (dados ilustrativos). */
+const ILLUSTRATIVE_WEEK_LABELS = [
+  "Seg",
+  "Ter",
+  "Qua",
+  "Qui",
+  "Sex",
+  "Sáb",
+  "Dom",
+] as const;
 
 export type BenefitsLeadSeries = {
   id: string;
@@ -16,15 +25,6 @@ export type BenefitsLeadSeries = {
   fill: string;
   points: number[];
 };
-
-function rollingWeekLabels() {
-  const today = new Date();
-  return Array.from({ length: 7 }, (_, index) => {
-    const day = new Date(today);
-    day.setDate(today.getDate() - (6 - index));
-    return PT_DAY_LABELS[day.getDay()];
-  });
-}
 
 function plotCoords(
   points: number[],
@@ -55,7 +55,7 @@ function areaPath(coords: { x: number; y: number }[]) {
 }
 
 export function BenefitsLeadsChart({ series }: { series: BenefitsLeadSeries[] }) {
-  const dayLabels = useMemo(() => rollingWeekLabels(), []);
+  const dayLabels = ILLUSTRATIVE_WEEK_LABELS;
 
   const { yMin, yMax, gridY } = useMemo(() => {
     const allValues = series.flatMap((entry) => entry.points);

@@ -43,7 +43,7 @@ export function WebMcpTools() {
       void context.registerTool(
         {
           name: "get-api-status",
-          description: "Consulta o status público da API da Lótus.",
+          description: "Consulta o status público da API da Fractal.",
           inputSchema: {
             type: "object",
             properties: {},
@@ -63,7 +63,7 @@ export function WebMcpTools() {
         {
           name: "open-section",
           description:
-            "Abre uma seção da página da Lótus: benefícios, como funciona, planos ou perguntas frequentes.",
+            "Abre uma seção da página da Fractal: benefícios, como funciona, planos ou perguntas frequentes.",
           inputSchema: {
             type: "object",
             properties: {

@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
-export const LOTUS_BRAND = "Lótus";
+export const FRACTAL_BRAND = "Fractal";
 
-export const LOTUS_SITE_TITLE = `${LOTUS_BRAND} — Analytics de mídia paga`;
+export const FRACTAL_SITE_TITLE = `${FRACTAL_BRAND} — Trackeamento e atribuição`;
 
-export const LOTUS_SITE_DESCRIPTION =
-  "Una Google Ads e Meta Ads em um painel claro: investimento publicado, visitas e eventos do site. Cadastro gratuito; recursos mediante plano. Tecnologia marcosdelfrari.com.";
+export const FRACTAL_SITE_DESCRIPTION =
+  "API de trackeamento e atribuição de eventos: mapeie origens, interações e conversões de ponta a ponta. Una Google Ads e Meta Ads com visitas do site em um painel claro. Parte do ecossistema marcosdelfrari.com.";
 
-const DEFAULT_OG_IMAGE = "/lotuslogo.webp";
+const DEFAULT_OG_IMAGE = "/fractalbranco.webp";
 
 function metadataBaseUrl() {
   const configured = process.env.SITE_URL?.trim();
@@ -21,8 +21,8 @@ export function buildRootMetadata(): Metadata {
   const base = metadataBaseUrl();
   return {
     metadataBase: base,
-    title: LOTUS_SITE_TITLE,
-    description: LOTUS_SITE_DESCRIPTION,
+    title: FRACTAL_SITE_TITLE,
+    description: FRACTAL_SITE_DESCRIPTION,
     icons: { icon: DEFAULT_OG_IMAGE },
     alternates: {
       canonical: "/",
@@ -31,20 +31,20 @@ export function buildRootMetadata(): Metadata {
       type: "website",
       locale: "pt_BR",
       url: "/",
-      siteName: LOTUS_BRAND,
-      title: LOTUS_SITE_TITLE,
-      description: LOTUS_SITE_DESCRIPTION,
+      siteName: FRACTAL_BRAND,
+      title: FRACTAL_SITE_TITLE,
+      description: FRACTAL_SITE_DESCRIPTION,
       images: [
         {
           url: DEFAULT_OG_IMAGE,
-          alt: `${LOTUS_BRAND} — logo`,
+          alt: `${FRACTAL_BRAND} — logo`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: LOTUS_SITE_TITLE,
-      description: LOTUS_SITE_DESCRIPTION,
+      title: FRACTAL_SITE_TITLE,
+      description: FRACTAL_SITE_DESCRIPTION,
       images: [DEFAULT_OG_IMAGE],
     },
   };

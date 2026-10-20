@@ -1,8 +1,8 @@
 import { buildFaqPageJsonLd } from "@/lib/seo";
-import { lotusLandingFaqs } from "@/lib/lotus-faq";
+import { fractalLandingFaqs } from "@/lib/fractal-faq";
 
-export function LotusFaqJsonLd() {
-  const jsonLd = buildFaqPageJsonLd(lotusLandingFaqs);
+export function FractalFaqJsonLd() {
+  const jsonLd = buildFaqPageJsonLd(fractalLandingFaqs);
   return (
     <script
       type="application/ld+json"

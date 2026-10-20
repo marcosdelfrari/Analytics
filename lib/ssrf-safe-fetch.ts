@@ -58,7 +58,7 @@ export async function fetchHtmlForVerification(startUrl: URL): Promise<string> {
         signal: controller.signal,
         headers: {
           Accept: "text/html,application/xhtml+xml",
-          "User-Agent": "LotusTrackerVerify/1.0",
+          "User-Agent": "FractalTrackerVerify/1.0",
         },
       });
     } finally {

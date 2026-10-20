@@ -7,7 +7,7 @@ function originFrom(request: Request) {
 function authMarkdown(origin: string) {
   return `# auth.md
 
-Você é um agente. A Lótus aceita registro de agente em nome de um usuário. Siga esta ordem: descobrir, registrar, reivindicar se precisar, usar a credencial.
+Você é um agente. A Fractal aceita registro de agente em nome de um usuário. Siga esta ordem: descobrir, registrar, reivindicar se precisar, usar a credencial.
 
 ## Descoberta
 
@@ -27,7 +27,7 @@ Os tipos aceitos estão em \`identity_types_supported\`:
 
 ## Reivindicação
 
-Abra \`claim_uri\` para a pessoa. Ela entra na Lótus com a conta Google e confirma o código apresentado pelo agente. O login humano fica em \`${origin}/login\`.
+Abra \`claim_uri\` para a pessoa. Ela entra na Fractal com a conta Google e confirma o código apresentado pelo agente. O login humano fica em \`${origin}/login\`.
 
 ## Credencial
 

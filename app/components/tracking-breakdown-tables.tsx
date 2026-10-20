@@ -87,7 +87,7 @@ export function TrackingBreakdownTables({
 
       <BreakdownTable
         title="Eventos por nome"
-        description="Soma de lotus.track(...) no período (ex. ver_obra)"
+        description="Soma de fractal.track(...) no período (ex. ver_obra)"
         emptyMessage="Nenhum evento customizado no período."
         hasRows={eventsByName.length > 0}
       >

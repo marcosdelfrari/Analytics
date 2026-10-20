@@ -1,4 +1,4 @@
-import { SectionShell } from "@/app/components/lotus/section-shell";
+import { SectionShell } from "@/app/components/fractal/section-shell";
 
 const testimonials = [
   {
@@ -35,7 +35,7 @@ function Stars() {
   );
 }
 
-export function LotusTestimonials() {
+export function FractalTestimonials() {
   return (
     <SectionShell id="testimonials" title="Quem investe em marketing e quer clareza">
       <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">

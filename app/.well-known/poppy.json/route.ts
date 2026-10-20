@@ -14,7 +14,7 @@ export function GET(request: Request) {
   const manifest = {
     protocol_version: "0.1",
     organization: {
-      name: "Lótus",
+      name: "Fractal",
       domain: organizationDomain(origin),
     },
     auth: {
@@ -25,7 +25,7 @@ export function GET(request: Request) {
       {
         type: "openapi",
         url: `${origin}/openapi.json`,
-        description: "Contrato público da API da Lótus, incluindo o status.",
+        description: "Contrato público da API da Fractal, incluindo o status.",
       },
     ],
   };

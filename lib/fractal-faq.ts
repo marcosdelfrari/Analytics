@@ -1,9 +1,9 @@
 /** FAQ da landing — fonte única para UI, JSON-LD e superfícies para agentes. */
-export const lotusLandingFaqs = [
+export const fractalLandingFaqs = [
   {
-    question: "Como o Lótus se diferencia do GA4?",
+    question: "Como o Fractal se diferencia do GA4?",
     answer:
-      "Diferente do GA4, que pode ser complexo e ter dados amostrados, o Lótus foca na clareza financeira. Nós cruzamos o que você realmente gastou no Google/Meta com o tráfego que chegou ao site, sem complicações.",
+      "Diferente do GA4, que pode ser complexo e ter dados amostrados, o Fractal foca na clareza financeira. Nós cruzamos o que você realmente gastou no Google/Meta com o tráfego que chegou ao site, sem complicações.",
   },
   {
     question: "Preciso de um desenvolvedor para instalar?",
@@ -23,6 +23,6 @@ export const lotusLandingFaqs = [
   {
     question: "Preciso do encurtador se já uso Google ou Meta?",
     answer:
-      "No Google e Meta, o principal é a URL certa no próprio anúncio — o Lótus ajuda a montar esse formato. O encurtador entra quando a divulgação é por WhatsApp, SMS, e-mail ou link em bio: você não configura parâmetros na plataforma de anúncio, mas ainda quer contar o clique e levar a pessoa para o destino certo.",
+      "No Google e Meta, o principal é a URL certa no próprio anúncio — o Fractal ajuda a montar esse formato. O encurtador entra quando a divulgação é por WhatsApp, SMS, e-mail ou link em bio: você não configura parâmetros na plataforma de anúncio, mas ainda quer contar o clique e levar a pessoa para o destino certo.",
   },
 ] as const;

@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { BenefitsLeadsChart } from "@/app/components/lotus/benefits-leads-chart";
-import { RevealGroup, RevealItem } from "@/app/components/lotus/motion";
-import { SectionShell } from "@/app/components/lotus/section-shell";
+import { BenefitsLeadsChart } from "@/app/components/fractal/benefits-leads-chart";
+import { RevealGroup, RevealItem } from "@/app/components/fractal/motion";
+import { SectionShell } from "@/app/components/fractal/section-shell";
 
 const series = [
   {
@@ -79,7 +79,7 @@ const benefits = [
   },
 ];
 
-export function LotusBenefits() {
+export function FractalBenefits() {
   return (
     <SectionShell
       id="benefits"

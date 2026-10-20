@@ -15,7 +15,7 @@ export const fadeUp: Variants = {
 
 const viewport = { once: true, margin: "0px 0px -80px 0px" } as const;
 
-export function LotusMotionRoot({ children }: { children: React.ReactNode }) {
+export function FractalMotionRoot({ children }: { children: React.ReactNode }) {
   return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
 }
 

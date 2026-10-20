@@ -11,7 +11,7 @@ const links = [
   { href: "#faq", label: "Perguntas frequentes" },
 ];
 
-export function LotusNavbar() {
+export function FractalNavbar() {
   return (
     <motion.header
       className="sticky top-0 z-50 border-b border-border/80 bg-background/85 backdrop-blur-md"
@@ -21,10 +21,10 @@ export function LotusNavbar() {
     >
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4">
-          <Link href="/" className="flex shrink-0 items-center" aria-label="Lótus">
+          <Link href="/" className="flex shrink-0 items-center" aria-label="Fractal">
             <Image
-              src="/lotuslogo.webp"
-              alt="Lótus"
+              src="/fractalbranco.webp"
+              alt="Fractal"
               width={36}
               height={36}
               className="h-9 w-9 rounded-full"

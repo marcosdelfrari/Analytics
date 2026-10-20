@@ -2,10 +2,10 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { SectionShell } from "@/app/components/lotus/section-shell";
-import { lotusLandingFaqs as items } from "@/lib/lotus-faq";
+import { SectionShell } from "@/app/components/fractal/section-shell";
+import { fractalLandingFaqs as items } from "@/lib/fractal-faq";
 
-export function LotusFaq() {
+export function FractalFaq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (

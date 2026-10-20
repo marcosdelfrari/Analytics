@@ -1,5 +1,9 @@
 import { createHash } from "node:crypto";
-import { lotusSkillDescription, lotusSkillMarkdown, lotusSkillName } from "@/lib/lotus-skill";
+import {
+  fractalSkillDescription,
+  fractalSkillMarkdown,
+  fractalSkillName,
+} from "@/lib/fractal-skill";
 
 const schema = "https://schemas.agentskills.io/discovery/0.2.0/schema.json";
 
@@ -13,11 +17,11 @@ export function GET() {
     $schema: schema,
     skills: [
       {
-        name: lotusSkillName,
+        name: fractalSkillName,
         type: "skill-md",
-        description: lotusSkillDescription,
-        url: `/.well-known/agent-skills/${lotusSkillName}/SKILL.md`,
-        digest: digest(lotusSkillMarkdown),
+        description: fractalSkillDescription,
+        url: `/.well-known/agent-skills/${fractalSkillName}/SKILL.md`,
+        digest: digest(fractalSkillMarkdown),
       },
     ],
   };

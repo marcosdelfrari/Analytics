@@ -1,11 +1,11 @@
-import { LOTUS_SITE_DESCRIPTION, LOTUS_SITE_TITLE } from "@/lib/seo";
+import { FRACTAL_SITE_DESCRIPTION, FRACTAL_SITE_TITLE } from "@/lib/seo";
 
 /** Corpo de /llms.txt — índice curto para LLMs e answer engines. */
 export function buildLlmsTxt(origin: string) {
   const base = origin.replace(/\/$/, "");
-  return `# ${LOTUS_SITE_TITLE}
+  return `# ${FRACTAL_SITE_TITLE}
 
-> ${LOTUS_SITE_DESCRIPTION}
+> ${FRACTAL_SITE_DESCRIPTION}
 
 ## Produto (humanos)
 
@@ -21,7 +21,7 @@ export function buildLlmsTxt(origin: string) {
 ## Superfície para agentes
 
 - [Catálogo AIR](${base}/.well-known/ai-catalog.json)
-- [Skill lotus-analytics](${base}/.well-known/agent-skills/lotus-analytics/SKILL.md)
+- [Skill fractal](${base}/.well-known/agent-skills/fractal/SKILL.md)
 - [Índice de skills](${base}/.well-known/agent-skills/index.json)
 - [Catálogo de APIs (RFC 9727)](${base}/.well-known/api-catalog)
 - [OpenAPI](${base}/openapi.json) · [Docs HTML](${base}/api/docs) · [Health](${base}/api/health)

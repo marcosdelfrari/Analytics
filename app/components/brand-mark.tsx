@@ -4,7 +4,7 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
   const size = compact ? 28 : 36;
   return (
     <Image
-      src="/lotuslogo.webp"
+      src="/fractalbranco.webp"
       alt=""
       width={size}
       height={size}

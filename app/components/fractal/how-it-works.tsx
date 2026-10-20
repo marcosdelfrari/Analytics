@@ -1,5 +1,5 @@
-import { Reveal, RevealGroup, RevealItem } from "@/app/components/lotus/motion";
-import { SectionShell } from "@/app/components/lotus/section-shell";
+import { Reveal, RevealGroup, RevealItem } from "@/app/components/fractal/motion";
+import { SectionShell } from "@/app/components/fractal/section-shell";
 
 const steps = [
   {
@@ -19,7 +19,7 @@ const steps = [
   },
 ];
 
-export function LotusHowItWorks() {
+export function FractalHowItWorks() {
   return (
     <SectionShell
       id="how-it-works"

@@ -1,4 +1,4 @@
-import { Reveal } from "@/app/components/lotus/motion";
+import { Reveal } from "@/app/components/fractal/motion";
 
 type SectionShellProps = {
   id?: string;

@@ -11,13 +11,14 @@ export function GET(request: Request) {
 
   const card = {
     $schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
-    name: "com.lotus/analytics",
-    title: "Lótus",
+    name: "com.fractal/analytics",
+    title: "Fractal",
     version,
-    description: "Servidor MCP da Lótus para descoberta do analytics de mídia paga.",
+    description:
+      "Servidor MCP da Fractal para descoberta do trackeamento e atribuição de eventos.",
     websiteUrl: origin,
     serverInfo: {
-      name: "Lótus",
+      name: "Fractal",
       version,
     },
     remotes: [

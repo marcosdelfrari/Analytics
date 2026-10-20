@@ -1,10 +1,10 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Lótus Analytics",
+    "title": "Fractal",
     "version": "1.0.0",
-    "summary": "API pública da Lótus para status e descoberta.",
-    "description": "Superfície pública da Lótus. A autenticação, o painel e o encurtador não fazem parte deste contrato."
+    "summary": "API pública da Fractal para status e descoberta.",
+    "description": "Superfície pública da Fractal. A autenticação, o painel e o encurtador não fazem parte deste contrato."
   },
   "servers": [{ "url": "/" }],
   "components": {

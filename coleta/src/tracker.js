@@ -31,7 +31,7 @@
   if (!endpoint) endpoint = new URL("/v1/collect", parsed.origin).toString();
   if (!key || !endpoint) return;
 
-  var storageKey = "lotus_params_" + key;
+  var storageKey = "fractal_params_" + key;
   var queue = [];
   var flushTimer = null;
   var flushing = false;
@@ -214,7 +214,7 @@
     scheduleFlush();
   }
 
-  window.lotus = {
+  window.fractal = {
     track: function (name, properties) {
       if (!name) return;
       enqueue("event", name, properties);

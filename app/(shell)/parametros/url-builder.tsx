@@ -115,7 +115,7 @@ export function UrlBuilder() {
           <strong className="font-medium text-foreground">
             exemplo e referência
           </strong>{" "}
-          de como a URL deve chegar no site. O script Lótus lê a query string na
+          de como a URL deve chegar no site. O script Fractal lê a query string na
           visita; identificadores como{" "}
           <span className="font-mono text-[11px]">gclid</span> e{" "}
           <span className="font-mono text-[11px]">fbclid</span> vêm do clique no
@@ -208,7 +208,7 @@ export function UrlBuilder() {
             <p className="flex flex-wrap items-center gap-2 text-[12px] text-muted-foreground">
               <PlatformLogo platform="google" size={16} />
               <span>
-                Google Ads (auto-tagging) — o script Lótus coleta estes junto
+                Google Ads (auto-tagging) — o script Fractal coleta estes junto
                 com os UTMs quando vêm na URL.
               </span>
             </p>
@@ -247,7 +247,7 @@ export function UrlBuilder() {
               <span>
                 Meta Ads — o Meta adiciona{" "}
                 <span className="font-mono text-[11px]">fbclid</span> no clique;
-                o script Lótus coleta junto com os UTMs. Use{" "}
+                o script Fractal coleta junto com os UTMs. Use{" "}
                 <span className="font-mono text-[11px]">utm_source</span>{" "}
                 facebook, instagram ou meta.
               </span>

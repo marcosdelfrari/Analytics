@@ -1,9 +1,9 @@
-import { Reveal, RevealGroup, RevealItem } from "@/app/components/lotus/motion";
-import { SectionShell } from "@/app/components/lotus/section-shell";
+import { Reveal, RevealGroup, RevealItem } from "@/app/components/fractal/motion";
+import { SectionShell } from "@/app/components/fractal/section-shell";
 
 import { subscriptionPlans as plans } from "@/lib/subscription-plans";
 
-export function LotusPricing() {
+export function FractalPricing() {
   return (
     <SectionShell
       id="pricing"
