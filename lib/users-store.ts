@@ -1,6 +1,10 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { adminEmail, roleForEmail } from "@/lib/access-code";
+import {
+  createClientWorkspace,
+  ensureLegacyClientsMigrated,
+} from "@/lib/organizations-store";
 import { prisma } from "@/lib/prisma";
 import type { Account, Role } from "@/lib/types";
 import type { User } from "@/lib/generated/prisma/client";
@@ -90,8 +94,27 @@ export async function listAccounts() {
 }
 
 export async function listClients() {
+  await ensureLegacyClientsMigrated();
   const users = await ensureUsers();
   return users.filter((user) => user.role === "client");
+}
+
+export async function ensureUserForEmail(input: { name: string; email: string }) {
+  const email = input.email.trim().toLowerCase();
+  const role: Role = roleForEmail(email);
+  const user = await prisma.user.upsert({
+    where: { email },
+    create: {
+      email,
+      name: input.name.trim() || email,
+      role,
+      planActive: role === "admin",
+    },
+    update: {
+      name: input.name.trim() || email,
+    },
+  });
+  return toAccount(user);
 }
 
 export async function findAccountByEmail(email: string) {
@@ -106,22 +129,15 @@ export async function findAccountById(id: string) {
 }
 
 export async function createClient(input: { name: string; email: string }) {
-  const email = input.email.trim().toLowerCase();
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return { error: "Já existe uma conta com esse e-mail." } as const;
-  }
+  const result = await createClientWorkspace(input);
+  if ("error" in result) return result;
 
-  const role: Role = roleForEmail(email);
-  const user = await prisma.user.create({
-    data: {
-      name: input.name.trim(),
-      email,
-      role,
-      planActive: role === "admin",
-    },
-  });
-  return { account: toAccount(user) } as const;
+  const email = input.email.trim().toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return { error: "Não foi possível criar o acesso." } as const;
+  }
+  return { account: toAccount(user), companyId: result.companyId } as const;
 }
 
 export async function deleteAccount(id: string) {

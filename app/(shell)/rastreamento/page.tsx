@@ -5,7 +5,7 @@ import { CopyButton } from "@/app/(shell)/encurtador/copy-button";
 import { AppShellMain } from "@/app/components/app-shell";
 import { RastreamentoLoadingFallback } from "@/app/components/loading-fallbacks";
 import { authEnabled } from "@/lib/auth-config";
-import { getSession } from "@/lib/auth";
+import { getActiveCompanyIdForSession, getSession } from "@/lib/auth";
 import { AllowedDomainsPanel } from "@/app/(shell)/rastreamento/allowed-domains-panel";
 import { InstallationTestPanel } from "@/app/(shell)/rastreamento/installation-test-panel";
 import { orderedParamEntries } from "@/lib/tracking-attribution";
@@ -37,7 +37,9 @@ async function TrackingPageContent() {
     }
     planActive = session.role === "admin" || session.planActive;
 
-    const site = await ensureTrackingSite(session.userId);
+    const companyId = await getActiveCompanyIdForSession(session);
+    if (!companyId) redirect("/login?erro=sem-acesso");
+    const site = await ensureTrackingSite(companyId);
     const [hits, domains] = await Promise.all([
       listRecentHits(site.id),
       listAllowedDomains(site.id),

@@ -7,16 +7,23 @@ import { authEnabled } from "@/lib/auth-config";
 import {
   mobilePrimaryNav,
   mobileSecondaryNav,
+  type NavContext,
 } from "@/lib/nav-items";
 import type { ShellMode } from "@/lib/shell-mode";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function MobileAppNav({ mode }: { mode: ShellMode }) {
+export function MobileAppNav({
+  mode,
+  navContext,
+}: {
+  mode: ShellMode;
+  navContext?: NavContext;
+}) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const primary = mobilePrimaryNav(mode);
-  const secondary = mobileSecondaryNav(mode);
+  const primary = mobilePrimaryNav(mode, navContext);
+  const secondary = mobileSecondaryNav(mode, navContext);
   const menuItems = secondary;
   const showMenu =
     secondary.length > 0 || (mode === "agency" && authEnabled);

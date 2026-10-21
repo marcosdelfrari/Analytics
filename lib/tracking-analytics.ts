@@ -5,7 +5,7 @@ import {
   listDailyMetrics,
   listEventBreakdownForPlatform,
   listEventBreakdownFromHits,
-  trackingSiteForUser,
+  trackingSiteForCompany,
 } from "@/lib/tracking";
 
 export type SiteTrafficPoint = {
@@ -54,7 +54,7 @@ function formatDayLabel(value: Date) {
 }
 
 export async function loadSiteTrackingAnalytics(
-  userId: string,
+  companyId: string,
   days = 14,
 ): Promise<SiteTrackingAnalytics> {
   const empty: SiteTrackingAnalytics = {
@@ -70,7 +70,7 @@ export async function loadSiteTrackingAnalytics(
     },
   };
 
-  const site = await trackingSiteForUser(userId);
+  const site = await trackingSiteForCompany(companyId);
   if (!site) return empty;
 
   const [

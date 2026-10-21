@@ -6,20 +6,27 @@ import { BrandMark } from "@/app/components/brand-mark";
 import { MobileAppNav } from "@/app/components/mobile-app-nav";
 import { NavPanel } from "@/app/components/nav-panel";
 import { authEnabled } from "@/lib/auth-config";
-import { navItemsForMode } from "@/lib/nav-items";
+import { navItemsForMode, type NavContext } from "@/lib/nav-items";
 import { shellModeFromPathname, type ShellMode } from "@/lib/shell-mode";
 
 type AppShellChromeProps = {
   /** Com login: modo da sessão. Sem login: omitir e usar a rota. */
   sessionMode?: ShellMode;
+  navContext?: NavContext;
+  companySwitcher?: ReactNode;
   children: ReactNode;
 };
 
-export function AppShellChrome({ sessionMode, children }: AppShellChromeProps) {
+export function AppShellChrome({
+  sessionMode,
+  navContext,
+  companySwitcher,
+  children,
+}: AppShellChromeProps) {
   const pathname = usePathname();
   const mode =
     authEnabled && sessionMode ? sessionMode : shellModeFromPathname(pathname);
-  const items = navItemsForMode(mode);
+  const items = navItemsForMode(mode, navContext);
 
   return (
     <div className="flex h-dvh min-h-0 flex-col overflow-hidden md:flex-row">
@@ -28,6 +35,7 @@ export function AppShellChrome({ sessionMode, children }: AppShellChromeProps) {
           <BrandMark />
         </div>
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          {companySwitcher}
           <NavPanel items={items} showLogout />
         </div>
       </aside>
@@ -36,7 +44,7 @@ export function AppShellChrome({ sessionMode, children }: AppShellChromeProps) {
         {children}
       </div>
 
-      <MobileAppNav mode={mode} />
+      <MobileAppNav mode={mode} navContext={navContext} />
     </div>
   );
 }

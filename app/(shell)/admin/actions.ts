@@ -7,12 +7,17 @@ import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { deleteReport, deleteReportsForClient, saveReport } from "@/lib/reports-store";
 import type { PublishedReport } from "@/lib/types";
+import { prisma } from "@/lib/prisma";
 import {
-  createClient,
-  deleteAccount,
-  findAccountById,
-  setClientPlanActive,
-} from "@/lib/users-store";
+  createClientWorkspace,
+  createOrganization,
+  deleteAccessGrant,
+  deleteCompany,
+  deleteOrganization,
+  findCompanyById,
+  setCompanyPlanActive,
+} from "@/lib/organizations-store";
+import { deleteAccount } from "@/lib/users-store";
 
 const allowedExtensions = new Set([
   ".pdf",
@@ -62,25 +67,68 @@ export async function createClientAccount(
   if (name.length < 2) return { error: "Informe o nome do cliente." };
   if (!email.includes("@")) return { error: "Informe um e-mail válido." };
 
-  const result = await createClient({ name, email });
+  const result = await createClientWorkspace({ name, email });
   if ("error" in result) {
     return { error: result.error ?? "Não foi possível criar o cliente." };
   }
 
   revalidatePath("/admin");
-  redirect(`/admin?cliente=${result.account.id}`);
+  redirect(`/admin?empresa=${result.companyId}`);
+}
+
+export async function createOrganizationAccount(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+  const name = String(formData.get("name") ?? "").trim();
+  const result = await createOrganization(name);
+  if ("error" in result) {
+    return { error: result.error ?? "Não foi possível criar a organização." };
+  }
+  revalidatePath("/admin");
+  redirect(`/admin?org=${result.organizationId}`);
+}
+
+export async function removePlatformUser(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await deleteAccount(id);
+  revalidatePath("/admin");
+  redirect("/admin");
+}
+
+export async function removeAccessGrant(formData: FormData) {
+  await requireAdmin();
+  const grantId = String(formData.get("grantId") ?? "");
+  const org = String(formData.get("org") ?? "");
+  if (!grantId) return;
+  await deleteAccessGrant(grantId);
+  revalidatePath("/admin");
+  redirect(org ? `/admin?org=${org}` : "/admin");
 }
 
 export async function removeClient(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
-  const account = await findAccountById(id);
-  if (!account || account.role !== "client") return;
+  const org = String(formData.get("org") ?? "");
+  const company = await findCompanyById(id);
+  if (!company) return;
   await deleteReportsForClient(id);
-  await deleteAccount(id);
+
+  const siblings = await prisma.company.count({
+    where: { organizationId: company.organizationId },
+  });
+  if (siblings <= 1) {
+    await deleteOrganization(company.organizationId);
+  } else {
+    await deleteCompany(id);
+  }
+
   revalidatePath("/admin");
   revalidatePath("/dashboard");
-  redirect("/admin");
+  redirect(org ? `/admin?org=${org}` : "/admin");
 }
 
 export async function publishReport(
@@ -89,9 +137,9 @@ export async function publishReport(
 ): Promise<FormState> {
   await requireAdmin();
   const clientId = String(formData.get("clientId") ?? "");
-  const account = await findAccountById(clientId);
-  if (!account || account.role !== "client") {
-    return { error: "Selecione um cliente." };
+  const company = await findCompanyById(clientId);
+  if (!company) {
+    return { error: "Selecione uma empresa." };
   }
 
   const platform = String(formData.get("platform") ?? "");
@@ -168,18 +216,22 @@ export async function publishReport(
 
   revalidatePath("/dashboard");
   revalidatePath("/admin");
-  redirect(`/admin?cliente=${clientId}`);
+  const org = String(formData.get("org") ?? company.organizationId);
+  redirect(`/admin?org=${org}&empresa=${clientId}`);
 }
 
 export async function setClientPlan(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
+  const org = String(formData.get("org") ?? "");
   const active = String(formData.get("planActive") ?? "") === "true";
   if (!id) return;
-  await setClientPlanActive(id, active);
+  await setCompanyPlanActive(id, active);
   revalidatePath("/dashboard");
   revalidatePath("/admin");
-  redirect(`/admin?cliente=${id}`);
+  redirect(
+    org ? `/admin?org=${org}&empresa=${id}` : `/admin?empresa=${id}`,
+  );
 }
 
 export async function removeReport(formData: FormData) {
@@ -190,5 +242,12 @@ export async function removeReport(formData: FormData) {
   await deleteReport(id);
   revalidatePath("/dashboard");
   revalidatePath("/admin");
-  redirect(clientId ? `/admin?cliente=${clientId}` : "/admin");
+  const org = String(formData.get("org") ?? "");
+  redirect(
+    clientId
+      ? org
+        ? `/admin?org=${org}&empresa=${clientId}`
+        : `/admin?empresa=${clientId}`
+      : "/admin",
+  );
 }

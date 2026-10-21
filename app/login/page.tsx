@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { BrandMark } from "@/app/components/brand-mark";
+import { CodeLoginForm } from "@/app/login/code-login-form";
 
 const errors: Record<string, string> = {
   "sem-acesso": "Não foi possível criar sua conta. Tente de novo.",
@@ -40,6 +41,7 @@ export default function LoginPage({
             >
               Entrar com Google
             </a>
+            <CodeLoginForm />
           </div>
         </div>
       </div>

@@ -15,9 +15,9 @@ export function CreateClientForm() {
   return (
     <form action={action} className="border border-border bg-surface">
       <div className="border-b border-border px-4 py-3">
-        <h2 className="text-sm font-medium">Novo cliente</h2>
+        <h2 className="text-sm font-medium">Atalho: cliente único</h2>
         <p className="text-[12px] text-muted">
-          O cliente entra com a conta Google desse e-mail
+          Cria organização, primeira empresa e define o e-mail como proprietário
         </p>
       </div>
       <div className="grid gap-4 p-4">

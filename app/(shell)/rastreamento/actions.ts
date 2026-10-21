@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authEnabled } from "@/lib/auth-config";
-import { getSession } from "@/lib/auth";
+import { getActiveCompanyIdForSession, getSession } from "@/lib/auth";
 import {
   addAllowedDomain,
   ensureTrackingSite,
@@ -25,7 +25,9 @@ async function requireTrackingSite() {
   if (session.role !== "admin" && session.role !== "client") {
     redirect("/login");
   }
-  const site = await ensureTrackingSite(session.userId);
+  const companyId = await getActiveCompanyIdForSession(session);
+  if (!companyId) redirect("/login?erro=sem-acesso");
+  const site = await ensureTrackingSite(companyId);
   return site;
 }
 

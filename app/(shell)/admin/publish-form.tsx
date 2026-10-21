@@ -6,7 +6,13 @@ import { publishReport, type FormState } from "@/app/(shell)/admin/actions";
 const fieldClass =
   "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
 
-export function PublishForm({ clientId }: { clientId: string }) {
+export function PublishForm({
+  clientId,
+  orgId,
+}: {
+  clientId: string;
+  orgId: string;
+}) {
   const [state, action, pending] = useActionState<FormState, FormData>(
     publishReport,
     null,
@@ -15,6 +21,7 @@ export function PublishForm({ clientId }: { clientId: string }) {
   return (
     <form action={action} className="border border-border bg-surface">
       <input type="hidden" name="clientId" value={clientId} />
+      <input type="hidden" name="org" value={orgId} />
       <div className="border-b border-border px-4 py-3">
         <h2 className="text-sm font-medium">Publicar período</h2>
         <p className="text-[12px] text-muted">

@@ -8,8 +8,8 @@ import {
   googleStateCookie,
   publicOrigin,
 } from "@/lib/google-oauth";
+import { resolveAccountForLogin } from "@/lib/complete-login";
 import { sessionCookie, sessionCookieOptions, signSession } from "@/lib/session";
-import { createClient, ensureAdminFromEnv, findAccountByEmail } from "@/lib/users-store";
 
 function sameState(left: string, right: string) {
   const a = Buffer.from(left);
@@ -42,13 +42,10 @@ export async function GET(request: NextRequest) {
     }
     if (!profile) return fail(origin, "invalido");
 
-    await ensureAdminFromEnv();
-    let account = await findAccountByEmail(profile.email);
-    if (!account) {
-      const created = await createClient({ name: profile.name, email: profile.email });
-      account = "error" in created ? await findAccountByEmail(profile.email) : created.account;
-    }
-    if (!account) return fail(origin, "sem-acesso");
+    const email = profile.email.trim().toLowerCase();
+    const resolved = await resolveAccountForLogin(email, profile.name);
+    if (!resolved.ok) return fail(origin, resolved.error);
+    const account = resolved.account;
 
     const token = await signSession({
       userId: account.id,

@@ -7,8 +7,10 @@ import { redirect } from "next/navigation";
 import { AppShellChrome } from "@/app/components/app-shell-chrome";
 import { AppShellMain } from "@/app/components/app-shell";
 import { SkeletonScreenReader } from "@/app/components/skeleton";
+import { CompanySwitcher } from "@/app/components/company-switcher";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
+import { resolveClientCompanyContext } from "@/lib/company-context";
 import { shellModeFromRole } from "@/lib/shell-mode";
 
 function ShellLayoutFallback() {
@@ -43,9 +45,30 @@ async function ShellLayoutWithSession({
 
   const sessionMode =
     authEnabled && session ? shellModeFromRole(session.role) : undefined;
+  const navContext =
+    authEnabled && session
+      ? { organizationOwner: session.isOrganizationOwner }
+      : undefined;
+
+  let switcherNode: ReactNode = null;
+  if (authEnabled && session?.role === "client") {
+    const context = await resolveClientCompanyContext(session);
+    switcherNode = (
+      <CompanySwitcher
+        companies={context.accessibleCompanies}
+        activeCompanyId={context.activeCompanyId}
+      />
+    );
+  }
 
   return (
-    <AppShellChrome sessionMode={sessionMode}>{children}</AppShellChrome>
+    <AppShellChrome
+      sessionMode={sessionMode}
+      navContext={navContext}
+      companySwitcher={switcherNode}
+    >
+      {children}
+    </AppShellChrome>
   );
 }
 

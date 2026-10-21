@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authEnabled } from "@/lib/auth-config";
-import { getSession } from "@/lib/auth";
+import { getActiveCompanyIdForSession, getSession } from "@/lib/auth";
 import { ensureTrackingSite } from "@/lib/tracking";
 import { findPageviewSince } from "@/lib/tracking-verify";
 
@@ -35,7 +35,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "since expirado." }, { status: 400 });
   }
 
-  const site = await ensureTrackingSite(session.userId);
+  const companyId = await getActiveCompanyIdForSession(session);
+  if (!companyId) {
+    return NextResponse.json({ error: "Sem empresa ativa." }, { status: 403 });
+  }
+  const site = await ensureTrackingSite(companyId);
   const hit = await findPageviewSince(site.id, since);
 
   if (!hit) {

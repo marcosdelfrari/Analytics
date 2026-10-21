@@ -24,25 +24,39 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
-/** Delegates novos após `prisma generate` — recria o client se o cache do dev for antigo. */
-function clientHasTrackingBreakdown(client: PrismaClient) {
-  const extended = client as PrismaClient & {
-    trackingEventDailyMetric?: { groupBy?: unknown };
-    trackingCampaignDailyMetric?: { groupBy?: unknown };
+type CachedPrismaClient = PrismaClient & {
+  trackingEventDailyMetric?: { groupBy?: unknown };
+  trackingCampaignDailyMetric?: { groupBy?: unknown };
+  _runtimeDataModel?: {
+    models?: {
+      AccessGrant?: { fields?: Array<{ name: string }> };
+    };
   };
-  return (
+};
+
+/** Recria o client se o singleton do dev foi criado antes do schema atual. */
+function clientMatchesCurrentSchema(client: PrismaClient) {
+  if (client.constructor !== PrismaClient) return false;
+
+  const extended = client as CachedPrismaClient;
+  const hasTracking =
     typeof extended.trackingEventDailyMetric?.groupBy === "function" &&
-    typeof extended.trackingCampaignDailyMetric?.groupBy === "function"
-  );
+    typeof extended.trackingCampaignDailyMetric?.groupBy === "function";
+  const hasOwner =
+    extended._runtimeDataModel?.models?.AccessGrant?.fields?.some(
+      (field) => field.name === "isOwner",
+    ) === true;
+
+  return hasTracking && hasOwner;
 }
 
 function getPrismaClient() {
   const cached = globalForPrisma.prisma;
-  if (cached && clientHasTrackingBreakdown(cached)) {
+  if (cached && clientMatchesCurrentSchema(cached)) {
     return cached;
   }
   const fresh = createPrismaClient();
-  if (!clientHasTrackingBreakdown(fresh)) {
+  if (!clientMatchesCurrentSchema(fresh)) {
     throw new Error(
       "Prisma Client desatualizado. Rode npm run db:generate e reinicie o next dev.",
     );

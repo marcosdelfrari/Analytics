@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { connection } from "next/server";
 import { getSession } from "@/lib/auth";
+import { canAccessCompany } from "@/lib/organizations-store";
 import { authEnabled } from "@/lib/auth-config";
 import { getReport, uploadPath } from "@/lib/reports-store";
 
@@ -27,7 +28,9 @@ export async function GET(
   const allowed =
     !authEnabled ||
     (session &&
-      (session.role === "admin" || session.userId === report?.clientId));
+      report &&
+      (session.role === "admin" ||
+        (await canAccessCompany(session.email, report.clientId))));
   if (!allowed || !report?.storedFile || report.storedFile.includes("..")) {
     return new Response("Arquivo não encontrado", { status: 404 });
   }

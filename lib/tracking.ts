@@ -17,23 +17,23 @@ export function trackingSnippet(publicKey: string) {
   return `<script async src="${src}"></script>`;
 }
 
-/** Site e chave de coleta exclusivos deste cliente (1:1 com a conta). */
-export async function ensureTrackingSite(userId: string) {
+/** Site e chave de coleta exclusivos desta empresa (1:1). */
+export async function ensureTrackingSite(companyId: string) {
   const existing = await prisma.trackingSite.findUnique({
-    where: { userId },
+    where: { companyId },
   });
   if (existing) return existing;
 
   return prisma.trackingSite.create({
     data: {
-      userId,
+      companyId,
       publicKey: `lt_${randomBytes(16).toString("hex")}`,
     },
   });
 }
 
-export async function trackingSiteForUser(userId: string) {
-  return prisma.trackingSite.findUnique({ where: { userId } });
+export async function trackingSiteForCompany(companyId: string) {
+  return prisma.trackingSite.findUnique({ where: { companyId } });
 }
 
 export async function listRecentHits(siteId: string) {
