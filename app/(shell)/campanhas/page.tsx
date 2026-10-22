@@ -25,8 +25,8 @@ async function CampaignsPageContent() {
             Estrutura por plataforma
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Campanhas, grupos de anúncios e anúncios individuais, organizados
-            por Google Ads e Meta Ads.
+            Performance e hierarquia publicadas (campanha → grupo → anúncio). O
+            plano de marketing e o funil de aquisição são definidos na Lótus.
           </p>
         </header>
         <PlatformTabs

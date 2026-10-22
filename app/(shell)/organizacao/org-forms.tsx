@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useActionState } from "react";
 import {
   addCompanyToOrganization,
@@ -12,10 +13,23 @@ const fieldClass =
   "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
 
 export function AddCompanyForm({ organizationId }: { organizationId: string }) {
+  const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<FormState, FormData>(
     addCompanyToOrganization,
     null,
   );
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="w-full border border-border bg-surface px-4 py-3 text-left text-[12px] font-medium hover:bg-surface-elevated"
+      >
+        Cadastrar nova empresa
+      </button>
+    );
+  }
 
   return (
     <form action={action} className="border border-border bg-surface">
@@ -35,7 +49,14 @@ export function AddCompanyForm({ organizationId }: { organizationId: string }) {
       {state?.error && (
         <p className="px-4 text-[12px] text-negative">{state.error}</p>
       )}
-      <div className="flex justify-end border-t border-border px-4 py-3">
+      <div className="flex justify-end gap-2 border-t border-border px-4 py-3">
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="border border-border px-3 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated"
+        >
+          Cancelar
+        </button>
         <button
           type="submit"
           disabled={pending}
@@ -53,10 +74,23 @@ export function AddAccessGrantForm({
 }: {
   organization: OrganizationSummary;
 }) {
+  const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<FormState, FormData>(
     addOrganizationAccess,
     null,
   );
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="w-full border border-border bg-surface px-4 py-3 text-left text-[12px] font-medium hover:bg-surface-elevated"
+      >
+        Convidar usuário
+      </button>
+    );
+  }
 
   return (
     <form action={action} className="border border-border bg-surface">
@@ -102,7 +136,14 @@ export function AddAccessGrantForm({
       {state?.error && (
         <p className="px-4 text-[12px] text-negative">{state.error}</p>
       )}
-      <div className="flex justify-end border-t border-border px-4 py-3">
+      <div className="flex justify-end gap-2 border-t border-border px-4 py-3">
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="border border-border px-3 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated"
+        >
+          Cancelar
+        </button>
         <button
           type="submit"
           disabled={pending}

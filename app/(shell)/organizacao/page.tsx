@@ -54,7 +54,6 @@ async function OrganizacaoPageContent({
       ) : (
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
           <div className="space-y-4">
-            {activeOrg && <AddCompanyForm organizationId={activeOrg.id} />}
             <OrganizationPanel
               basePath="/organizacao"
               organizations={organizations}
@@ -62,6 +61,7 @@ async function OrganizacaoPageContent({
               selectedCompanyId={null}
               manageAccess
             />
+            {activeOrg && <AddCompanyForm organizationId={activeOrg.id} />}
             {activeOrg && <AddAccessGrantForm organization={activeOrg} />}
           </div>
           <section className="border border-border bg-surface px-6 py-10">
