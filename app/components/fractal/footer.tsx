@@ -4,6 +4,7 @@ import { Reveal } from "@/app/components/fractal/motion";
 
 const menuLinks = [
   { href: "#benefits", label: "Benefícios" },
+  { href: "#highlights", label: "Recursos" },
   { href: "#how-it-works", label: "Como funciona" },
   { href: "#pricing", label: "Planos" },
   { href: "#faq", label: "Perguntas frequentes" },
@@ -60,12 +61,20 @@ export function FractalFooter() {
           </p>
           <ul className="mt-4 space-y-2 text-sm">
             <li>
-              <a
-                href="/api/auth/google"
+              <Link
+                href="/login"
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
-                Começar agora
-              </a>
+                Entrar na conta
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/cadastro"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Criar conta grátis
+              </Link>
             </li>
           </ul>
         </div>

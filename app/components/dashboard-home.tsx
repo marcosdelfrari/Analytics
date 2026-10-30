@@ -16,10 +16,12 @@ export function DashboardHome({
   dashboard,
   evolution,
   siteTracking,
+  showSetupLink = true,
 }: {
   dashboard: DashboardData;
   evolution: EvolutionPoint[];
   siteTracking: SiteTrackingAnalytics | null;
+  showSetupLink?: boolean;
 }) {
   if (dashboard.summaries.length === 0) {
     return (
@@ -36,7 +38,12 @@ export function DashboardHome({
             aparecem aqui. O tráfego do site vem da coleta Node abaixo.
           </p>
         </section>
-        {siteTracking && <TrackingReportPanel tracking={siteTracking} />}
+        {siteTracking && (
+          <TrackingReportPanel
+            tracking={siteTracking}
+            showSetupLink={showSetupLink}
+          />
+        )}
       </div>
     );
   }
@@ -45,7 +52,10 @@ export function DashboardHome({
     <>
       {siteTracking && (
         <section className="mb-6">
-          <TrackingReportPanel tracking={siteTracking} />
+          <TrackingReportPanel
+            tracking={siteTracking}
+            showSetupLink={showSetupLink}
+          />
         </section>
       )}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

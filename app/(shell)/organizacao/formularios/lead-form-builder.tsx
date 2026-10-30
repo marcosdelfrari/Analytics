@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useId, useMemo, useState } from "react";
 import {
@@ -15,7 +16,6 @@ import {
   type LeadFormDraft,
   type LeadFormRecord,
 } from "@/lib/lead-form-types";
-import { leadFormEmbedSnippet } from "@/lib/lead-form-embed";
 
 type CompanyOption = { id: string; name: string };
 
@@ -246,29 +246,22 @@ export function LeadFormBuilder({
           </form>
 
           {draft.id ? (
-            <section className="rounded-2xl border border-border bg-surface px-5 py-4 shadow-sm">
-              <p className="text-[12.5px] font-medium text-foreground">
-                Instalar no site
-              </p>
-              <p className="mt-1 text-[11.5px] text-muted">
-                Cole antes de{" "}
-                <code className="font-mono text-[10.5px]">&lt;/body&gt;</code>.
-                A Fractal API carrega o formulário salvo no banco (
-                <code className="font-mono text-[10.5px]">lead_forms</code>).
-              </p>
-              {!draft.active ? (
-                <p className="mt-3 rounded-xl border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11.5px] text-amber-200">
-                  Ative o formulário para publicar o script no site.
+            <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface px-5 py-4 shadow-sm">
+              <div>
+                <p className="text-[12.5px] font-medium text-foreground">
+                  Instalar no site
                 </p>
-              ) : (
-                <textarea
-                  readOnly
-                  rows={3}
-                  className="mt-3 w-full resize-none rounded-xl border border-border bg-background/80 px-3 py-2.5 font-mono text-[11px] leading-relaxed text-foreground"
-                  value={leadFormEmbedSnippet(draft.id)}
-                  aria-label="Script de instalação do formulário"
-                />
-              )}
+                <p className="mt-1 text-[11.5px] text-muted">
+                  O script é gerado pela Fractal API (porta 4000). Abra Instalar
+                  para listar e copiar o embed.
+                </p>
+              </div>
+              <Link
+                href={`/organizacao/formularios/instalar?org=${organizationId}&form=${draft.id}`}
+                className="rounded-xl bg-foreground px-3.5 py-2 text-[12px] font-medium text-background transition hover:opacity-90"
+              >
+                Ir para Instalar
+              </Link>
             </section>
           ) : null}
 

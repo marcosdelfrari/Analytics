@@ -25,8 +25,14 @@ export type LeadFormActionState =
 async function requireOrganizationOwner(organizationId: string) {
   if (!authEnabled) return;
   const session = await getSession();
-  if (!session || !session.isOrganizationOwner) {
+  if (!session) {
     redirect("/login");
+  }
+  if (session.role === "admin") {
+    return;
+  }
+  if (!session.isOrganizationOwner) {
+    redirect("/dashboard");
   }
   const grant = await prisma.accessGrant.findUnique({
     where: {
@@ -37,7 +43,7 @@ async function requireOrganizationOwner(organizationId: string) {
     },
   });
   if (grant?.isOwner !== true) {
-    redirect(session.role === "admin" ? "/admin" : "/dashboard");
+    redirect("/dashboard");
   }
 }
 
@@ -131,6 +137,7 @@ export async function upsertLeadFormAction(
   }
 
   revalidatePath("/organizacao/formularios");
+  revalidatePath("/organizacao/formularios/instalar");
   return { ok: true, formId: result.form.id };
 }
 
@@ -141,5 +148,6 @@ export async function removeLeadFormAction(formData: FormData) {
   await requireOrganizationOwner(organizationId);
   await deleteLeadForm(id, organizationId);
   revalidatePath("/organizacao/formularios");
+  revalidatePath("/organizacao/formularios/instalar");
   redirect(`/organizacao/formularios?org=${organizationId}`);
 }

@@ -1,5 +1,6 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { prisma } from "@/lib/prisma";
 
 export interface ShortLink {
   code: string;
@@ -7,53 +8,136 @@ export interface ShortLink {
   label: string;
   clicks: number;
   createdAt: string;
+  companyId: string | null;
 }
 
-const dataDir = path.join(process.cwd(), "data");
-const indexPath = path.join(dataDir, "links.json");
+const legacyIndexPath = path.join(process.cwd(), "data", "links.json");
 
-async function readLinks() {
-  await mkdir(dataDir, { recursive: true });
+let legacyImportDone = false;
+
+async function importLegacyLinksIfNeeded() {
+  if (legacyImportDone) return;
+  legacyImportDone = true;
+
+  const count = await prisma.shortLink.count();
+  if (count > 0) return;
+
+  let rows: ShortLink[] = [];
   try {
-    const raw = await readFile(indexPath, "utf8");
-    return JSON.parse(raw) as ShortLink[];
+    const raw = await readFile(legacyIndexPath, "utf8");
+    const parsed = JSON.parse(raw) as ShortLink[];
+    rows = Array.isArray(parsed) ? parsed : [];
   } catch {
-    await writeFile(indexPath, "[]", "utf8");
-    return [];
+    return;
+  }
+
+  for (const link of rows) {
+    const code = String(link.code ?? "").trim().toLowerCase();
+    if (!code) continue;
+    await prisma.shortLink
+      .create({
+        data: {
+          code,
+          url: String(link.url ?? ""),
+          label: String(link.label ?? ""),
+          clicks: Number(link.clicks) || 0,
+          createdAt: link.createdAt ? new Date(link.createdAt) : new Date(),
+          companyId: null,
+        },
+      })
+      .catch(() => undefined);
   }
 }
 
-async function writeLinks(links: ShortLink[]) {
-  await mkdir(dataDir, { recursive: true });
-  await writeFile(indexPath, JSON.stringify(links, null, 2), "utf8");
+function toShortLink(row: {
+  code: string;
+  url: string;
+  label: string;
+  clicks: number;
+  createdAt: Date;
+  companyId: string | null;
+}): ShortLink {
+  return {
+    code: row.code,
+    url: row.url,
+    label: row.label,
+    clicks: row.clicks,
+    createdAt: row.createdAt.toISOString(),
+    companyId: row.companyId,
+  };
 }
 
-export async function listLinks() {
-  const links = await readLinks();
-  return links.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+export async function listLinks(companyId?: string | null) {
+  await importLegacyLinksIfNeeded();
+  const where =
+    companyId === undefined
+      ? {}
+      : companyId === null
+        ? { companyId: null }
+        : { OR: [{ companyId }, { companyId: null }] };
+
+  const links = await prisma.shortLink.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+  });
+  return links.map(toShortLink);
+}
+
+export async function listLinksForCompanies(companyIds: string[]) {
+  await importLegacyLinksIfNeeded();
+  if (companyIds.length === 0) return [];
+  const links = await prisma.shortLink.findMany({
+    where: { companyId: { in: companyIds } },
+    orderBy: { createdAt: "desc" },
+  });
+  return links.map(toShortLink);
 }
 
 export async function findLink(code: string) {
-  const links = await readLinks();
-  return links.find((link) => link.code === code) ?? null;
+  await importLegacyLinksIfNeeded();
+  const row = await prisma.shortLink.findUnique({
+    where: { code: code.toLowerCase() },
+  });
+  return row ? toShortLink(row) : null;
 }
 
-export async function saveLink(link: ShortLink) {
-  const links = await readLinks();
-  links.unshift(link);
-  await writeLinks(links);
+export async function saveLink(link: Omit<ShortLink, "createdAt"> & { createdAt?: string }) {
+  await importLegacyLinksIfNeeded();
+  const code = link.code.toLowerCase();
+  await prisma.shortLink.create({
+    data: {
+      code,
+      url: link.url,
+      label: link.label,
+      clicks: link.clicks,
+      companyId: link.companyId,
+      createdAt: link.createdAt ? new Date(link.createdAt) : undefined,
+    },
+  });
 }
 
-export async function deleteLink(code: string) {
-  const links = await readLinks();
-  await writeLinks(links.filter((link) => link.code !== code));
+export async function deleteLink(code: string, companyId?: string | null) {
+  await importLegacyLinksIfNeeded();
+  const existing = await findLink(code);
+  if (!existing) return;
+  if (
+    companyId !== undefined &&
+    existing.companyId !== null &&
+    existing.companyId !== companyId
+  ) {
+    return;
+  }
+  await prisma.shortLink.delete({ where: { code: code.toLowerCase() } });
 }
 
 export async function registerClick(code: string) {
-  const links = await readLinks();
-  const link = links.find((item) => item.code === code);
-  if (!link) return null;
-  link.clicks += 1;
-  await writeLinks(links);
-  return link.url;
+  await importLegacyLinksIfNeeded();
+  const normalized = code.toLowerCase();
+  const updated = await prisma.shortLink.updateMany({
+    where: { code: normalized },
+    data: { clicks: { increment: 1 } },
+  });
+  if (updated.count === 0) return null;
+  const row = await prisma.shortLink.findUnique({ where: { code: normalized } });
+  return row?.url ?? null;
 }

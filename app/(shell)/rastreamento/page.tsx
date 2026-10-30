@@ -35,10 +35,17 @@ async function TrackingPageContent() {
     if (session.role !== "admin" && session.role !== "client") {
       redirect("/login");
     }
+    if (session.role === "client" && !session.isOrganizationOwner) {
+      redirect("/dashboard");
+    }
     planActive = session.role === "admin" || session.planActive;
 
     const companyId = await getActiveCompanyIdForSession(session);
-    if (!companyId) redirect("/login?erro=sem-acesso");
+    if (!companyId) {
+      redirect(
+        session.role === "admin" ? "/dashboard" : "/login?erro=sem-acesso",
+      );
+    }
     const site = await ensureTrackingSite(companyId);
     const [hits, domains] = await Promise.all([
       listRecentHits(site.id),

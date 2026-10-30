@@ -1,20 +1,17 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { ShellMode } from "@/lib/shell-mode";
-
-type GuideContentProps = {
-  mode: ShellMode;
-};
 
 function DocSection({
   id,
   step,
   title,
+  audience,
   children,
 }: {
   id: string;
   step?: string;
   title: string;
+  audience?: string;
   children: ReactNode;
 }) {
   return (
@@ -28,6 +25,11 @@ function DocSection({
             <span className="font-mono text-[11px] text-muted">{step}</span>
           )}
           <h2 className="text-sm font-medium">{title}</h2>
+          {audience && (
+            <span className="rounded-md border border-border bg-background/60 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted">
+              {audience}
+            </span>
+          )}
         </div>
       </div>
       <div className="space-y-3 px-5 py-4 text-[13px] leading-relaxed text-muted-foreground">
@@ -57,7 +59,7 @@ function InternalLink({ href, children }: { href: string; children: ReactNode })
   );
 }
 
-export function GuideContent({ mode }: GuideContentProps) {
+export function GuideContent() {
   return (
     <div className="space-y-6">
       <header className="max-w-2xl">
@@ -66,9 +68,10 @@ export function GuideContent({ mode }: GuideContentProps) {
           Como usar o Fractal
         </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Passo a passo para instalar a coleta no site, alinhar URLs de campanha
-          e acompanhar mídia paga junto com o tráfego real. Use o menu à esquerda
-          (ou &quot;Menu&quot; no celular) para ir direto a cada área.
+          O analista consulta e exporta os dados das empresas liberadas para a
+          conta. O proprietário vê os mesmos números e é quem cadastra empresas,
+          acessos, script, links e formulários. Use o menu à esquerda (ou
+          &quot;Menu&quot; no celular) para ir direto a cada área.
         </p>
       </header>
 
@@ -81,243 +84,338 @@ export function GuideContent({ mode }: GuideContentProps) {
         </p>
         <ol className="mt-2 list-decimal space-y-1 pl-4 text-[13px] text-muted-foreground">
           <li>
-            <a href="#visao-geral" className="hover:text-foreground">
-              Visão geral
+            <a href="#papeis" className="hover:text-foreground">
+              Analista e proprietário
+            </a>
+          </li>
+          <li>
+            <a href="#empresa" className="hover:text-foreground">
+              Empresa ativa
+            </a>
+          </li>
+          <li>
+            <a href="#analista" className="hover:text-foreground">
+              Ver e exportar dados
+            </a>
+          </li>
+          <li>
+            <a href="#dashboard" className="hover:text-foreground">
+              Dashboard, relatórios e campanhas
+            </a>
+          </li>
+          <li>
+            <a href="#leads" className="hover:text-foreground">
+              Leads capturados
+            </a>
+          </li>
+          <li>
+            <a href="#organizacao" className="hover:text-foreground">
+              Empresas e acessos
             </a>
           </li>
           <li>
             <a href="#script" className="hover:text-foreground">
-              Instalar o script
+              Script, pixel e parâmetros
             </a>
           </li>
           <li>
-            <a href="#urls" className="hover:text-foreground">
-              URLs e parâmetros nos anúncios
-            </a>
-          </li>
-          {mode === "client" && (
-            <>
-              <li>
-                <a href="#dashboard" className="hover:text-foreground">
-                  Dashboard e relatórios
-                </a>
-              </li>
-              <li>
-                <a href="#campanhas" className="hover:text-foreground">
-                  Campanhas
-                </a>
-              </li>
-            </>
-          )}
-          {mode === "agency" && (
-            <li>
-              <a href="#agencia" className="hover:text-foreground">
-                Painel da agência
-              </a>
-            </li>
-          )}
-          <li>
-            <a href="#encurtador" className="hover:text-foreground">
-              Encurtador
+            <a href="#formularios" className="hover:text-foreground">
+              Formulários e encurtador
             </a>
           </li>
           <li>
             <a href="#dicas" className="hover:text-foreground">
-              Dicas e boas práticas
+              Dicas
             </a>
           </li>
         </ol>
       </nav>
 
-      <DocSection id="visao-geral" step="01" title="Visão geral">
+      <DocSection
+        id="papeis"
+        step="01"
+        title="Analista e proprietário"
+        audience="os dois papéis"
+      >
         <p>
-          O Fractal reúne dois tipos de informação:{" "}
-          <strong className="font-medium text-foreground">
-            relatórios de mídia paga
-          </strong>{" "}
-          (Google Ads e Meta Ads, publicados pela equipe) e{" "}
-          <strong className="font-medium text-foreground">
-            coleta no site
-          </strong>{" "}
-          (visitas e eventos via script). Os números de anúncio e o tráfego do
-          site aparecem juntos no dashboard quando o plano está ativo e há dados
-          no período.
+          Na organização, o cadastro chama esses papéis de{" "}
+          <strong className="font-medium text-foreground">usuário comum</strong>{" "}
+          e{" "}
+          <strong className="font-medium text-foreground">proprietário</strong>.
+          No menu, o usuário comum aparece como analista.
         </p>
         <p>
-          Ordem recomendada na primeira configuração: instale o{" "}
-          <InternalLink href="/rastreamento">Script</InternalLink>, cadastre os
-          domínios permitidos, publique o tag no site, configure UTMs nos anúncios
-          (use <InternalLink href="/parametros">Parâmetros</InternalLink> só como
-          referência) e só então valide visitas em Script → Últimas coletas.
+          <strong className="font-medium text-foreground">Analista</strong> abre
+          só leitura e exportação, nas empresas que o proprietário marcou para
+          o e-mail dele:
+        </p>
+        <ul className="list-disc space-y-1.5 pl-4">
+          <li>
+            <InternalLink href="/dashboard">Dashboard</InternalLink>,{" "}
+            <InternalLink href="/relatorios">Relatórios</InternalLink> e{" "}
+            <InternalLink href="/campanhas">Campanhas</InternalLink>
+          </li>
+          <li>
+            <InternalLink href="/organizacao/leads">
+              Leads capturados
+            </InternalLink>{" "}
+            dessas empresas
+          </li>
+          <li>
+            Exportar CSV do relatório e dos leads, e baixar o arquivo publicado
+            de mídia quando existir
+          </li>
+        </ul>
+        <p>
+          <strong className="font-medium text-foreground">Proprietário</strong>{" "}
+          vê tudo isso em todas as empresas da organização e cadastra o que a
+          conta usa:
+        </p>
+        <ul className="list-disc space-y-1.5 pl-4">
+          <li>
+            <InternalLink href="/organizacao">Empresas e acessos</InternalLink>
+          </li>
+          <li>
+            <InternalLink href="/rastreamento">Script e Pixel</InternalLink>,{" "}
+            <InternalLink href="/parametros">Parâmetros UTM</InternalLink> e{" "}
+            <InternalLink href="/encurtador">Encurtador</InternalLink>
+          </li>
+          <li>
+            <InternalLink href="/organizacao/formularios">
+              Criar formulário
+            </InternalLink>{" "}
+            e{" "}
+            <InternalLink href="/organizacao/formularios/instalar">
+              Instalar formulário
+            </InternalLink>
+          </li>
+        </ul>
+      </DocSection>
+
+      <DocSection
+        id="empresa"
+        step="02"
+        title="Empresa ativa"
+        audience="analista e proprietário"
+      >
+        <p>
+          Com mais de uma empresa na conta, o seletor{" "}
+          <strong className="font-medium text-foreground">Empresa ativa</strong>{" "}
+          no topo do menu troca o contexto. Dashboard, relatórios, campanhas e
+          a exportação passam a ser os da empresa escolhida.
+        </p>
+        <p>
+          O analista só encontra as empresas liberadas para ele. O proprietário
+          encontra todas as empresas da organização.
         </p>
       </DocSection>
 
-      <DocSection id="script" step="02" title="Instalar o script no site">
+      <DocSection
+        id="analista"
+        step="03"
+        title="Ver e exportar dados"
+        audience="analista e proprietário"
+      >
         <p>
-          Em <InternalLink href="/rastreamento">Script</InternalLink>, copie o
-          snippet exclusivo da conta e cole no{" "}
-          <code className="font-mono text-[12px] text-foreground">&lt;head&gt;</code>{" "}
-          de todas as páginas do site (ou no template global do CMS).
+          As telas de análise são de consulta. Em{" "}
+          <InternalLink href="/relatorios">Relatórios</InternalLink>,{" "}
+          <strong className="font-medium text-foreground">Exportar CSV</strong>{" "}
+          baixa o resumo de mídia, a evolução, os relatórios publicados, o
+          tráfego do site e os eventos da empresa ativa. No histórico de cada
+          plataforma, <strong className="font-medium text-foreground">Baixar</strong>{" "}
+          entrega o arquivo publicado (planilha ou PDF) quando a equipe anexou
+          um.
         </p>
-        <ol className="list-decimal space-y-2 pl-4">
-          <li>
-            Adicione cada domínio do site (com e sem{" "}
-            <code className="font-mono text-[12px]">www</code>) em domínios
-            permitidos — a coleta só aceita origens cadastradas.
-          </li>
-          <li>
-            Publique o script e use o teste de instalação na mesma página para
-            confirmar que a primeira visita chegou.
-          </li>
-          <li>
-            Para botões importantes (WhatsApp, formulário, simulação), dispare{" "}
-            <code className="font-mono text-[12px] text-foreground">
-              fractal.track(&quot;nome_do_evento&quot;, {"{ ... }"})
-            </code>{" "}
-            depois que o script carregar; a campanha da sessão vai junto no
-            evento.
-          </li>
-        </ol>
+        <p>
+          Em{" "}
+          <InternalLink href="/organizacao/leads">Leads capturados</InternalLink>
+          , filtre por organização, formulário e empresa e use{" "}
+          <strong className="font-medium text-foreground">Exportar CSV</strong>{" "}
+          para levar data, formulário, empresa, página, UTMs e os campos
+          preenchidos. O analista exporta só as empresas da própria conta.
+        </p>
         <Tip>
-          O script guarda na sessão os parâmetros da primeira URL (UTM, gclid,
-          fbclid, gbraid, etc.). Se o visitante entrar sem parâmetros e navegar
-          por páginas internas, a origem continua atribuída até fechar o navegador.
+          Com plano gratuito, a mídia pode aparecer como demonstração. A coluna
+          &quot;base&quot; do CSV marca cada linha como demonstração ou
+          publicado.
         </Tip>
       </DocSection>
 
-      <DocSection id="urls" step="03" title="URLs e parâmetros nos anúncios">
+      <DocSection
+        id="dashboard"
+        step="04"
+        title="Dashboard, relatórios e campanhas"
+        audience="analista e proprietário"
+      >
         <p>
-          UTMs e URL final são definidos no{" "}
-          <strong className="font-medium text-foreground">Google Ads</strong> ou{" "}
-          <strong className="font-medium text-foreground">Meta Ads</strong> — não
-          no Fractal. A página{" "}
-          <InternalLink href="/parametros">Parâmetros</InternalLink> monta um{" "}
-          <em>exemplo</em> de URL para você copiar o formato correto.
+          O <InternalLink href="/dashboard">Dashboard</InternalLink> resume o
+          período da empresa ativa: investimento, conversões, CTR, custo por
+          conversão, evolução e os cartões de Google Ads e Meta Ads. A coleta
+          do site (visitas e eventos) entra no topo quando o script já está
+          publicando.
+        </p>
+        <p>
+          Em <InternalLink href="/relatorios">Relatórios</InternalLink>, as abas
+          separam Google Ads e Meta Ads. Cada uma mostra o tráfego filtrado por{" "}
+          <code className="font-mono text-[12px]">utm_source</code> e o
+          relatório de mídia. Abaixo, a visão geral junta todas as origens.
+        </p>
+        <p>
+          <InternalLink href="/campanhas">Campanhas</InternalLink> lista a
+          estrutura publicada: campanha, grupo de anúncios e anúncio, com
+          status (ativa, pausada ou aprendizado), investimento, cliques e
+          conversões.
+        </p>
+      </DocSection>
+
+      <DocSection
+        id="leads"
+        step="05"
+        title="Leads capturados"
+        audience="analista e proprietário"
+      >
+        <p>
+          A lista mostra quando o envio chegou, o formulário, a empresa, os
+          campos e a página de origem. O analista vê os leads das empresas
+          liberadas. O proprietário vê os leads de todas as empresas da
+          organização e, no topo da página, volta para os formulários para
+          ajustar o cadastro.
+        </p>
+      </DocSection>
+
+      <DocSection
+        id="organizacao"
+        step="06"
+        title="Empresas e acessos"
+        audience="proprietário"
+      >
+        <p>
+          Em <InternalLink href="/organizacao">Empresas e acessos</InternalLink>{" "}
+          o proprietário monta quem entra em cada empresa. Quem gerencia mais
+          de uma organização troca o nome no topo da página.
         </p>
         <ul className="list-disc space-y-2 pl-4">
           <li>
-            Mantenha{" "}
-            <code className="font-mono text-[12px]">utm_source</code> alinhado à
-            plataforma (ex.: google, meta) para os relatórios filtrarem certo.
+            Arraste uma empresa até um usuário (ou o contrário) no fluxo visual
+            para conceder o acesso.
           </li>
           <li>
-            No Google, deixe o auto-tagging ligado:{" "}
-            <code className="font-mono text-[12px]">gclid</code> e parâmetros
-            relacionados chegam no clique sem digitar manualmente.
+            Inclua uma empresa pelo nome. A tabela mostra o plano (ativo ou
+            gratuito) e quais usuários já abrem aquela conta.
           </li>
           <li>
-            No Meta, o{" "}
-            <code className="font-mono text-[12px]">fbclid</code> vem do clique;
-            complemente com UTMs no modelo de URL do anúncio quando fizer sentido.
+            Inclua um analista com nome e e-mail. Marque todas as empresas ou
+            só as que ele deve consultar. Depois, clique nos nomes na linha dele
+            para incluir ou tirar o acesso.
+          </li>
+          <li>
+            O proprietário permanece com acesso total. Analistas podem ser
+            removidos da organização.
           </li>
         </ul>
         <Tip>
-          Teste sempre a URL final em uma aba anônima antes de escalar budget:
-          confira se os parâmetros aparecem na barra de endereço na landing.
+          O analista passa a ver a empresa no seletor do menu assim que o
+          acesso é salvo. Peça para atualizar a página se o nome ainda não
+          aparecer.
         </Tip>
       </DocSection>
 
-      {mode === "client" && (
-        <>
-          <DocSection id="dashboard" step="04" title="Dashboard e relatórios">
-            <p>
-              O <InternalLink href="/dashboard">Dashboard</InternalLink> resume o
-              período publicado: investimento, conversões e evolução, além do
-              bloco de tráfego coletado pelo script (visitas e eventos).
-            </p>
-            <p>
-              Em <InternalLink href="/relatorios">Relatórios</InternalLink>, você
-              alterna Google Ads e Meta Ads. Cada aba mostra o relatório de mídia
-              da plataforma e, abaixo, o tráfego do site filtrado por{" "}
-              <code className="font-mono text-[12px]">utm_source</code> — útil
-              para comparar o que a plataforma reporta com o que de fato chegou
-              no site.
-            </p>
-            <Tip>
-              Sem plano ativo ou sem publicação recente, as telas podem exibir
-              demonstração ou ficar vazias; isso não significa que o script parou
-              de coletar — veja Script → Últimas coletas.
-            </Tip>
-          </DocSection>
-
-          <DocSection id="campanhas" step="05" title="Campanhas">
-            <p>
-              <InternalLink href="/campanhas">Campanhas</InternalLink> lista a
-              hierarquia publicada: campanha → grupo de anúnsios → anúncio, por
-              plataforma. Use para localizar nomes e IDs ao cruzar com UTMs ou
-              com eventos no site.
-            </p>
-          </DocSection>
-        </>
-      )}
-
-      {mode === "agency" && (
-        <DocSection id="agencia" step="04" title="Painel da agência">
-          <p>
-            No <InternalLink href="/admin">Painel</InternalLink>, crie clientes,
-            ative ou desative planos e publique relatórios de Google Ads ou Meta
-            Ads para cada conta. Só depois da publicação os números aparecem no
-            dashboard do cliente.
-          </p>
-          <p>
-            Cada cliente tem script e chave próprios em{" "}
-            <InternalLink href="/rastreamento">Script</InternalLink> quando acessa
-            com a conta dele; no modo agência, você gerencia links e parâmetros
-            nas mesmas telas de ferramentas.
-          </p>
-        </DocSection>
-      )}
-
       <DocSection
-        id="encurtador"
-        step={mode === "client" ? "06" : "05"}
-        title="Encurtador de links"
+        id="script"
+        step="07"
+        title="Script, pixel e parâmetros"
+        audience="proprietário"
       >
         <p>
-          <InternalLink href="/encurtador">Encurtador</InternalLink> gera atalhos
-          no seu domínio para usar em bio, QR code ou materiais offline. Informe
-          a URL de destino já com UTMs (montadas no ads ou copiadas do exemplo em
-          Parâmetros) para não perder atribuição no clique.
+          Em <InternalLink href="/rastreamento">Script e Pixel</InternalLink>, a
+          chave é da empresa ativa. Cadastre ao menos um domínio autorizado
+          (subdomínios entram junto) e cole o snippet no{" "}
+          <code className="font-mono text-[12px] text-foreground">
+            &lt;head&gt;
+          </code>{" "}
+          do site. Eventos de botão usam{" "}
+          <code className="font-mono text-[12px] text-foreground">
+            fractal.track(&quot;nome_do_evento&quot;, {"{ ... }"})
+          </code>
+          . O teste confere a tag no HTML e espera a visita (até 2 minutos).
+          Últimas coletas lista o que chegou.
+        </p>
+        <p>
+          <InternalLink href="/parametros">Parâmetros UTM</InternalLink> monta
+          um exemplo de URL para copiar no Google Ads ou no Meta Ads: origem,
+          mídia, campanha, conteúdo, termo e identificadores de clique. Analistas
+          e proprietários podem consultar essa página como referência; a URL
+          final fica no anúncio. Mantenha{" "}
+          <code className="font-mono text-[12px]">utm_source</code> alinhado à
+          plataforma (google, meta, facebook ou instagram) para os relatórios
+          separarem a origem.
+        </p>
+        <Tip>
+          O script guarda na sessão os parâmetros da primeira URL. O analista
+          acompanha visitas e eventos no dashboard e nos relatórios, sem
+          precisar abrir o cadastro do script.
+        </Tip>
+      </DocSection>
+
+      <DocSection
+        id="formularios"
+        step="08"
+        title="Formulários e encurtador"
+        audience="proprietário"
+      >
+        <p>
+          Em{" "}
+          <InternalLink href="/organizacao/formularios">
+            Criar formulário
+          </InternalLink>
+          , o assistente pede nome e formato (botão de WhatsApp, popup ou saída
+          da página), textos, campos, personalização opcional e ativação. Os
+          campos podem ser texto, e-mail, telefone, texto longo, seleção,
+          checkbox ou número. Dá para ligar o formulário a uma empresa e enviar
+          um e-mail de confirmação.
+        </p>
+        <p>
+          Em{" "}
+          <InternalLink href="/organizacao/formularios/instalar">
+            Instalar formulário
+          </InternalLink>
+          , escolha o formulário ativo e copie o script para o site. Formulário
+          ativo é o que gera o snippet.
+        </p>
+        <p>
+          <InternalLink href="/encurtador">Encurtador</InternalLink> cria
+          atalhos da empresa ativa para bio, QR code ou material offline.
+          Informe o destino já com UTMs, um nome e, se quiser, um código curto.
+          A lista mostra cliques e permite copiar ou remover o atalho.
         </p>
       </DocSection>
 
-      <DocSection id="dicas" title="Dicas e boas práticas">
+      <DocSection id="dicas" title="Dicas">
         <ul className="space-y-3">
           <li>
             <strong className="font-medium text-foreground">
-              Nomenclatura de eventos:
+              Uma empresa, uma chave:
             </strong>{" "}
-            use nomes curtos e estáveis (
+            o proprietário troca a empresa ativa antes de copiar o script ou
+            criar um link curto.
+          </li>
+          <li>
+            <strong className="font-medium text-foreground">
+              Nomes de evento estáveis:
+            </strong>{" "}
+            rótulos curtos (
             <code className="font-mono text-[12px]">contato</code>,{" "}
-            <code className="font-mono text-[12px]">ver_obra</code>) — facilita
-            ler totais nos relatórios de tráfego.
+            <code className="font-mono text-[12px]">ver_obra</code>) aparecem
+            legíveis na exportação e nos relatórios.
           </li>
           <li>
             <strong className="font-medium text-foreground">
-              Um domínio, uma chave:
+              Acesso a outra empresa:
             </strong>{" "}
-            não reutilize o snippet de outra conta; cada cliente tem chave
-            isolada.
-          </li>
-          <li>
-            <strong className="font-medium text-foreground">
-              SPA e tags atrasadas:
-            </strong>{" "}
-            se o site é single-page, garanta que o script rode no carregamento
-            inicial; eventos customizados podem ir nos handlers dos botões.
-          </li>
-          <li>
-            <strong className="font-medium text-foreground">
-              Privacidade e plano:
-            </strong>{" "}
-            recursos completos dependem do plano contratado; dúvidas sobre
-            limites aparecem na área de upgrade quando aplicável.
+            o analista pede ao proprietário para marcar a empresa em Empresas e
+            acessos. A partir daí ele consulta e exporta os dados dela.
           </li>
         </ul>
-        <p className="pt-1 text-[12px] text-muted">
-          Precisa de ajuda humana? Entre em contato pelo canal indicado na landing
-          ou fale com quem publica seus relatórios no painel da agência.
-        </p>
       </DocSection>
     </div>
   );

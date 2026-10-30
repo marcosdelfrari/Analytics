@@ -16,6 +16,9 @@ export async function GET(request: Request) {
   if (session.role !== "admin" && session.role !== "client") {
     return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
   }
+  if (session.role === "client" && !session.isOrganizationOwner) {
+    return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+  }
 
   const sinceRaw = new URL(request.url).searchParams.get("since");
   if (!sinceRaw) {

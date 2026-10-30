@@ -1,6 +1,6 @@
 import type { Platform } from "@/lib/types";
 import { prisma } from "@/lib/prisma";
-import { sqlUtmSourceMatchesPlatform } from "@/lib/utm-platform";
+import { sqlSourceMatchesPlatform } from "@/lib/utm-platform";
 
 export function trackingSince(days: number) {
   const since = new Date();
@@ -21,12 +21,11 @@ type AttributionRow = {
 export async function listEventBreakdownFromHits(siteId: string, days = 14) {
   const since = trackingSince(days);
   const rows = await prisma.$queryRaw<EventRow[]>`
-    SELECT name, COUNT(*)::bigint AS count
-    FROM tracking_hits
+    SELECT event_name AS name, SUM(count)::bigint AS count
+    FROM tracking_event_daily_metrics
     WHERE site_id = ${siteId}
-      AND kind = 'event'
-      AND created_at >= ${since}
-    GROUP BY name
+      AND day >= ${since}::date
+    GROUP BY event_name
     ORDER BY count DESC
     LIMIT 20
   `;
@@ -40,33 +39,33 @@ function attributionQuery(siteId: string, since: Date, platform?: Platform) {
   const platformSql = platform
     ? prisma.$queryRawUnsafe<AttributionRow[]>(
         `SELECT
-          COALESCE(NULLIF(TRIM(LEFT(params->>'utm_source', 200)), ''), '(sem origem)') AS source,
-          COALESCE(NULLIF(TRIM(LEFT(params->>'utm_medium', 200)), ''), '(sem meio)') AS medium,
-          COALESCE(NULLIF(TRIM(LEFT(params->>'utm_campaign', 200)), ''), '(sem campanha)') AS campaign,
-          COUNT(*) FILTER (WHERE kind = 'pageview')::bigint AS pageviews,
-          COUNT(*) FILTER (WHERE kind = 'event')::bigint AS events
-        FROM tracking_hits
+          source,
+          medium,
+          campaign,
+          SUM(pageviews)::bigint AS pageviews,
+          SUM(events)::bigint AS events
+        FROM tracking_attribution_daily_metrics
         WHERE site_id = $1
-          AND created_at >= $2
-          AND ${sqlUtmSourceMatchesPlatform(platform)}
-        GROUP BY 1, 2, 3
-        ORDER BY (COUNT(*) FILTER (WHERE kind = 'pageview') + COUNT(*) FILTER (WHERE kind = 'event')) DESC
+          AND day >= $2::date
+          AND ${sqlSourceMatchesPlatform(platform)}
+        GROUP BY source, medium, campaign
+        ORDER BY (SUM(pageviews) + SUM(events)) DESC
         LIMIT 25`,
         siteId,
         since,
       )
     : prisma.$queryRaw<AttributionRow[]>`
         SELECT
-          COALESCE(NULLIF(TRIM(LEFT(params->>'utm_source', 200)), ''), '(sem origem)') AS source,
-          COALESCE(NULLIF(TRIM(LEFT(params->>'utm_medium', 200)), ''), '(sem meio)') AS medium,
-          COALESCE(NULLIF(TRIM(LEFT(params->>'utm_campaign', 200)), ''), '(sem campanha)') AS campaign,
-          COUNT(*) FILTER (WHERE kind = 'pageview')::bigint AS pageviews,
-          COUNT(*) FILTER (WHERE kind = 'event')::bigint AS events
-        FROM tracking_hits
+          source,
+          medium,
+          campaign,
+          SUM(pageviews)::bigint AS pageviews,
+          SUM(events)::bigint AS events
+        FROM tracking_attribution_daily_metrics
         WHERE site_id = ${siteId}
-          AND created_at >= ${since}
-        GROUP BY 1, 2, 3
-        ORDER BY (COUNT(*) FILTER (WHERE kind = 'pageview') + COUNT(*) FILTER (WHERE kind = 'event')) DESC
+          AND day >= ${since}::date
+        GROUP BY source, medium, campaign
+        ORDER BY (SUM(pageviews) + SUM(events)) DESC
         LIMIT 25
       `;
   return platformSql;
@@ -107,19 +106,16 @@ export async function listEventBreakdownForPlatform(
   days = 14,
 ) {
   const since = trackingSince(days);
-  const rows = await prisma.$queryRawUnsafe<EventRow[]>(
-    `SELECT name, COUNT(*)::bigint AS count
-     FROM tracking_hits
-     WHERE site_id = $1
-       AND kind = 'event'
-       AND created_at >= $2
-       AND ${sqlUtmSourceMatchesPlatform(platform)}
-     GROUP BY name
-     ORDER BY count DESC
-     LIMIT 20`,
-    siteId,
-    since,
-  );
+  const rows = await prisma.$queryRaw<EventRow[]>`
+    SELECT event_name AS name, SUM(count)::bigint AS count
+    FROM tracking_event_platform_daily_metrics
+    WHERE site_id = ${siteId}
+      AND day >= ${since}::date
+      AND platform = ${platform}
+    GROUP BY event_name
+    ORDER BY count DESC
+    LIMIT 20
+  `;
   return rows.map((row) => ({
     name: row.name,
     count: Number(row.count),

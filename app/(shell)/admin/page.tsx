@@ -1,21 +1,20 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { connection } from "next/server";
-import { redirect } from "next/navigation";
-import { removeClient, removeReport, setClientPlan } from "@/app/(shell)/admin/actions";
+import { removeClient, setClientPlan } from "@/app/(shell)/admin/actions";
 import { CreateClientForm } from "@/app/(shell)/admin/create-client-form";
 import { CreateOrganizationForm } from "@/app/(shell)/admin/org-forms";
 import { OrganizationPanel } from "@/app/(shell)/admin/organization-panel";
-import { PublishForm } from "@/app/(shell)/admin/publish-form";
-import { UsersPanel } from "@/app/(shell)/admin/users-panel";
+import {
+  AddAccessGrantForm,
+  AddCompanyForm,
+} from "@/app/(shell)/organizacao/org-forms";
+import { OrganizationFlowPanel } from "@/app/(shell)/organizacao/organization-flow-panel";
 import { AppShellMain } from "@/app/components/app-shell";
 import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
-import { getSession } from "@/lib/auth";
-import { authEnabled } from "@/lib/auth-config";
-import { formatCurrency, formatNumber } from "@/lib/format";
 import { listOrganizations } from "@/lib/organizations-store";
-import { listReports } from "@/lib/reports-store";
+import { requireAdmin } from "@/lib/require-admin";
 import { listAccounts } from "@/lib/users-store";
-import { platformLabel } from "@/lib/types";
 
 async function AdminPageContent({
   searchParams,
@@ -23,12 +22,13 @@ async function AdminPageContent({
   searchParams: Promise<{ org?: string; empresa?: string }>;
 }) {
   await connection();
-  const session = await getSession();
-  if (authEnabled && (!session || session.role !== "admin")) redirect("/login");
+  await requireAdmin();
 
   const { org, empresa } = await searchParams;
-  const organizations = await listOrganizations();
-  const users = await listAccounts();
+  const [organizations, users] = await Promise.all([
+    listOrganizations(),
+    listAccounts(),
+  ]);
   const selectedOrgId = org ?? organizations[0]?.id ?? null;
   const activeOrg =
     organizations.find((item) => item.id === selectedOrgId) ??
@@ -38,54 +38,188 @@ async function AdminPageContent({
     activeOrg?.companies.find((company) => company.id === empresa) ??
     activeOrg?.companies[0] ??
     null;
-  const reports = selected ? await listReports(selected.id) : [];
+
+  const totalCompanies = organizations.reduce(
+    (sum, item) => sum + item.companies.length,
+    0,
+  );
+  const activePlanCompanies = organizations.reduce(
+    (sum, item) => sum + item.companies.filter((c) => c.planActive).length,
+    0,
+  );
 
   return (
     <AppShellMain
       title="Plataforma"
-      subtitle="Usuários, planos e publicação de relatórios"
+      subtitle="Organizações, empresas e fluxo BPMN de pertencimento"
     >
-      <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
-        <div className="space-y-4">
-          <UsersPanel users={users} />
-          <CreateOrganizationForm />
-          <CreateClientForm />
-          <OrganizationPanel
-            basePath="/admin"
-            organizations={organizations}
-            selectedOrgId={activeOrg?.id ?? null}
-            selectedCompanyId={selected?.id ?? null}
-            manageAccess
-          />
-        </div>
+      <div className="space-y-6">
+        {/* Resumo da Plataforma + Atalhos para as Páginas Dedicadas */}
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-border bg-surface p-4">
+            <p className="font-mono text-[10.5px] uppercase tracking-wider text-muted">
+              Organizações e empresas
+            </p>
+            <p className="mt-1.5 font-mono text-2xl font-semibold text-foreground">
+              {organizations.length}
+              <span className="text-sm font-normal text-muted">
+                {" "}
+                · {totalCompanies}{" "}
+                {totalCompanies === 1 ? "empresa" : "empresas"}
+              </span>
+            </p>
+            <p className="mt-1 text-[11.5px] text-muted-foreground">
+              Estruturas ativas na plataforma
+            </p>
+          </div>
 
-        <div className="space-y-4">
-          {!selected ? (
-            <section className="rounded-2xl border border-border bg-surface px-6 py-10">
-              <h2 className="text-lg font-medium tracking-tight">
-                Operação da plataforma
-              </h2>
-              <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
-                Você é o administrador: controla cadastros, ativa planos e
-                publica relatórios. Proprietários de cada organização gerenciam
-                empresas e convites em{" "}
-                <span className="text-foreground">Organização</span> no menu deles.
+          <Link
+            href="/admin/usuarios"
+            className="group flex flex-col justify-between rounded-2xl border border-border bg-surface p-4 transition hover:border-white/25"
+          >
+            <div className="flex items-center justify-between">
+              <p className="font-mono text-[10.5px] uppercase tracking-wider text-muted">
+                Usuários cadastrados
               </p>
-            </section>
-          ) : (
-            <>
-              <section className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-surface px-5 py-4">
+              <span className="text-xs text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground">
+                Diretório →
+              </span>
+            </div>
+            <p className="mt-1.5 font-mono text-2xl font-semibold text-foreground">
+              {users.length}
+            </p>
+            <p className="mt-1 text-[11.5px] text-muted-foreground">
+              Contas, papéis e pertencimento
+            </p>
+          </Link>
+
+          <Link
+            href={
+              activeOrg
+                ? `/admin/relatorios?org=${activeOrg.id}${selected ? `&empresa=${selected.id}` : ""}`
+                : "/admin/relatorios"
+            }
+            className="group flex flex-col justify-between rounded-2xl border border-border bg-surface p-4 transition hover:border-white/25"
+          >
+            <div className="flex items-center justify-between">
+              <p className="font-mono text-[10.5px] uppercase tracking-wider text-muted">
+                Publicações de mídia
+              </p>
+              <span className="text-xs text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground">
+                Publicar →
+              </span>
+            </div>
+            <p className="mt-1.5 truncate text-base font-semibold text-foreground">
+              {selected ? selected.name : "Selecionar empresa"}
+            </p>
+            <p className="mt-1 text-[11.5px] text-muted-foreground">
+              Enviar relatórios Google Ads e Meta Ads
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/planos"
+            className="group flex flex-col justify-between rounded-2xl border border-positive/25 bg-surface bg-gradient-to-br from-positive/10 via-transparent to-transparent p-4 transition hover:border-positive/45"
+          >
+            <div className="flex items-center justify-between">
+              <p className="font-mono text-[10.5px] uppercase tracking-wider text-positive">
+                Controle de planos
+              </p>
+              <span className="text-xs text-positive transition-transform group-hover:translate-x-0.5">
+                Licenças →
+              </span>
+            </div>
+            <p className="mt-1.5 font-mono text-2xl font-semibold text-foreground">
+              {activePlanCompanies}
+              <span className="text-sm font-normal text-muted">
+                {" "}
+                / {totalCompanies}
+              </span>
+            </p>
+            <p className="mt-1 text-[11.5px] text-muted-foreground">
+              Empresas com plano ativo
+            </p>
+          </Link>
+        </section>
+
+        {/* Listagem de Organizações + Fluxo BPMN + Ações da Empresa Selecionada */}
+        <section className="grid gap-6 xl:grid-cols-[310px_minmax(0,1fr)]">
+          <div className="space-y-3">
+            <OrganizationPanel
+              basePath="/admin"
+              organizations={organizations}
+              selectedOrgId={activeOrg?.id ?? null}
+              selectedCompanyId={selected?.id ?? null}
+              manageAccess
+            />
+            <CreateOrganizationForm />
+            <CreateClientForm />
+            {activeOrg && (
+              <>
+                <AddCompanyForm
+                  organizationId={activeOrg.id}
+                  basePath="/admin"
+                />
+                <AddAccessGrantForm
+                  organization={activeOrg}
+                  basePath="/admin"
+                  allowOwnerRole
+                />
+              </>
+            )}
+          </div>
+
+          <div className="min-w-0 space-y-4">
+            {activeOrg ? (
+              <OrganizationFlowPanel
+                organization={activeOrg}
+                allOrganizations={organizations}
+                defaultShowAll={!org}
+              />
+            ) : (
+              <div className="rounded-2xl border border-border bg-surface px-6 py-10">
+                <h2 className="text-lg font-medium tracking-tight">
+                  Nenhuma organização cadastrada
+                </h2>
+                <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
+                  Crie a primeira organização ao lado para visualizar o fluxo
+                  BPMN de empresas e usuários.
+                </p>
+              </div>
+            )}
+
+            {selected && (
+              <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface px-5 py-4">
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted">
-                    Empresa selecionada
-                  </p>
-                  <h2 className="mt-1 text-sm font-medium">{selected.name}</h2>
-                  <p className="text-[11px] text-muted">{selected.organizationName}</p>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        selected.planActive ? "bg-positive" : "bg-muted"
+                      }`}
+                    />
+                    <p className="font-mono text-[10.5px] uppercase tracking-wider text-muted">
+                      Empresa ativa na seleção · {selected.organizationName}
+                    </p>
+                  </div>
+                  <h2 className="mt-1 text-sm font-semibold text-foreground">
+                    {selected.name}
+                  </h2>
                 </div>
+
                 <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    href={`/admin/relatorios?org=${activeOrg?.id ?? ""}&empresa=${selected.id}`}
+                    className="rounded-xl border border-white/15 bg-surface-elevated px-3.5 py-1.5 text-[12px] font-medium text-foreground transition hover:border-white/30"
+                  >
+                    Publicar relatório →
+                  </Link>
                   <form action={setClientPlan}>
                     <input type="hidden" name="id" value={selected.id} />
-                    <input type="hidden" name="org" value={activeOrg?.id ?? ""} />
+                    <input
+                      type="hidden"
+                      name="org"
+                      value={activeOrg?.id ?? ""}
+                    />
                     <input
                       type="hidden"
                       name="planActive"
@@ -93,80 +227,34 @@ async function AdminPageContent({
                     />
                     <button
                       type="submit"
-                      className="rounded-xl border border-border px-3 py-1.5 text-[12px] transition hover:bg-surface-elevated"
+                      className={`cursor-pointer rounded-xl border px-3.5 py-1.5 text-[12px] font-medium transition ${
+                        selected.planActive
+                          ? "border-border text-foreground hover:bg-surface-elevated"
+                          : "border-positive/35 bg-positive/10 text-positive hover:bg-positive/20"
+                      }`}
                     >
                       {selected.planActive ? "Desativar plano" : "Ativar plano"}
                     </button>
                   </form>
                   <form action={removeClient}>
                     <input type="hidden" name="id" value={selected.id} />
-                    <input type="hidden" name="org" value={activeOrg?.id ?? ""} />
+                    <input
+                      type="hidden"
+                      name="org"
+                      value={activeOrg?.id ?? ""}
+                    />
                     <button
                       type="submit"
-                      className="rounded-xl border border-border px-3 py-1.5 text-[12px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
+                      className="cursor-pointer rounded-xl border border-border px-3.5 py-1.5 text-[12px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
                     >
                       Remover empresa
                     </button>
                   </form>
                 </div>
-              </section>
-              <PublishForm
-                key={selected.id}
-                clientId={selected.id}
-                orgId={activeOrg?.id ?? ""}
-              />
-              <section className="overflow-hidden rounded-2xl border border-border bg-surface">
-                <div className="border-b border-border px-5 py-3.5">
-                  <h2 className="text-sm font-medium">Períodos publicados</h2>
-                </div>
-                {reports.length === 0 ? (
-                  <p className="px-5 py-6 text-[12px] text-muted">
-                    Nada publicado para esta empresa.
-                  </p>
-                ) : (
-                  <ul>
-                    {reports.map((report) => (
-                      <li
-                        key={report.id}
-                        className="flex flex-col gap-3 border-b border-border-subtle px-5 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                      >
-                        <div>
-                          <p className="text-sm font-medium">{report.period}</p>
-                          <p className="mt-1 font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
-                            <span
-                              className={
-                                report.platform === "google"
-                                  ? "text-google"
-                                  : "text-meta"
-                              }
-                            >
-                              {platformLabel(report.platform)}
-                            </span>
-                            {" · "}
-                            {formatCurrency(report.spend)}
-                            {" · "}
-                            {formatNumber(report.conversions)} conversões
-                          </p>
-                        </div>
-                        <form action={removeReport}>
-                          <input type="hidden" name="id" value={report.id} />
-                          <input type="hidden" name="clientId" value={selected.id} />
-                          <input type="hidden" name="org" value={activeOrg?.id ?? ""} />
-                          <button
-                            type="submit"
-                            className="rounded-xl border border-border px-3 py-1.5 text-[12px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
-                          >
-                            Remover
-                          </button>
-                        </form>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            </>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </AppShellMain>
   );

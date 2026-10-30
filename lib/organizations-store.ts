@@ -21,6 +21,8 @@ export type OrganizationSummary = {
 export type AccessGrantSummary = {
   id: string;
   email: string;
+  userId: string | null;
+  userName: string;
   allCompanies: boolean;
   isOwner: boolean;
   companyIds: string[];
@@ -82,68 +84,26 @@ export async function ensureAdminLotusOrganization() {
   });
 }
 
-export async function ensureLegacyClientsMigrated() {
-  await ensureAdminLotusOrganization();
-
-  const clients = await prisma.user.findMany({
-    where: { role: "client" },
-    orderBy: { createdAt: "asc" },
-  });
-
-  for (const user of clients) {
-    await prisma.organization.upsert({
-      where: { id: user.id },
-      create: {
-        id: user.id,
-        name: user.name,
-      },
-      update: { name: user.name },
-    });
-
-    await prisma.company.upsert({
-      where: { id: user.id },
-      create: {
-        id: user.id,
-        organizationId: user.id,
-        name: user.name,
-        planActive: user.planActive,
-      },
-      update: {
-        name: user.name,
-        planActive: user.planActive,
-      },
-    });
-
-    await prisma.accessGrant.upsert({
-      where: {
-        organizationId_email: {
-          organizationId: user.id,
-          email: user.email,
+export async function listOrganizations(): Promise<OrganizationSummary[]> {
+  const [rows, users] = await Promise.all([
+    prisma.organization.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        companies: { orderBy: { name: "asc" } },
+        accessGrants: {
+          orderBy: [{ isOwner: "desc" }, { email: "asc" }],
+          include: { companies: true },
         },
       },
-      create: {
-        organizationId: user.id,
-        email: user.email,
-        allCompanies: true,
-        isOwner: true,
-      },
-      update: { isOwner: true },
-    });
-  }
-}
+    }),
+    prisma.user.findMany({
+      select: { id: true, email: true, name: true },
+    }),
+  ]);
 
-export async function listOrganizations(): Promise<OrganizationSummary[]> {
-  await ensureLegacyClientsMigrated();
-  const rows = await prisma.organization.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      companies: { orderBy: { name: "asc" } },
-      accessGrants: {
-        orderBy: { email: "asc" },
-        include: { companies: true },
-      },
-    },
-  });
+  const userByEmail = new Map(
+    users.map((user) => [normalizeEmail(user.email), user]),
+  );
 
   return rows.map((org) => ({
     id: org.id,
@@ -155,13 +115,20 @@ export async function listOrganizations(): Promise<OrganizationSummary[]> {
       organizationId: org.id,
       organizationName: org.name,
     })),
-    grants: org.accessGrants.map((grant) => ({
-      id: grant.id,
-      email: grant.email,
-      allCompanies: grant.allCompanies,
-      isOwner: grant.isOwner,
-      companyIds: grant.companies.map((link) => link.companyId),
-    })),
+    grants: org.accessGrants.map((grant) => {
+      const matchedUser = userByEmail.get(normalizeEmail(grant.email));
+      return {
+        id: grant.id,
+        email: grant.email,
+        userId: matchedUser?.id ?? null,
+        userName:
+          matchedUser?.name?.trim() ||
+          (grant.email.split("@")[0] ?? grant.email),
+        allCompanies: grant.allCompanies,
+        isOwner: grant.isOwner,
+        companyIds: grant.companies.map((link) => link.companyId),
+      };
+    }),
   }));
 }
 
@@ -198,7 +165,6 @@ export async function canManageOrganization(email: string, organizationId: strin
 }
 
 export async function listCompanies(): Promise<CompanyAccount[]> {
-  await ensureLegacyClientsMigrated();
   const companies = await prisma.company.findMany({
     orderBy: [{ organization: { name: "asc" } }, { name: "asc" }],
     include: { organization: true },
@@ -230,7 +196,6 @@ export async function findCompanyById(id: string) {
 export async function listAccessibleCompanies(
   email: string,
 ): Promise<CompanyAccount[]> {
-  await ensureLegacyClientsMigrated();
   const normalized = normalizeEmail(email);
   if (roleForEmail(normalized) === "admin") {
     return listCompanies();
@@ -329,6 +294,7 @@ export async function createCompany(input: {
 
 export async function createAccessGrant(input: {
   organizationId: string;
+  name?: string;
   email: string;
   allCompanies: boolean;
   companyIds: string[];
@@ -339,58 +305,293 @@ export async function createAccessGrant(input: {
     return { error: "Informe um e-mail válido." } as const;
   }
 
+  const cleanName = (input.name ?? "").trim();
+
   const org = await prisma.organization.findUnique({
     where: { id: input.organizationId },
     include: { companies: true },
   });
   if (!org) return { error: "Organização não encontrada." } as const;
 
-  const companyIds = input.allCompanies
+  const isOwner = input.isOwner === true;
+  const allCompanies = isOwner || input.allCompanies;
+
+  const companyIds = allCompanies
     ? []
     : [...new Set(input.companyIds)].filter((id) =>
         org.companies.some((company) => company.id === id),
       );
 
-  if (!input.allCompanies && companyIds.length === 0) {
-    return { error: "Selecione ao menos uma empresa ou marque acesso à organização inteira." } as const;
-  }
-
   const existing = await prisma.accessGrant.findUnique({
     where: {
       organizationId_email: { organizationId: org.id, email },
     },
-  });
-  if (existing) {
-    return { error: "Esse e-mail já tem acesso nesta organização." } as const;
-  }
-
-  await prisma.accessGrant.create({
-    data: {
-      organizationId: org.id,
-      email,
-      allCompanies: input.allCompanies,
-      isOwner: input.isOwner === true,
-      companies: input.allCompanies
-        ? undefined
-        : {
-            create: companyIds.map((companyId) => ({ companyId })),
-          },
-    },
+    include: { companies: true },
   });
 
   const role: Role = roleForEmail(email);
-  await prisma.user.upsert({
-    where: { email },
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.upsert({
+      where: { email },
+      create: {
+        email,
+        name: cleanName || (email.split("@")[0] ?? email),
+        role,
+        planActive: role === "admin",
+      },
+      update: {},
+    });
+
+    if (existing) {
+      if (isOwner || allCompanies) {
+        await tx.accessGrant.update({
+          where: { id: existing.id },
+          data: {
+            isOwner: existing.isOwner || isOwner,
+            allCompanies: true,
+          },
+        });
+        await tx.accessGrantCompany.deleteMany({
+          where: { grantId: existing.id },
+        });
+      } else if (!existing.isOwner && !existing.allCompanies) {
+        const currentIds = new Set(existing.companies.map((c) => c.companyId));
+        const toAdd = companyIds.filter((id) => !currentIds.has(id));
+        if (toAdd.length > 0) {
+          await tx.accessGrantCompany.createMany({
+            data: toAdd.map((companyId) => ({
+              grantId: existing.id,
+              companyId,
+            })),
+            skipDuplicates: true,
+          });
+        }
+      }
+      return;
+    }
+
+    await tx.accessGrant.create({
+      data: {
+        organizationId: org.id,
+        email,
+        allCompanies,
+        isOwner,
+        companies: allCompanies
+          ? undefined
+          : {
+              create: companyIds.map((companyId) => ({ companyId })),
+            },
+      },
+    });
+  });
+
+  return { ok: true } as const;
+}
+
+export async function toggleAccessGrantCompany(input: {
+  grantId: string;
+  organizationId: string;
+  companyId: string;
+}) {
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: input.grantId },
+    include: {
+      companies: true,
+      organization: { include: { companies: true } },
+    },
+  });
+
+  if (!grant || grant.organizationId !== input.organizationId) {
+    return { error: "Acesso não encontrado nesta organização." } as const;
+  }
+  if (grant.isOwner) {
+    return { error: "Proprietários têm acesso a toda a organização." } as const;
+  }
+
+  const orgCompanies = grant.organization.companies;
+  if (!orgCompanies.some((c) => c.id === input.companyId)) {
+    return { error: "Empresa inválida." } as const;
+  }
+
+  await prisma.$transaction(async (tx) => {
+    if (grant.allCompanies) {
+      const remaining = orgCompanies
+        .map((c) => c.id)
+        .filter((id) => id !== input.companyId);
+      await tx.accessGrant.update({
+        where: { id: grant.id },
+        data: { allCompanies: false },
+      });
+      await tx.accessGrantCompany.deleteMany({ where: { grantId: grant.id } });
+      if (remaining.length > 0) {
+        await tx.accessGrantCompany.createMany({
+          data: remaining.map((companyId) => ({
+            grantId: grant.id,
+            companyId,
+          })),
+          skipDuplicates: true,
+        });
+      }
+      return;
+    }
+
+    const currentIds = new Set(grant.companies.map((c) => c.companyId));
+    if (currentIds.has(input.companyId)) {
+      await tx.accessGrantCompany.delete({
+        where: {
+          grantId_companyId: {
+            grantId: grant.id,
+            companyId: input.companyId,
+          },
+        },
+      });
+    } else {
+      await tx.accessGrantCompany.create({
+        data: {
+          grantId: grant.id,
+          companyId: input.companyId,
+        },
+      });
+    }
+  });
+
+  return { ok: true } as const;
+}
+
+export async function associateFlowCompanyAndGrant(input: {
+  grantId: string;
+  organizationId: string;
+  companyId: string;
+}) {
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: input.grantId },
+    include: {
+      companies: true,
+      organization: { include: { companies: true } },
+    },
+  });
+
+  if (!grant || grant.organizationId !== input.organizationId) {
+    return { error: "Usuário não encontrado nesta organização." } as const;
+  }
+
+  const orgCompanies = grant.organization.companies;
+  if (!orgCompanies.some((c) => c.id === input.companyId)) {
+    return { error: "Empresa inválida." } as const;
+  }
+
+  if (grant.isOwner || grant.allCompanies) {
+    return { ok: true } as const;
+  }
+
+  await prisma.accessGrantCompany.upsert({
+    where: {
+      grantId_companyId: {
+        grantId: grant.id,
+        companyId: input.companyId,
+      },
+    },
     create: {
-      email,
-      name: email.split("@")[0] ?? email,
-      role,
-      planActive: role === "admin",
+      grantId: grant.id,
+      companyId: input.companyId,
     },
     update: {},
   });
 
   return { ok: true } as const;
+}
+
+export async function setAccessGrantAllCompanies(input: {
+  grantId: string;
+  organizationId: string;
+  allCompanies: boolean;
+}) {
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: input.grantId },
+    include: {
+      organization: { include: { companies: true } },
+    },
+  });
+
+  if (!grant || grant.organizationId !== input.organizationId) {
+    return { error: "Acesso não encontrado nesta organização." } as const;
+  }
+  if (grant.isOwner) {
+    return { error: "Proprietários têm acesso a toda a organização." } as const;
+  }
+
+  await prisma.$transaction(async (tx) => {
+    if (input.allCompanies) {
+      await tx.accessGrant.update({
+        where: { id: grant.id },
+        data: { allCompanies: true },
+      });
+      await tx.accessGrantCompany.deleteMany({ where: { grantId: grant.id } });
+    } else {
+      const firstCompanyId = grant.organization.companies[0]?.id;
+      await tx.accessGrant.update({
+        where: { id: grant.id },
+        data: { allCompanies: false },
+      });
+      await tx.accessGrantCompany.deleteMany({ where: { grantId: grant.id } });
+      if (firstCompanyId) {
+        await tx.accessGrantCompany.create({
+          data: { grantId: grant.id, companyId: firstCompanyId },
+        });
+      }
+    }
+  });
+
+  return { ok: true } as const;
+}
+
+export async function addCompaniesToAccessGrant(input: {
+  grantId: string;
+  organizationId: string;
+  companyIds: string[];
+}) {
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: input.grantId },
+    include: {
+      companies: true,
+      organization: { include: { companies: true } },
+    },
+  });
+
+  if (!grant || grant.organizationId !== input.organizationId) {
+    return { error: "Acesso não encontrado nesta organização." } as const;
+  }
+  if (grant.isOwner) {
+    return { error: "Proprietários já têm acesso a toda a organização." } as const;
+  }
+  if (grant.allCompanies) {
+    return {
+      error: "Este usuário já tem acesso a todas as empresas da organização.",
+    } as const;
+  }
+
+  const orgCompanyIds = new Set(grant.organization.companies.map((c) => c.id));
+  const existing = new Set(grant.companies.map((link) => link.companyId));
+  const toAdd = [...new Set(input.companyIds)].filter(
+    (id) => orgCompanyIds.has(id) && !existing.has(id),
+  );
+
+  if (toAdd.length === 0) {
+    return {
+      error: "Selecione ao menos uma empresa que o usuário ainda não acessa.",
+    } as const;
+  }
+
+  await prisma.accessGrantCompany.createMany({
+    data: toAdd.map((companyId) => ({
+      grantId: grant.id,
+      companyId,
+    })),
+    skipDuplicates: true,
+  });
+
+  return { ok: true, added: toAdd.length } as const;
 }
 
 export async function deleteAccessGrant(id: string) {

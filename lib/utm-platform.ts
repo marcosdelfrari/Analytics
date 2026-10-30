@@ -17,3 +17,11 @@ export function sqlUtmSourceMatchesPlatform(platform: Platform) {
   }
   return `(params->>'utm_source' ~* 'facebook|meta|instagram|^fb$|^ig$')`;
 }
+
+/** Filtro em colunas agregadas (`source`), não em JSON de hits brutos. */
+export function sqlSourceMatchesPlatform(platform: Platform) {
+  if (platform === "google") {
+    return `(source ~* 'google|adwords|googleads')`;
+  }
+  return `(source ~* 'facebook|meta|instagram|^fb$|^ig$')`;
+}

@@ -25,6 +25,9 @@ async function requireTrackingSite() {
   if (session.role !== "admin" && session.role !== "client") {
     redirect("/login");
   }
+  if (session.role === "client" && !session.isOrganizationOwner) {
+    redirect("/dashboard");
+  }
   const companyId = await getActiveCompanyIdForSession(session);
   if (!companyId) redirect("/login?erro=sem-acesso");
   const site = await ensureTrackingSite(companyId);

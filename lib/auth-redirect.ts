@@ -18,8 +18,8 @@ export async function destinationAfterLogin(
     return returnTo;
   }
 
-  if (account.role === "admin") {
-    return returnTo.startsWith("/admin") ? returnTo : "/admin";
+  if (account.role !== "admin" && returnTo.startsWith("/admin")) {
+    return "/dashboard";
   }
 
   return returnTo;

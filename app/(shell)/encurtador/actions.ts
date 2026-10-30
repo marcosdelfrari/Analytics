@@ -3,20 +3,38 @@
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getActiveCompanyIdForSession, getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
-import { getSession } from "@/lib/auth";
 import { hasActivePlan } from "@/lib/plan";
-import { deleteLink, findLink, saveLink } from "@/lib/links-store";
+import {
+  deleteLink,
+  findLink,
+  listLinksForCompanies,
+  saveLink,
+} from "@/lib/links-store";
+import { listAccessibleCompanies } from "@/lib/organizations-store";
 
 export type ShortenState = { error: string } | { url: string } | null;
 
 const codePattern = /^[a-z0-9](?:[a-z0-9-]{1,30}[a-z0-9])?$/;
 
 async function requireAccess() {
-  if (!authEnabled) return;
+  if (!authEnabled) return { companyId: null as string | null, isAdmin: true };
   const session = await getSession();
   if (!session) redirect("/login");
   if (!hasActivePlan(session)) redirect("/dashboard");
+  if (session.role === "client" && !session.isOrganizationOwner) {
+    redirect("/dashboard");
+  }
+
+  if (session.role === "admin") {
+    const companyId = await getActiveCompanyIdForSession(session);
+    return { companyId: companyId ?? null, isAdmin: true };
+  }
+
+  const companyId = await getActiveCompanyIdForSession(session);
+  if (!companyId) redirect("/login?erro=sem-acesso");
+  return { companyId, isAdmin: false };
 }
 
 function randomCode() {
@@ -37,7 +55,10 @@ export async function createShortLink(
   _previous: ShortenState,
   formData: FormData,
 ): Promise<ShortenState> {
-  await requireAccess();
+  const { companyId, isAdmin } = await requireAccess();
+  if (!isAdmin && !companyId) {
+    return { error: "Selecione uma empresa antes de criar links." };
+  }
   const destination = parseDestination(String(formData.get("url") ?? "").trim());
   const label = String(formData.get("label") ?? "").trim();
   const requested = String(formData.get("code") ?? "")
@@ -66,16 +87,42 @@ export async function createShortLink(
     url: destination,
     label,
     clicks: 0,
-    createdAt: new Date().toISOString(),
+    companyId,
   });
   revalidatePath("/encurtador");
   return { url: code };
 }
 
 export async function removeShortLink(formData: FormData) {
-  await requireAccess();
+  const { companyId, isAdmin } = await requireAccess();
   const code = String(formData.get("code") ?? "");
   if (!code) return;
-  await deleteLink(code);
+
+  const link = await findLink(code);
+  if (!link) return;
+
+  if (!isAdmin && link.companyId !== null && link.companyId !== companyId) {
+    return;
+  }
+  if (!isAdmin && link.companyId === null) {
+    return;
+  }
+
+  await deleteLink(code, companyId);
   revalidatePath("/encurtador");
+}
+
+export async function listShortLinksForSession() {
+  const access = await requireAccess();
+  if (access.isAdmin && !access.companyId) {
+    const { listLinks } = await import("@/lib/links-store");
+    return listLinks();
+  }
+  if (access.companyId) {
+    return listLinksForCompanies([access.companyId]);
+  }
+  const session = await getSession();
+  if (!session) return [];
+  const companies = await listAccessibleCompanies(session.email);
+  return listLinksForCompanies(companies.map((company) => company.id));
 }

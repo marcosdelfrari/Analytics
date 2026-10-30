@@ -8,7 +8,11 @@ import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { listLeadFormsForOrganization } from "@/lib/lead-forms-store";
-import { listOrganizationsForOwner } from "@/lib/organizations-store";
+import { canAccessOrganizationWorkspace } from "@/lib/organization-access";
+import {
+  ensureAdminLotusOrganization,
+  listOrganizationsForOwner,
+} from "@/lib/organizations-store";
 
 async function FormulariosPageContent({
   searchParams,
@@ -19,8 +23,11 @@ async function FormulariosPageContent({
   const session = await getSession();
   if (authEnabled) {
     if (!session) redirect("/login");
-    if (!session.isOrganizationOwner) {
-      redirect(session.role === "admin" ? "/admin" : "/dashboard");
+    if (!canAccessOrganizationWorkspace(session)) {
+      redirect("/dashboard");
+    }
+    if (session.role === "admin") {
+      await ensureAdminLotusOrganization();
     }
   }
 
@@ -40,7 +47,7 @@ async function FormulariosPageContent({
 
   return (
     <AppShellMain
-      title="Formulários de lead"
+      title="Criar formulário"
       subtitle="Monte captura dinâmica com prévia e salve as predefinições"
     >
       {organizations.length === 0 ? (

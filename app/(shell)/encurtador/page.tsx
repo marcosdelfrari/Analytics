@@ -10,7 +10,7 @@ import { EncurtadorLoadingFallback } from "@/app/components/loading-fallbacks";
 import { authEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
 import { formatNumber } from "@/lib/format";
-import { listLinks } from "@/lib/links-store";
+import { listShortLinksForSession } from "@/app/(shell)/encurtador/actions";
 
 async function ShortenerPageContent({
   searchParams,
@@ -26,6 +26,9 @@ async function ShortenerPageContent({
     if (session.role !== "admin" && session.role !== "client") {
       redirect("/login");
     }
+    if (session.role === "client" && !session.isOrganizationOwner) {
+      redirect("/dashboard");
+    }
     planActive = session.role === "admin" || session.planActive;
   }
 
@@ -35,7 +38,7 @@ async function ShortenerPageContent({
   const host = headerList.get("x-forwarded-host") ?? headerList.get("host") ?? "localhost:3000";
   const proto = headerList.get("x-forwarded-proto") ?? "http";
   const origin = `${proto}://${host}`;
-  const links = await listLinks();
+  const links = await listShortLinksForSession();
 
   return (
     <AppShellMain

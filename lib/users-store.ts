@@ -1,10 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { adminEmail, roleForEmail } from "@/lib/access-code";
-import {
-  createClientWorkspace,
-  ensureLegacyClientsMigrated,
-} from "@/lib/organizations-store";
+import { createClientWorkspace } from "@/lib/organizations-store";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import type { Account, Role } from "@/lib/types";
@@ -37,7 +34,7 @@ function toAccount(user: User): Account {
     name: user.name,
     email: user.email,
     role,
-    planActive: role === "admin" ? true : user.planActive,
+    planActive: role === "admin",
   };
 }
 
@@ -106,7 +103,6 @@ export async function listAccounts() {
 }
 
 export async function listClients() {
-  await ensureLegacyClientsMigrated();
   const users = await ensureUsers();
   return users.filter((user) => user.role === "client");
 }
@@ -226,7 +222,9 @@ export async function checkEmailForPasswordLogin(email: string) {
   } as const;
 }
 
-export async function setupPasswordAndLogin(input: {
+/** Só com sessão já autenticada (ex.: Google). Não cria senha pela tela de login anônima. */
+export async function setPasswordForAuthenticatedUser(input: {
+  userId: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -241,17 +239,17 @@ export async function setupPasswordAndLogin(input: {
   const passwordError = validatePassword(input.password);
   if (passwordError) return { error: passwordError } as const;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
+  const user = await prisma.user.findUnique({ where: { id: input.userId } });
+  if (!user || normalizeEmail(user.email) !== email) {
     return { error: "Conta não encontrada." } as const;
   }
   if (user.passwordHash) {
-    return authenticateWithPassword({ email, password: input.password });
+    return { error: "Esta conta já tem senha. Use e-mail e senha para entrar." } as const;
   }
 
   const passwordHash = await hashPassword(input.password);
   const updated = await prisma.user.update({
-    where: { email },
+    where: { id: user.id },
     data: { passwordHash },
   });
   return { account: toAccount(updated) } as const;
@@ -295,9 +293,19 @@ export async function setClientPlanActive(id: string, planActive: boolean) {
   if (!user || roleForEmail(user.email) !== "client") {
     return { error: "Cliente não encontrado." } as const;
   }
-  const updated = await prisma.user.update({
-    where: { id },
+
+  const ownerGrants = await prisma.accessGrant.findMany({
+    where: { email: normalizeEmail(user.email), isOwner: true },
+    select: { organizationId: true },
+  });
+  const orgIds = ownerGrants.map((grant) => grant.organizationId);
+
+  await prisma.company.updateMany({
+    where: {
+      OR: [{ id }, { organizationId: { in: orgIds } }],
+    },
     data: { planActive },
   });
-  return { account: toAccount(updated) } as const;
+
+  return { account: toAccount(user) } as const;
 }

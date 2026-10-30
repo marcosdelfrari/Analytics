@@ -8,12 +8,11 @@ import { listCompanies } from "@/lib/organizations-store";
 export async function getClientPageContext() {
   await connection();
   const session = await getSession();
-  if (authEnabled) {
-    if (!session) redirect("/login");
-    if (session.role === "admin") redirect("/admin");
+  if (authEnabled && !session) {
+    redirect("/login");
   }
 
-  if (session?.role === "client") {
+  if (session?.role === "client" || session?.role === "admin") {
     const companyContext = await resolveClientCompanyContext(session);
     return {
       session,

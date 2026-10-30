@@ -39,7 +39,6 @@ export async function getSession(): Promise<Session | null> {
 export async function getActiveCompanyIdForSession(
   session: Session,
 ): Promise<string | undefined> {
-  if (session.role !== "client") return undefined;
   const context = await resolveClientCompanyContext(session);
   return context.clientId;
 }

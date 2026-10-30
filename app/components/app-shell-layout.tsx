@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { BrandMark } from "@/app/components/brand-mark";
 import { AppShellChrome } from "@/app/components/app-shell-chrome";
 import { PlanUpgradeGate } from "@/app/components/plan-upgrade-gate";
 import { Skeleton } from "@/app/components/skeleton";
@@ -25,10 +24,7 @@ function AppHeader({
   headerSkeleton?: boolean;
 }) {
   return (
-    <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-6">
-      <div className="shrink-0 md:hidden">
-        <BrandMark compact />
-      </div>
+    <header className="shrink-0 border-b border-border-subtle bg-background px-4 py-3 md:flex md:min-h-14 md:items-center md:px-6 md:py-0">
       <div className="min-w-0 flex-1">
         {headerSkeleton ? (
           <div className="space-y-2 py-1" aria-hidden>
@@ -37,10 +33,14 @@ function AppHeader({
           </div>
         ) : (
           <>
-            <h1 className="truncate text-sm font-medium tracking-tight">
+            <h1 className="text-[15px] font-semibold leading-snug tracking-tight text-foreground md:truncate md:text-[14px]">
               {title}
             </h1>
-            <p className="truncate text-[12px] text-muted">{subtitle}</p>
+            {subtitle ? (
+              <p className="mt-0.5 text-[12px] leading-relaxed text-muted line-clamp-2 md:truncate md:leading-normal">
+                {subtitle}
+              </p>
+            ) : null}
           </>
         )}
       </div>

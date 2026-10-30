@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { HeroPreview } from "@/app/components/fractal/hero-preview";
 import { fadeUp } from "@/app/components/fractal/motion";
@@ -68,21 +69,21 @@ export function FractalHero() {
           className="order-3 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg lg:col-start-1"
           variants={fadeUp}
         >
-          Chega de planilhas confusas. Una Google Ads e Meta Ads em um só lugar
-          e tenha transparência total sobre o que cada clique está gerando no
-          seu site. A ponte definitiva entre o investimento e o resultado.
+          Chega de planilhas confusas. Una Google Ads e Meta Ads em um só lugar,
+          capture leads com formulários próprios vinculados às UTMs e tenha
+          transparência total sobre o que cada clique está gerando no seu site.
         </motion.p>
 
         <motion.div
           className="order-4 flex flex-wrap items-center gap-3 lg:col-start-1"
           variants={fadeUp}
         >
-          <a
-            href="/api/auth/google"
+          <Link
+            href="/cadastro"
             className="rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
           >
             Criar meu Dashboard Grátis
-          </a>
+          </Link>
           <a
             href="#how-it-works"
             className="rounded-md border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface"
@@ -94,8 +95,8 @@ export function FractalHero() {
           className="order-5 max-w-xl text-[13px] leading-6 text-muted lg:col-start-1"
           variants={fadeUp}
         >
-          Cadastro gratuito para conhecer o ambiente. Recursos liberados
-          mediante assinatura de um plano.
+          Cadastro gratuito com Google ou e-mail para conhecer o ambiente.
+          Recursos liberados mediante assinatura de um plano.
         </motion.p>
       </motion.div>
     </section>

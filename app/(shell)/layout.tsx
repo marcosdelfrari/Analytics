@@ -47,25 +47,46 @@ async function ShellLayoutWithSession({
     authEnabled && session ? shellModeFromRole(session.role) : undefined;
   const navContext =
     authEnabled && session
-      ? { organizationOwner: session.isOrganizationOwner }
+      ? {
+          platformAdmin: session.role === "admin",
+          organizationOwner:
+            session.role !== "admin" && session.isOrganizationOwner,
+        }
       : undefined;
 
   let switcherNode: ReactNode = null;
-  if (authEnabled && session?.role === "client") {
+  if (authEnabled && session && session.role === "client") {
     const context = await resolveClientCompanyContext(session);
-    switcherNode = (
-      <CompanySwitcher
-        companies={context.accessibleCompanies}
-        activeCompanyId={context.activeCompanyId}
-      />
-    );
+    if (context.accessibleCompanies.length > 0) {
+      switcherNode = (
+        <CompanySwitcher
+          companies={context.accessibleCompanies}
+          activeCompanyId={context.activeCompanyId}
+        />
+      );
+    }
   }
+
+  const user =
+    authEnabled && session
+      ? {
+          name: session.name,
+          email: session.email,
+          roleLabel:
+            session.role === "admin"
+              ? "Administrador"
+              : session.isOrganizationOwner
+                ? "Proprietário"
+                : "Analista",
+        }
+      : undefined;
 
   return (
     <AppShellChrome
       sessionMode={sessionMode}
       navContext={navContext}
       companySwitcher={switcherNode}
+      user={user}
     >
       {children}
     </AppShellChrome>

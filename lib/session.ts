@@ -1,4 +1,5 @@
 import { openAccess, sealAccess } from "@/lib/access-code";
+import { authSecret } from "@/lib/auth-secret";
 import type { SessionCookie } from "@/lib/types";
 
 export const sessionCookie = "analytics_session";

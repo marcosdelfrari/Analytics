@@ -12,7 +12,6 @@ import {
   checkLoginEmailAction,
   loginWithPasswordAction,
   registerWithPasswordAction,
-  setupPasswordLoginAction,
   type AuthFormState,
   type CheckLoginEmailState,
 } from "@/app/login/actions";
@@ -84,34 +83,32 @@ function Divider() {
 
 function AuthHeroShowcase() {
   return (
-    <div className="relative hidden min-h-0 p-3 lg:block">
-      <div className="relative flex h-full min-h-0 flex-col justify-center p-2">
-        <div
-          className="pointer-events-none absolute -inset-4 rounded-2xl bg-gradient-to-br from-white/[0.06] via-transparent to-white/[0.04] blur-2xl"
-          aria-hidden
-        />
-        <motion.div
-          className="relative overflow-hidden rounded-xl border border-white/10 bg-[#151513] shadow-2xl shadow-black/50"
-          animate={{ y: [0, -6, 0] }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-        >
-          <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-            <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-            <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-            <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-            <span className="ml-2 text-[11px] text-white/45">Dashboard</span>
-          </div>
-          <HeroPreview />
-        </motion.div>
-        <p className="relative mt-3 text-center text-[12px] text-white/45">
-          Prévia da plataforma com dados ilustrativos.
-        </p>
-      </div>
+    <div className="relative flex w-full max-w-[min(100%,32rem)] flex-col justify-center">
+      <div
+        className="pointer-events-none absolute -inset-6 rounded-2xl bg-gradient-to-br from-white/[0.06] via-transparent to-white/[0.04] blur-2xl"
+        aria-hidden
+      />
+      <motion.div
+        className="relative overflow-hidden rounded-xl border border-white/10 bg-[#151513] shadow-2xl shadow-black/50"
+        animate={{ y: [0, -6, 0] }}
+        transition={{
+          duration: 7,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1,
+        }}
+      >
+        <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+          <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+          <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+          <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+          <span className="ml-2 text-[11px] text-white/45">Dashboard</span>
+        </div>
+        <HeroPreview />
+      </motion.div>
+      <p className="relative mt-4 text-center text-[12px] text-white/45">
+        Prévia da plataforma com dados ilustrativos.
+      </p>
     </div>
   );
 }
@@ -130,13 +127,17 @@ function AuthShell({
   compact?: boolean;
 }) {
   return (
-    <main className="grid h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white lg:grid-cols-[1fr_1.08fr]">
-      <div className="flex min-h-0 flex-col px-5 py-4 sm:px-8 sm:py-5 lg:px-12">
-        <header className="flex shrink-0 items-center justify-between">
+    <main className="grid h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white lg:grid-cols-2">
+      <div className="hidden min-h-0 items-center justify-center border-r border-white/[0.06] px-6 py-8 sm:px-10 lg:flex xl:px-14 2xl:px-20">
+        <AuthHeroShowcase />
+      </div>
+
+      <div className="flex min-h-0 flex-col px-5 py-5 sm:px-10 sm:py-6 lg:px-10 xl:px-14 2xl:px-16">
+        <header className="flex shrink-0 justify-center pb-2 pt-1">
           <BrandMark priority href="/" />
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto py-4 [scrollbar-width:thin]">
+        <div className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto py-3 [scrollbar-width:thin] sm:py-4">
           <div className={`mx-auto w-full ${compact ? "max-w-[340px]" : "max-w-[360px]"}`}>
             <div className="text-center">
               <h1
@@ -179,8 +180,6 @@ function AuthShell({
           Fractal — Analytics para mídia paga
         </footer>
       </div>
-
-      <AuthHeroShowcase />
     </main>
   );
 }
@@ -200,12 +199,8 @@ export function LoginPanel({
     AuthFormState,
     FormData
   >(loginWithPasswordAction, null);
-  const [setupState, setupAction, setupPending] = useActionState<
-    AuthFormState,
-    FormData
-  >(setupPasswordLoginAction, null);
   const [showEmailForm, setShowEmailForm] = useState(
-    Boolean(loginState?.error || setupState?.error || checkState?.error),
+    Boolean(loginState?.error || checkState?.error),
   );
   const [verifiedEmail, setVerifiedEmail] = useState<string | null>(
     checkState?.verifiedEmail ?? null,
@@ -227,10 +222,8 @@ export function LoginPanel({
     }
   }, [checkState?.verifiedEmail, checkState?.needsPasswordSetup]);
 
-  const passwordStepError = needsPasswordSetup
-    ? setupState?.error
-    : loginState?.error;
-  const passwordStepPending = needsPasswordSetup ? setupPending : loginPending;
+  const passwordStepError = loginState?.error;
+  const passwordStepPending = loginPending;
 
   return (
     <AuthShell
@@ -305,10 +298,47 @@ export function LoginPanel({
                 {checkPending ? "Verificando…" : "Continuar"}
               </button>
             </motion.form>
+          ) : needsPasswordSetup ? (
+            <motion.div
+              key="google-only"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: motionEase }}
+              className="space-y-2.5 pt-0.5"
+            >
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-[12px] text-white/85">
+                {verifiedEmail}
+              </div>
+              <p className="text-[11.5px] leading-5 text-white/55">
+                Esta conta entra com Google. Use o botão{" "}
+                <span className="text-white/80">Continuar com Google</span> acima.
+              </p>
+              <p className="text-[11.5px] leading-5 text-white/55">
+                Depois de entrar, você pode{" "}
+                <Link
+                  href={`/definir-senha?next=${encodeURIComponent(next)}`}
+                  className="text-white underline decoration-white/30 underline-offset-2"
+                >
+                  definir uma senha
+                </Link>{" "}
+                para login com e-mail (opcional).
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setVerifiedEmail(null);
+                  setNeedsPasswordSetup(false);
+                }}
+                className={secondaryButtonClass}
+              >
+                Usar outro e-mail
+              </button>
+            </motion.div>
           ) : (
             <motion.form
-              key={needsPasswordSetup ? "setup-password" : "password-step"}
-              action={needsPasswordSetup ? setupAction : loginAction}
+              key="password-step"
+              action={loginAction}
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
@@ -332,43 +362,18 @@ export function LoginPanel({
                   Alterar
                 </button>
               </div>
-              {needsPasswordSetup ? (
-                <p className="text-[11.5px] leading-5 text-white/55">
-                  Esta conta ainda não tem senha. Crie uma senha para entrar com
-                  e-mail nas próximas vezes.
-                </p>
-              ) : null}
               <label className="block text-[11.5px] text-white/70">
-                {needsPasswordSetup ? "Nova senha" : "Senha"}
+                Senha
                 <input
                   name="password"
                   type="password"
                   required
                   autoFocus
-                  minLength={needsPasswordSetup ? 8 : undefined}
-                  placeholder={
-                    needsPasswordSetup ? "Mín. 8 caracteres" : "Sua senha"
-                  }
-                  autoComplete={
-                    needsPasswordSetup ? "new-password" : "current-password"
-                  }
+                  placeholder="Sua senha"
+                  autoComplete="current-password"
                   className={fieldClass}
                 />
               </label>
-              {needsPasswordSetup ? (
-                <label className="block text-[11.5px] text-white/70">
-                  Confirmar senha
-                  <input
-                    name="confirmPassword"
-                    type="password"
-                    required
-                    minLength={8}
-                    placeholder="Repita a senha"
-                    autoComplete="new-password"
-                    className={fieldClass}
-                  />
-                </label>
-              ) : null}
               {passwordStepError ? (
                 <p className="text-[11.5px] text-red-300">{passwordStepError}</p>
               ) : null}
@@ -377,13 +382,7 @@ export function LoginPanel({
                 disabled={passwordStepPending}
                 className={primaryButtonClass}
               >
-                {passwordStepPending
-                  ? needsPasswordSetup
-                    ? "Salvando…"
-                    : "Entrando…"
-                  : needsPasswordSetup
-                    ? "Criar senha e entrar"
-                    : "Entrar com e-mail"}
+                {passwordStepPending ? "Entrando…" : "Entrar com e-mail"}
               </button>
             </motion.form>
           )}
@@ -499,9 +498,13 @@ export function RegisterPanel({ next }: { next: string }) {
 
 export function AuthRouteLoading({ title }: { title: string }) {
   return (
-    <main className="grid h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white lg:grid-cols-[1fr_1.08fr]">
-      <div className="flex min-h-0 flex-col px-5 py-4 sm:px-8 sm:py-5 lg:px-12">
-        <header className="flex shrink-0 items-center justify-between">
+    <main className="grid h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white lg:grid-cols-2">
+      <div className="hidden min-h-0 items-center justify-center border-r border-white/[0.06] px-6 py-8 sm:px-10 lg:flex xl:px-14 2xl:px-20">
+        <div className="h-[min(72vh,28rem)] w-full max-w-[min(100%,32rem)] animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
+      </div>
+
+      <div className="flex min-h-0 flex-col px-5 py-5 sm:px-10 sm:py-6 lg:px-10 xl:px-14 2xl:px-16">
+        <header className="flex shrink-0 justify-center pb-2 pt-1">
           <BrandMark priority href="/" />
         </header>
 
@@ -525,10 +528,6 @@ export function AuthRouteLoading({ title }: { title: string }) {
         <footer className="shrink-0 pt-2 text-center text-[10.5px] text-white/30">
           Fractal — Analytics para mídia paga
         </footer>
-      </div>
-
-      <div className="relative hidden min-h-0 p-3 lg:block">
-        <div className="h-full w-full animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
       </div>
     </main>
   );

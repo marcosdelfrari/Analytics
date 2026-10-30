@@ -25,4 +25,14 @@ export const fractalLandingFaqs = [
     answer:
       "No Google e Meta, o principal é a URL certa no próprio anúncio — o Fractal ajuda a montar esse formato. O encurtador entra quando a divulgação é por WhatsApp, SMS, e-mail ou link em bio: você não configura parâmetros na plataforma de anúncio, mas ainda quer contar o clique e levar a pessoa para o destino certo.",
   },
+  {
+    question: "Como funcionam os formulários de captura de leads?",
+    answer:
+      "Você cria formulários direto no painel — no formato de botão flutuante de WhatsApp, popup ou intenção de saída — e instala com um snippet no site. Cada lead preenchido fica registrado na plataforma já vinculado à empresa, à página e aos parâmetros UTM da campanha que trouxe o visitante.",
+  },
+  {
+    question: "Posso liberar acesso apenas de leitura para minha equipe ou cliente?",
+    answer:
+      "Sim. O Proprietário gerencia empresas, script e formulários, e pode convidar Analistas liberando apenas as empresas que cada pessoa deve consultar. O Analista visualiza dashboards, relatórios, campanhas e leads e pode exportar os dados em CSV com segurança.",
+  },
 ] as const;

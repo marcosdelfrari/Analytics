@@ -51,31 +51,45 @@ const series = [
 const benefits = [
   {
     index: "02",
-    title: "Script de rastreamento",
+    title: "Script de rastreamento e teste ao vivo",
     description:
-      "Um script leve no site liga cada visita à campanha que trouxe a pessoa, e mantém essa origem enquanto ela navega.",
-    points: ["Visitas", "Origem da campanha", "Tempo real"],
+      "Um script leve no site liga cada visita à campanha que trouxe a pessoa, valida domínios autorizados e conta com verificador de instalação em tempo real.",
+    points: ["Visitas", "Domínios seguros", "Teste ao vivo"],
   },
   {
     index: "03",
-    title: "Monitoramento de eventos",
+    title: "Formulários de captura de leads",
     description:
-      "Registre as ações que importam — clique no WhatsApp, envio de formulário, o que fizer sentido — e veja quantas vezes cada uma aconteceu, com a campanha de origem.",
-    points: ["Eventos nomeados", "Contagem", "Por campanha"],
+      "Crie formulários no formato botão flutuante de WhatsApp, popup ou intenção de saída. Cada lead capturado já chega com a campanha, anúncio e UTM de origem.",
+    points: ["Botão WhatsApp", "Popup e saída", "Atribuição UTM"],
   },
   {
     index: "04",
-    title: "Gasto e tráfego lado a lado",
+    title: "Monitoramento de eventos",
     description:
-      "No mesmo período, compare quanto foi investido em Google e Meta com o que o site registrou de movimento.",
-    points: ["Mesmo período", "Google e Meta", "Leitura rápida"],
+      "Registre as ações que importam — clique no WhatsApp, envio de formulário, o que fizer sentido — e veja quantas vezes cada uma aconteceu por campanha.",
+    points: ["Eventos nomeados", "Contagem", "Por campanha"],
   },
   {
     index: "05",
-    title: "Modo agência",
+    title: "Montador UTM e encurtador próprio",
     description:
-      "Um ambiente por cliente, dashboard publicado para cada um e controle de quem entra em cada conta.",
-    points: ["Por cliente", "Relatórios", "Acessos"],
+      "Padronize os parâmetros dos seus anúncios de Google e Meta e gere links curtos rastreáveis para WhatsApp, bio, QR code, SMS e e-mail.",
+    points: ["Parâmetros UTM", "Links curtos", "Cliques medidos"],
+  },
+  {
+    index: "06",
+    title: "Gasto, tráfego e exportação CSV",
+    description:
+      "Compare quanto foi investido em Google e Meta com o movimento real do site e exporte relatórios completos, eventos e leads em CSV quando quiser.",
+    points: ["Google e Meta", "Exportação CSV", "Planilhas e PDF"],
+  },
+  {
+    index: "07",
+    title: "Multi-empresa e controle de papéis",
+    description:
+      "Organize múltiplas empresas na mesma conta, alterne o contexto em um clique e distribua acessos sob medida entre Proprietários e Analistas.",
+    points: ["Multi-empresa", "Proprietário e Analista", "Modo agência"],
   },
 ];
 

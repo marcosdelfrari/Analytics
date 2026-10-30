@@ -22,6 +22,16 @@ export function companyCookieOptions(origin?: string) {
 export async function resolveClientCompanyContext(session: Session) {
   const accessible = await listAccessibleCompanies(session.email);
   if (accessible.length === 0) {
+    if (session.role === "admin") {
+      return {
+        clientId: undefined,
+        title: "Conta",
+        planActive: true,
+        accessibleCompanies: [] as CompanyAccount[],
+        activeCompanyId: undefined,
+        organizationName: undefined,
+      };
+    }
     redirect("/login?erro=sem-acesso");
   }
 
@@ -44,10 +54,10 @@ export async function resolveClientCompanyContext(session: Session) {
 }
 
 export type ClientCompanyContext = {
-  clientId: string;
+  clientId: string | undefined;
   title: string;
   planActive: boolean;
   accessibleCompanies: CompanyAccount[];
-  activeCompanyId: string;
-  organizationName: string;
+  activeCompanyId: string | undefined;
+  organizationName: string | undefined;
 };

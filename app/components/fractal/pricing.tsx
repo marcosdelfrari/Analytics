@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Reveal, RevealGroup, RevealItem } from "@/app/components/fractal/motion";
 import { SectionShell } from "@/app/components/fractal/section-shell";
 
@@ -41,8 +42,8 @@ export function FractalPricing() {
                 {plan.period}
               </span>
             </p>
-            <a
-              href="/api/auth/google"
+            <Link
+              href="/cadastro"
               className={`mt-6 block rounded-md px-4 py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90 ${
                 plan.highlighted
                   ? "bg-foreground text-background"
@@ -50,7 +51,7 @@ export function FractalPricing() {
               }`}
             >
               Criar Dashboard Grátis
-            </a>
+            </Link>
             <ul className="mt-6 flex flex-1 flex-col gap-2.5 border-t border-border-subtle pt-6 text-sm text-muted-foreground">
               {plan.features.map((feature) => (
                 <li key={feature} className="flex gap-2">

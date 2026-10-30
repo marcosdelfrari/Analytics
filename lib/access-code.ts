@@ -1,15 +1,21 @@
+import { authSecret } from "@/lib/auth-secret";
 import type { Role } from "@/lib/types";
 
-export const adminEmail = "afk.marcos@gmail.com";
+import {
+  adminEmailFromEnv,
+  roleForEmail as sharedRoleForEmail,
+} from "@fractal/shared/access-code";
+
+export const adminEmail = adminEmailFromEnv();
 
 const encoder = new TextEncoder();
 
 export function roleForEmail(email: string): Role {
-  return email.trim().toLowerCase() === adminEmail ? "admin" : "client";
+  return sharedRoleForEmail(email, adminEmail);
 }
 
 function secret() {
-  return process.env.AUTH_SECRET ?? "analytics-dev-secret";
+  return authSecret();
 }
 
 function toBase64Url(bytes: Uint8Array) {

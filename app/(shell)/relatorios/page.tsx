@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { AppShellMain } from "@/app/components/app-shell";
 import { ReportsLoadingFallback } from "@/app/components/loading-fallbacks";
 import { PlatformTabs } from "@/app/components/platform-tabs";
@@ -11,11 +12,13 @@ import {
   summaryForPlatform,
 } from "@/lib/analytics";
 import { clientSubtitle, getClientPageContext } from "@/lib/client-page";
+import { canRegisterResources } from "@/lib/organization-access";
 
 async function ReportsPageContent() {
-  const { planActive, clientId, title } = await getClientPageContext();
+  const { planActive, clientId, title, session } = await getClientPageContext();
   const analytics = await loadClientAnalytics(clientId, planActive);
   const tracking = analytics.siteTracking;
+  const showSetupLink = !session || canRegisterResources(session);
 
   return (
     <AppShellMain
@@ -24,17 +27,25 @@ async function ReportsPageContent() {
       planActive={planActive}
     >
       <div className="space-y-6">
-        <header>
-          <p className="text-[11px] uppercase tracking-wider text-muted">
-            Relatórios
-          </p>
-          <h2 className="mt-1 text-lg font-medium tracking-tight">
-            Dados por plataforma
-          </h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Google Ads e Meta Ads: relatórios publicados e tráfego do script
-            filtrado por origem (utm_source).
-          </p>
+        <header className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-muted">
+              Relatórios
+            </p>
+            <h2 className="mt-1 text-lg font-medium tracking-tight">
+              Dados por plataforma
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              Google Ads e Meta Ads: relatórios publicados e tráfego do script
+              filtrado por origem (utm_source).
+            </p>
+          </div>
+          <Link
+            href="/relatorios/exportar"
+            className="rounded-xl border border-border bg-surface px-3.5 py-2 text-[12px] font-medium text-foreground transition hover:bg-surface-elevated"
+          >
+            Exportar CSV
+          </Link>
         </header>
 
         <PlatformTabs
@@ -80,6 +91,7 @@ async function ReportsPageContent() {
           <TrackingReportPanel
             tracking={tracking}
             variant="overview"
+            showSetupLink={showSetupLink}
           />
         )}
       </div>

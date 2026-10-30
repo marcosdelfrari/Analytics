@@ -1,0 +1,6 @@
+ALTER TABLE "lead_submissions" ADD COLUMN IF NOT EXISTS "referrer" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "lead_submissions" ADD COLUMN IF NOT EXISTS "utm_source" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "lead_submissions" ADD COLUMN IF NOT EXISTS "utm_medium" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "lead_submissions" ADD COLUMN IF NOT EXISTS "utm_campaign" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "lead_submissions" ADD COLUMN IF NOT EXISTS "utm_content" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "lead_submissions" ADD COLUMN IF NOT EXISTS "utm_term" TEXT NOT NULL DEFAULT '';

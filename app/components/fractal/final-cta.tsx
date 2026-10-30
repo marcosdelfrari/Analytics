@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Reveal } from "@/app/components/fractal/motion";
 
 export function FractalFinalCta() {
@@ -9,15 +10,15 @@ export function FractalFinalCta() {
             Tenha clareza sobre o marketing que você paga.
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-muted-foreground sm:text-base">
-            Crie sua conta gratuitamente, conheça como o painel funciona e
-            escolha o plano ideal para acompanhar seu negócio.
+            Crie sua conta gratuitamente com Google ou e-mail, conheça o painel
+            e escolha o plano ideal para acompanhar seu negócio.
           </p>
-          <a
-            href="/api/auth/google"
+          <Link
+            href="/cadastro"
             className="mt-8 inline-flex rounded-md bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90"
           >
             Criar meu Dashboard Grátis
-          </a>
+          </Link>
           <p className="mt-4 text-[13px] text-muted">
             Cadastro gratuito. Uso dos recursos mediante assinatura.
           </p>

@@ -1,16 +1,12 @@
 import { randomBytes } from "node:crypto";
+import { coletaOrigin } from "@/lib/fractal-origin";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/lib/generated/prisma/client";
 import { parseAllowedHostInput } from "@/lib/tracking-domains";
 
 const MAX_ALLOWED_DOMAINS = 20;
 
-export function coletaOrigin() {
-  return (process.env.COLETA_ORIGIN ?? "http://localhost:4000").replace(
-    /\/$/,
-    "",
-  );
-}
+export { coletaOrigin };
 
 export function trackingSnippet(publicKey: string) {
   const src = `${coletaOrigin()}/tracker.js?key=${encodeURIComponent(publicKey)}`;

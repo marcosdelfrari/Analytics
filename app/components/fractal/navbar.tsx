@@ -6,6 +6,7 @@ import Link from "next/link";
 
 const links = [
   { href: "#benefits", label: "Benefícios" },
+  { href: "#highlights", label: "Recursos" },
   { href: "#how-it-works", label: "Como funciona" },
   { href: "#pricing", label: "Planos" },
   { href: "#faq", label: "Perguntas frequentes" },
@@ -43,13 +44,19 @@ export function FractalNavbar() {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center">
-            <a
-              href="/api/auth/google"
+          <div className="ml-auto flex items-center gap-2.5">
+            <Link
+              href="/login"
+              className="rounded-md px-3 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Entrar
+            </Link>
+            <Link
+              href="/cadastro"
               className="rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-90"
             >
               Começar agora
-            </a>
+            </Link>
           </div>
         </div>
       </div>

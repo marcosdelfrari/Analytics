@@ -8,18 +8,26 @@ import { formatNumber } from "@/lib/format";
 export function TrackingReportPanel({
   tracking,
   variant = "full",
+  showSetupLink = true,
 }: {
   tracking: SiteTrackingAnalytics;
   variant?: "full" | "overview";
+  showSetupLink?: boolean;
 }) {
   if (!tracking.ready) {
     return (
       <section className="rounded-2xl border border-border bg-surface px-4 py-8 text-[13px] text-muted-foreground">
-        Configure o script em{" "}
-        <Link href="/rastreamento" className="underline underline-offset-2">
-          Rastreamento
-        </Link>{" "}
-        para começar a coletar visitas nesta conta.
+        {showSetupLink ? (
+          <>
+            Configure o script em{" "}
+            <Link href="/rastreamento" className="underline underline-offset-2">
+              Rastreamento
+            </Link>{" "}
+            para começar a coletar visitas nesta conta.
+          </>
+        ) : (
+          "A coleta do site aparece aqui quando o script da empresa estiver publicado."
+        )}
       </section>
     );
   }
@@ -42,12 +50,14 @@ export function TrackingReportPanel({
               : "Dados gravados pela API Node e agregados pelo worker."}
           </p>
         </div>
-        <Link
-          href="/rastreamento"
-          className="text-[12px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
-        >
-          Script e testes
-        </Link>
+        {showSetupLink ? (
+          <Link
+            href="/rastreamento"
+            className="text-[12px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+          >
+            Script e testes
+          </Link>
+        ) : null}
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2">

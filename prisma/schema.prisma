@@ -29,10 +29,18 @@ model User {
   @@map("users")
 }
 
+model AppMeta {
+  key   String @id
+  value String
+
+  @@map("app_meta")
+}
+
 model LoginOtp {
-  email     String   @id
-  codeHash  String   @map("code_hash")
-  expiresAt DateTime @map("expires_at")
+  email        String   @id
+  codeHash     String   @map("code_hash")
+  expiresAt    DateTime @map("expires_at")
+  attemptCount Int      @default(0) @map("attempt_count")
 
   @@map("login_otps")
 }
@@ -44,7 +52,8 @@ model Organization {
   updatedAt    DateTime      @updatedAt @map("updated_at")
   companies    Company[]
   accessGrants AccessGrant[]
-  leadForms    LeadForm[]
+  leadForms       LeadForm[]
+  leadSubmissions LeadSubmission[]
 
   @@map("organizations")
 }
@@ -59,7 +68,10 @@ model Company {
   organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   trackingSite   TrackingSite?
   grantLinks     AccessGrantCompany[]
-  leadForms      LeadForm[]
+  leadForms       LeadForm[]
+  leadSubmissions LeadSubmission[]
+  shortLinks      ShortLink[]
+  publishedReports PublishedReport[]
 
   @@index([organizationId])
   @@map("companies")
@@ -97,10 +109,34 @@ model LeadForm {
   updatedAt                DateTime     @updatedAt @map("updated_at")
   organization             Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   company                  Company?     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  submissions              LeadSubmission[]
 
   @@index([organizationId])
   @@index([companyId])
   @@map("lead_forms")
+}
+
+model LeadSubmission {
+  id             String       @id @default(uuid())
+  organizationId String       @map("organization_id")
+  companyId      String?      @map("company_id")
+  formId         String       @map("form_id")
+  fields         Json
+  pageUrl        String       @default("") @map("page_url")
+  referrer       String       @default("")
+  utmSource      String       @default("") @map("utm_source")
+  utmMedium      String       @default("") @map("utm_medium")
+  utmCampaign    String       @default("") @map("utm_campaign")
+  utmContent     String       @default("") @map("utm_content")
+  utmTerm        String       @default("") @map("utm_term")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company        Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  form           LeadForm     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@index([formId, createdAt])
+  @@map("lead_submissions")
 }
 
 model AccessGrant {
@@ -139,6 +175,8 @@ model TrackingSite {
   dailyMetrics TrackingDailyMetric[]
   eventDailyMetrics TrackingEventDailyMetric[]
   campaignDailyMetrics TrackingCampaignDailyMetric[]
+  attributionDailyMetrics TrackingAttributionDailyMetric[]
+  eventPlatformDailyMetrics TrackingEventPlatformDailyMetric[]
   allowedDomains TrackingAllowedDomain[]
 
   @@map("tracking_sites")
@@ -209,4 +247,66 @@ model TrackingCampaignDailyMetric {
 
   @@id([siteId, day, campaign])
   @@map("tracking_campaign_daily_metrics")
+}
+
+model TrackingAttributionDailyMetric {
+  siteId    String   @map("site_id")
+  day       DateTime @db.Date
+  source    String
+  medium    String
+  campaign  String
+  pageviews Int      @default(0)
+  events    Int      @default(0)
+  site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([siteId, day, source, medium, campaign])
+  @@map("tracking_attribution_daily_metrics")
+}
+
+model TrackingEventPlatformDailyMetric {
+  siteId    String   @map("site_id")
+  day       DateTime @db.Date
+  eventName String   @map("event_name")
+  platform  String
+  count     Int      @default(0)
+  site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([siteId, day, eventName, platform])
+  @@map("tracking_event_platform_daily_metrics")
+}
+
+model ShortLink {
+  id        String   @id @default(uuid())
+  companyId String?  @map("company_id")
+  code      String   @unique
+  url       String
+  label     String   @default("")
+  clicks    Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, createdAt])
+  @@map("short_links")
+}
+
+model PublishedReport {
+  id              String   @id @default(uuid())
+  companyId       String   @map("company_id")
+  platform        String
+  period          String
+  spend           Float
+  spendChange     Float?   @map("spend_change")
+  impressions     Int
+  clicks          Int
+  conversions     Int
+  activeCampaigns Int?     @map("active_campaigns")
+  totalCampaigns  Int?     @map("total_campaigns")
+  notes           String   @default("")
+  fileName        String?  @map("file_name")
+  storedFile      String?  @map("stored_file")
+  publishedAt     DateTime @map("published_at")
+  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, publishedAt])
+  @@map("published_reports")
 }

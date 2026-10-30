@@ -4,10 +4,12 @@ import { DashboardHome } from "@/app/components/dashboard-home";
 import { DashboardLoadingFallback } from "@/app/components/loading-fallbacks";
 import { loadClientAnalytics } from "@/lib/analytics";
 import { clientSubtitle, getClientPageContext } from "@/lib/client-page";
+import { canRegisterResources } from "@/lib/organization-access";
 
 async function DashboardPageContent() {
-  const { planActive, clientId, title } = await getClientPageContext();
+  const { planActive, clientId, title, session } = await getClientPageContext();
   const analytics = await loadClientAnalytics(clientId, planActive);
+  const showSetupLink = !session || canRegisterResources(session);
 
   return (
     <AppShellMain
@@ -19,6 +21,7 @@ async function DashboardPageContent() {
         dashboard={analytics.dashboard}
         evolution={analytics.evolution}
         siteTracking={analytics.siteTracking}
+        showSetupLink={showSetupLink}
       />
     </AppShellMain>
   );

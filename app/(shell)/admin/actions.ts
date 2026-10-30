@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
-import { deleteReport, deleteReportsForClient, saveReport } from "@/lib/reports-store";
+import {
+  deleteReport,
+  deleteReportsForClient,
+  saveReport,
+} from "@/lib/reports-store";
 import type { PublishedReport } from "@/lib/types";
 import { prisma } from "@/lib/prisma";
 import {
@@ -17,7 +21,7 @@ import {
   findCompanyById,
   setCompanyPlanActive,
 } from "@/lib/organizations-store";
-import { deleteAccount } from "@/lib/users-store";
+import { deleteAccount, setClientPlanActive } from "@/lib/users-store";
 
 const allowedExtensions = new Set([
   ".pdf",
@@ -35,7 +39,8 @@ export type FormState = { error: string } | null;
 async function requireAdmin() {
   if (!authEnabled) return;
   const session = await getSession();
-  if (!session || session.role !== "admin") redirect("/login");
+  if (!session) redirect("/login");
+  if (session.role !== "admin") redirect("/dashboard");
 }
 
 function parseNumber(value: FormDataEntryValue | null): number | null {
@@ -73,6 +78,13 @@ export async function createClientAccount(
   }
 
   revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/relatorios");
+  revalidatePath("/admin/planos");
+  const returnTo = String(formData.get("returnTo") ?? "");
+  if (returnTo) {
+    redirect(returnTo);
+  }
   redirect(`/admin?empresa=${result.companyId}`);
 }
 
@@ -87,6 +99,9 @@ export async function createOrganizationAccount(
     return { error: result.error ?? "Não foi possível criar a organização." };
   }
   revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/relatorios");
+  revalidatePath("/admin/planos");
   redirect(`/admin?org=${result.organizationId}`);
 }
 
@@ -96,17 +111,26 @@ export async function removePlatformUser(formData: FormData) {
   if (!id) return;
   await deleteAccount(id);
   revalidatePath("/admin");
-  redirect("/admin");
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/planos");
 }
 
 export async function removeAccessGrant(formData: FormData) {
   await requireAdmin();
   const grantId = String(formData.get("grantId") ?? "");
   const org = String(formData.get("org") ?? "");
+  const empresa = String(formData.get("empresa") ?? "");
   if (!grantId) return;
   await deleteAccessGrant(grantId);
   revalidatePath("/admin");
-  redirect(org ? `/admin?org=${org}` : "/admin");
+  revalidatePath("/admin/usuarios");
+  if (org) {
+    const query = new URLSearchParams({ org });
+    if (empresa) query.set("empresa", empresa);
+    redirect(`/admin?${query.toString()}`);
+  } else {
+    redirect("/admin");
+  }
 }
 
 export async function removeClient(formData: FormData) {
@@ -127,6 +151,9 @@ export async function removeClient(formData: FormData) {
   }
 
   revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/relatorios");
+  revalidatePath("/admin/planos");
   revalidatePath("/dashboard");
   redirect(org ? `/admin?org=${org}` : "/admin");
 }
@@ -216,22 +243,62 @@ export async function publishReport(
 
   revalidatePath("/dashboard");
   revalidatePath("/admin");
+  revalidatePath("/admin/relatorios");
   const org = String(formData.get("org") ?? company.organizationId);
-  redirect(`/admin?org=${org}&empresa=${clientId}`);
+  const basePath = String(formData.get("basePath") ?? "/admin/relatorios");
+  redirect(`${basePath}?org=${org}&empresa=${clientId}`);
 }
 
 export async function setClientPlan(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const org = String(formData.get("org") ?? "");
+  const returnTo = String(formData.get("returnTo") ?? "");
   const active = String(formData.get("planActive") ?? "") === "true";
   if (!id) return;
   await setCompanyPlanActive(id, active);
   revalidatePath("/dashboard");
   revalidatePath("/admin");
-  redirect(
-    org ? `/admin?org=${org}&empresa=${id}` : `/admin?empresa=${id}`,
-  );
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/relatorios");
+  revalidatePath("/admin/planos");
+
+  if (returnTo === "none") return;
+  if (returnTo) {
+    redirect(returnTo);
+  }
+  redirect(org ? `/admin?org=${org}&empresa=${id}` : `/admin?empresa=${id}`);
+}
+
+export async function setOrganizationPlans(formData: FormData) {
+  await requireAdmin();
+  const organizationId = String(formData.get("organizationId") ?? "");
+  const active = String(formData.get("planActive") ?? "") === "true";
+  if (!organizationId) return;
+
+  await prisma.company.updateMany({
+    where: { organizationId },
+    data: { planActive: active },
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/relatorios");
+  revalidatePath("/admin/planos");
+}
+
+export async function setUserPlan(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const active = String(formData.get("planActive") ?? "") === "true";
+  if (!id) return;
+
+  await setClientPlanActive(id, active);
+  revalidatePath("/dashboard");
+  revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/planos");
 }
 
 export async function removeReport(formData: FormData) {
@@ -242,12 +309,14 @@ export async function removeReport(formData: FormData) {
   await deleteReport(id);
   revalidatePath("/dashboard");
   revalidatePath("/admin");
+  revalidatePath("/admin/relatorios");
   const org = String(formData.get("org") ?? "");
+  const basePath = String(formData.get("basePath") ?? "/admin/relatorios");
   redirect(
     clientId
       ? org
-        ? `/admin?org=${org}&empresa=${clientId}`
-        : `/admin?empresa=${clientId}`
-      : "/admin",
+        ? `${basePath}?org=${org}&empresa=${clientId}`
+        : `${basePath}?empresa=${clientId}`
+      : basePath,
   );
 }

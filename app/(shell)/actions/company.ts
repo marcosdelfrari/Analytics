@@ -8,16 +8,19 @@ import {
   companyCookie,
   companyCookieOptions,
 } from "@/lib/company-context";
+import { safeReturnPath } from "@/lib/auth-redirect";
 import { canAccessCompany } from "@/lib/organizations-store";
 
 export async function selectActiveCompany(formData: FormData) {
   if (!authEnabled) redirect("/login");
 
   const session = await getSession();
-  if (!session || session.role !== "client") redirect("/login");
+  if (!session || (session.role !== "client" && session.role !== "admin")) {
+    redirect("/login");
+  }
 
   const companyId = String(formData.get("companyId") ?? "");
-  const returnTo = String(formData.get("returnTo") ?? "/dashboard");
+  const returnTo = safeReturnPath(String(formData.get("returnTo") ?? ""));
   if (!companyId) redirect(returnTo);
 
   const allowed = await canAccessCompany(session.email, companyId);
@@ -26,5 +29,5 @@ export async function selectActiveCompany(formData: FormData) {
   const jar = await cookies();
   jar.set(companyCookie, companyId, companyCookieOptions());
 
-  redirect(returnTo.startsWith("/") ? returnTo : "/dashboard");
+  redirect(returnTo);
 }
