@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 
 export const googleStateCookie = "google_oauth_state";
 export const googleIntentCookie = "google_oauth_intent";
+export const googleReturnCookie = "google_oauth_return";
 
 export function googleConfigured() {
   return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);

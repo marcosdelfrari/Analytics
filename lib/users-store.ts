@@ -5,9 +5,21 @@ import {
   createClientWorkspace,
   ensureLegacyClientsMigrated,
 } from "@/lib/organizations-store";
+import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import type { Account, Role } from "@/lib/types";
 import type { User } from "@/lib/generated/prisma/client";
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+function validatePassword(password: string) {
+  if (password.length < 8) {
+    return "A senha precisa ter pelo menos 8 caracteres.";
+  }
+  return null;
+}
 
 const legacyUsersPath = path.join(process.cwd(), "data", "users.json");
 
@@ -128,16 +140,142 @@ export async function findAccountById(id: string) {
   return user ? toAccount(user) : null;
 }
 
-export async function createClient(input: { name: string; email: string }) {
-  const result = await createClientWorkspace(input);
+export async function createClient(input: {
+  name: string;
+  email: string;
+  password?: string;
+}) {
+  const result = await createClientWorkspace({
+    name: input.name,
+    email: input.email,
+  });
   if ("error" in result) return result;
 
-  const email = input.email.trim().toLowerCase();
+  const email = normalizeEmail(input.email);
+  if (input.password) {
+    const passwordHash = await hashPassword(input.password);
+    await prisma.user.update({
+      where: { email },
+      data: { passwordHash },
+    });
+  }
+
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     return { error: "Não foi possível criar o acesso." } as const;
   }
   return { account: toAccount(user), companyId: result.companyId } as const;
+}
+
+export async function registerWithPassword(input: {
+  name: string;
+  email: string;
+  password: string;
+}) {
+  const name = input.name.trim();
+  const email = normalizeEmail(input.email);
+  if (!name) return { error: "Informe seu nome." } as const;
+  if (!email || !email.includes("@")) {
+    return { error: "Informe um e-mail válido." } as const;
+  }
+  const passwordError = validatePassword(input.password);
+  if (passwordError) return { error: passwordError } as const;
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    if (existing.passwordHash) {
+      return {
+        error: "Já existe uma conta com esse e-mail. Entre com e-mail e senha.",
+      } as const;
+    }
+    return {
+      error:
+        "Já existe uma conta com esse e-mail. Entre com e-mail para criar sua senha ou use o Google.",
+    } as const;
+  }
+
+  return createClient({
+    name,
+    email,
+    password: input.password,
+  });
+}
+
+export async function checkEmailForPasswordLogin(email: string) {
+  const normalized = normalizeEmail(email);
+  if (!normalized || !normalized.includes("@")) {
+    return { error: "Informe um e-mail válido." } as const;
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: normalized } });
+  if (!user) {
+    return {
+      error:
+        "Não encontramos conta com esse e-mail. Crie uma conta ou entre com o Google.",
+    } as const;
+  }
+  return {
+    email: normalized,
+    needsPasswordSetup: !user.passwordHash,
+  } as const;
+}
+
+export async function setupPasswordAndLogin(input: {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}) {
+  const email = normalizeEmail(input.email);
+  if (!email || !input.password) {
+    return { error: "Informe e-mail e senha." } as const;
+  }
+  if (input.password !== input.confirmPassword) {
+    return { error: "As senhas não coincidem." } as const;
+  }
+  const passwordError = validatePassword(input.password);
+  if (passwordError) return { error: passwordError } as const;
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return { error: "Conta não encontrada." } as const;
+  }
+  if (user.passwordHash) {
+    return authenticateWithPassword({ email, password: input.password });
+  }
+
+  const passwordHash = await hashPassword(input.password);
+  const updated = await prisma.user.update({
+    where: { email },
+    data: { passwordHash },
+  });
+  return { account: toAccount(updated) } as const;
+}
+
+export async function authenticateWithPassword(input: {
+  email: string;
+  password: string;
+}) {
+  const email = normalizeEmail(input.email);
+  if (!email || !input.password) {
+    return { error: "Informe e-mail e senha." } as const;
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return { error: "E-mail ou senha incorretos." } as const;
+  }
+  if (!user.passwordHash) {
+    return {
+      error: "Esta conta entra com Google. Use o botão Continuar com Google.",
+    } as const;
+  }
+
+  const ok = await verifyPassword(input.password, user.passwordHash);
+  if (!ok) {
+    return { error: "E-mail ou senha incorretos." } as const;
+  }
+
+  return { account: toAccount(user) } as const;
 }
 
 export async function deleteAccount(id: string) {

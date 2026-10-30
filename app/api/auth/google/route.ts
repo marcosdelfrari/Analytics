@@ -2,10 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   googleAuthUrl,
   googleConfigured,
-  googleIntentCookie,
+  googleReturnCookie,
   googleStateCookie,
   publicOrigin,
 } from "@/lib/google-oauth";
+import { safeReturnPath } from "@/lib/auth-redirect";
 
 export async function GET(request: NextRequest) {
   if (!googleConfigured()) {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   const state = crypto.randomUUID();
   const origin = publicOrigin(request);
-  const intent = request.nextUrl.searchParams.get("intent") === "signup" ? "signup" : "login";
+  const returnTo = safeReturnPath(request.nextUrl.searchParams.get("next"));
   const response = NextResponse.redirect(googleAuthUrl(origin, state));
   const cookie = {
     httpOnly: true,
@@ -24,6 +25,6 @@ export async function GET(request: NextRequest) {
     maxAge: 60 * 10,
   };
   response.cookies.set(googleStateCookie, state, cookie);
-  response.cookies.set(googleIntentCookie, intent, cookie);
+  response.cookies.set(googleReturnCookie, returnTo, cookie);
   return response;
 }

@@ -8,6 +8,7 @@ const privatePaths = [
   "/dashboard",
   "/encurtador",
   "/login",
+  "/cadastro",
   "/parametros",
   "/rastreamento",
   "/relatorios",

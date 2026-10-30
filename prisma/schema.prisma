@@ -19,6 +19,8 @@ model User {
   id         String   @id @default(uuid())
   email      String   @unique
   name       String
+  /// Null = conta só Google (ou legado). Não apaga dados existentes.
+  passwordHash String?  @map("password_hash")
   role       Role     @default(client)
   planActive Boolean  @default(false) @map("plan_active")
   createdAt  DateTime @default(now()) @map("created_at")

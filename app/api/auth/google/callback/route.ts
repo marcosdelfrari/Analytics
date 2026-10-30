@@ -2,12 +2,16 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   exchangeGoogleCode,
-  googleIntentCookie,
   googleLegacyRedirectUri,
   googleRedirectUri,
+  googleReturnCookie,
   googleStateCookie,
   publicOrigin,
 } from "@/lib/google-oauth";
+import {
+  destinationAfterLogin,
+  safeReturnPath,
+} from "@/lib/auth-redirect";
 import { resolveAccountForLogin } from "@/lib/complete-login";
 import { sessionCookie, sessionCookieOptions, signSession } from "@/lib/session";
 
@@ -20,7 +24,7 @@ function sameState(left: string, right: string) {
 function fail(origin: string, erro: string) {
   const response = NextResponse.redirect(new URL(`/login?erro=${erro}`, origin));
   response.cookies.delete(googleStateCookie);
-  response.cookies.delete(googleIntentCookie);
+  response.cookies.delete(googleReturnCookie);
   return response;
 }
 
@@ -31,6 +35,7 @@ export async function GET(request: NextRequest) {
     const code = request.nextUrl.searchParams.get("code");
     const state = request.nextUrl.searchParams.get("state");
     const saved = request.cookies.get(googleStateCookie)?.value;
+    const returnTo = safeReturnPath(request.cookies.get(googleReturnCookie)?.value);
 
     if (!code || !state || !saved || !sameState(state, saved)) {
       return fail(origin, "invalido");
@@ -54,11 +59,11 @@ export async function GET(request: NextRequest) {
       email: account.email,
     });
 
-    const destination = account.role === "admin" ? "/admin" : "/dashboard";
+    const destination = await destinationAfterLogin(account, returnTo);
     const response = NextResponse.redirect(new URL(destination, origin));
     response.cookies.set(sessionCookie, token, sessionCookieOptions(origin));
     response.cookies.delete(googleStateCookie);
-    response.cookies.delete(googleIntentCookie);
+    response.cookies.delete(googleReturnCookie);
     return response;
   } catch (error) {
     console.error("Falha no retorno do Google", error);
