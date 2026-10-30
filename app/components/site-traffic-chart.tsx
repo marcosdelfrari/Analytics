@@ -41,7 +41,7 @@ export function SiteTrafficChart({
 }) {
   if (points.length === 0) {
     return (
-      <section className="border border-border bg-surface px-4 py-8 text-[13px] text-muted-foreground">
+      <section className="rounded-2xl border border-border bg-surface px-4 py-8 text-[13px] text-muted-foreground">
         Ainda não há visitas agregadas. Confira o script em Rastreamento e aguarde
         o worker processar os eventos.
       </section>
@@ -56,7 +56,7 @@ export function SiteTrafficChart({
   );
 
   return (
-    <section className="border border-border bg-surface p-4">
+    <section className="rounded-2xl border border-border bg-surface p-5">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-3">
         <div>
           <h2 className="text-sm font-medium">{title}</h2>

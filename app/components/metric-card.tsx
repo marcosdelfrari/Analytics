@@ -18,9 +18,9 @@ export function MetricCard({
 
   return (
     <div
-      className={`border p-4 ${
+      className={`rounded-2xl border p-4 ${
         highlighted
-          ? "rounded-lg border-positive/25 bg-surface bg-gradient-to-br from-positive/20 via-positive/10 to-transparent shadow-[inset_0_1px_0_rgba(74,222,128,0.28)]"
+          ? "border-positive/25 bg-surface bg-gradient-to-br from-positive/20 via-positive/10 to-transparent shadow-[inset_0_1px_0_rgba(74,222,128,0.28)]"
           : "border-border bg-surface"
       }`}
     >

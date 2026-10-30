@@ -28,9 +28,9 @@ export function NavPanel({
             href={item.href}
             onClick={onNavigate}
             aria-disabled={locked}
-            className={`flex cursor-pointer items-center justify-between rounded-sm px-3 py-2.5 text-[13px] transition-colors ${
+            className={`flex cursor-pointer items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] transition-all ${
               active
-                ? "bg-surface-elevated text-foreground"
+                ? "bg-surface-elevated font-medium text-foreground shadow-sm ring-1 ring-white/10"
                 : locked
                   ? "text-muted/80"
                   : "text-muted-foreground hover:bg-surface hover:text-foreground"
@@ -38,7 +38,7 @@ export function NavPanel({
           >
             <span>{item.label}</span>
             {locked && (
-              <span className="text-[10px] uppercase tracking-wide text-muted">
+              <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
                 Plano
               </span>
             )}
@@ -52,7 +52,7 @@ export function NavPanel({
         >
           <button
             type="submit"
-            className="w-full cursor-pointer rounded-sm px-3 py-2.5 text-left text-[13px] text-muted-foreground hover:bg-surface hover:text-foreground"
+            className="w-full cursor-pointer rounded-xl px-3.5 py-2.5 text-left text-[13px] text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
           >
             Sair
           </button>

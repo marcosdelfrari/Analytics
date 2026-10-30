@@ -53,7 +53,7 @@ export function ReportPlatformPanel({
       <p className="text-[11px] uppercase tracking-wider text-muted">
         Relatório de mídia publicado
       </p>
-      <section className="border border-border bg-surface px-4 py-3">
+      <section className="rounded-2xl border border-border bg-surface px-4 py-3.5">
         <PlatformLogoLabel
           platform={summary.platform}
           size={20}
@@ -67,7 +67,7 @@ export function ReportPlatformPanel({
         )}
       </section>
 
-      <section className="border border-border bg-surface px-4 py-2">
+      <section className="rounded-2xl border border-border bg-surface px-4 py-2">
         <MetricRow label="Investimento" value={formatCurrency(summary.spend)} />
         <MetricRow
           label="Impressões"
@@ -89,8 +89,8 @@ export function ReportPlatformPanel({
         )}
       </section>
 
-      <section className="border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3">
+      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="border-b border-border px-4 py-3.5">
           <h3 className="text-sm font-medium">Histórico publicado</h3>
         </div>
         {reports.length === 0 ? (
@@ -114,12 +114,12 @@ export function ReportPlatformPanel({
                 {report.storedFile ? (
                   <Link
                     href={`/relatorios/arquivo/${report.id}`}
-                    className="border border-border px-2.5 py-1.5 text-[12px] hover:bg-surface-elevated"
+                    className="rounded-xl border border-border px-3 py-1.5 text-[12px] transition hover:bg-surface-elevated"
                   >
                     Baixar
                   </Link>
                 ) : report.fileName ? (
-                  <span className="border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground">
+                  <span className="rounded-xl border border-border px-3 py-1.5 text-[12px] text-muted-foreground">
                     Baixar
                   </span>
                 ) : null}

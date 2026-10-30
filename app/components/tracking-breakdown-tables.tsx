@@ -19,8 +19,8 @@ function BreakdownTable({
   children: ReactNode;
 }) {
   return (
-    <section className="border border-border bg-surface">
-      <div className="border-b border-border px-4 py-3">
+    <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <div className="border-b border-border px-4 py-3.5">
         <h3 className="text-sm font-medium">{title}</h3>
         <p className="text-[12px] text-muted-foreground">{description}</p>
       </div>

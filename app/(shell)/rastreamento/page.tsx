@@ -83,8 +83,8 @@ function ScriptPanels({
     <div className="grid gap-6">
       <AllowedDomainsPanel domains={domains} />
 
-      <section className="border border-border bg-surface">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
           <div>
             <h2 className="text-sm font-medium">Link do tracker</h2>
             <p className="text-[12px] text-muted">
@@ -96,13 +96,13 @@ function ScriptPanels({
           </div>
           <CopyButton value={snippet} />
         </div>
-        <pre className="overflow-x-auto p-4 font-mono text-[12px] leading-5 text-foreground">
+        <pre className="overflow-x-auto p-5 font-mono text-[12px] leading-5 text-foreground">
           {snippet}
         </pre>
       </section>
 
-      <section className="border border-border bg-surface">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
           <div>
             <h2 className="text-sm font-medium">Eventos</h2>
             <p className="text-[12px] text-muted">
@@ -112,15 +112,15 @@ function ScriptPanels({
           </div>
           <CopyButton value={eventSnippet} />
         </div>
-        <pre className="overflow-x-auto p-4 font-mono text-[12px] leading-5 text-foreground">
+        <pre className="overflow-x-auto p-5 font-mono text-[12px] leading-5 text-foreground">
           {eventSnippet}
         </pre>
       </section>
 
       <InstallationTestPanel hasDomains={domains.length > 0} />
 
-      <section className="border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3">
+      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="border-b border-border px-5 py-3.5">
           <h2 className="text-sm font-medium">Últimas coletas</h2>
           <p className="text-[12px] text-muted">
             {hits.length === 1 ? "1 registro" : `${hits.length} registros`}

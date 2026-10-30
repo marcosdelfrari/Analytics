@@ -13,7 +13,7 @@ export function platformChoiceButtonClass(
   active: boolean,
 ): string {
   const base =
-    "inline-flex items-center gap-2 rounded-sm px-3 py-2 text-[12px] font-medium transition-[color,background-color,box-shadow,border-color] ";
+    "inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-[12px] font-medium transition-[color,background-color,box-shadow,border-color] ";
 
   if (!active) {
     return `${base}border border-border text-muted-foreground hover:border-border hover:bg-surface-elevated hover:text-foreground`;
@@ -31,7 +31,7 @@ export function platformTabButtonClass(
   active: boolean,
 ): string {
   const base =
-    "inline-flex items-center gap-2 rounded-sm px-3 py-2 text-[12px] font-medium transition-[color,background-color,box-shadow] ";
+    "inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-[12px] font-medium transition-[color,background-color,box-shadow] ";
 
   if (!active) {
     return `${base}text-muted-foreground hover:bg-surface hover:text-foreground`;

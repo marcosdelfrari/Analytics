@@ -24,7 +24,7 @@ export function DashboardHome({
   if (dashboard.summaries.length === 0) {
     return (
       <div className="space-y-6">
-        <section className="border border-border bg-surface px-6 py-10">
+        <section className="rounded-2xl border border-border bg-surface px-6 py-10">
           <p className="text-[11px] uppercase tracking-wider text-muted">
             Dashboard
           </p>

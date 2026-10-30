@@ -40,13 +40,13 @@ export function TrackingPlatformPanel({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="border border-border bg-surface px-4 py-3">
+        <div className="rounded-2xl border border-border bg-surface px-4 py-3.5">
           <p className="text-[11px] uppercase tracking-wider text-muted">
             Visitas
           </p>
           <p className="mt-1 font-mono text-xl">{formatNumber(sum.pageviews)}</p>
         </div>
-        <div className="border border-border bg-surface px-4 py-3">
+        <div className="rounded-2xl border border-border bg-surface px-4 py-3.5">
           <p className="text-[11px] uppercase tracking-wider text-muted">
             Eventos
           </p>
@@ -55,12 +55,12 @@ export function TrackingPlatformPanel({
       </div>
 
       {attribution.length === 0 ? (
-        <p className="border border-border bg-surface px-4 py-6 text-[12px] text-muted-foreground">
+        <p className="rounded-2xl border border-border bg-surface px-4 py-6 text-[12px] text-muted-foreground">
           Nenhuma visita ou evento com origem {platformLabel(platform)} no
           período. Use UTMs como utm_source=google ou utm_source=facebook na URL.
         </p>
       ) : (
-        <div className="overflow-x-auto border border-border bg-surface">
+        <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
           <table className="w-full min-w-[28rem] text-left text-[12px]">
             <thead>
               <tr className="border-b border-border-subtle text-[11px] uppercase tracking-wider text-muted">
@@ -94,7 +94,7 @@ export function TrackingPlatformPanel({
       )}
 
       {eventsByName.length > 0 && (
-        <div className="border border-border bg-surface">
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface">
           <div className="border-b border-border px-4 py-3">
             <h3 className="text-sm font-medium">Eventos customizados</h3>
           </div>

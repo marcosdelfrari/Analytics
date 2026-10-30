@@ -14,7 +14,7 @@ export function TrackingReportPanel({
 }) {
   if (!tracking.ready) {
     return (
-      <section className="border border-border bg-surface px-4 py-8 text-[13px] text-muted-foreground">
+      <section className="rounded-2xl border border-border bg-surface px-4 py-8 text-[13px] text-muted-foreground">
         Configure o script em{" "}
         <Link href="/rastreamento" className="underline underline-offset-2">
           Rastreamento

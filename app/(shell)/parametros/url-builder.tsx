@@ -11,7 +11,7 @@ import {
 } from "@/lib/platform-ui";
 
 const fieldClass =
-  "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
+  "mt-1.5 w-full rounded-xl border border-white/10 bg-background/80 px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-white/25 focus:bg-background";
 
 const utmFields = [
   { key: "utm_source", label: "Origem", placeholder: "google" },
@@ -103,7 +103,7 @@ export function UrlBuilder() {
 
   return (
     <div className="grid gap-6">
-      <section className="border border-border bg-surface px-4 py-3">
+      <section className="rounded-2xl border border-border bg-surface px-5 py-4">
         <p className="text-[12px] leading-relaxed text-muted-foreground">
           UTMs e URL de destino são configurados no{" "}
           <strong className="font-medium text-foreground">Google Ads</strong> ou{" "}
@@ -125,16 +125,16 @@ export function UrlBuilder() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <form
-        className="border border-border bg-surface"
+        className="overflow-hidden rounded-2xl border border-border bg-surface"
         onSubmit={(event) => event.preventDefault()}
       >
-        <div className="border-b border-border px-4 py-3">
+        <div className="border-b border-border px-5 py-3.5">
           <h2 className="text-sm font-medium">Modelo de URL</h2>
           <p className="text-[12px] text-muted">
             Simule UTMs e parâmetros de clique para ver o formato final
           </p>
         </div>
-        <div className="grid gap-4 p-4">
+        <div className="grid gap-4 p-5">
           <div
             className="flex flex-wrap gap-2"
             role="group"
@@ -271,8 +271,8 @@ export function UrlBuilder() {
                     }
                     className={
                       active
-                        ? "inline-flex items-center gap-1.5 rounded-sm border border-meta/50 bg-meta/15 px-2.5 py-1.5 text-[12px] font-medium text-foreground ring-2 ring-meta/35"
-                        : "inline-flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
+                        ? "inline-flex items-center gap-1.5 rounded-xl border border-meta/50 bg-meta/15 px-3 py-1.5 text-[12px] font-medium text-foreground ring-2 ring-meta/35"
+                        : "inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-[12px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
                     }
                   >
                     <PlatformLogo platform="meta" size={14} />
@@ -320,7 +320,7 @@ export function UrlBuilder() {
                   ]);
                   setNextId((current) => current + 1);
                 }}
-                className="border border-border px-2.5 py-1.5 text-[12px] text-foreground hover:bg-surface-elevated"
+                className="rounded-xl border border-border px-3 py-1.5 text-[12px] text-foreground transition hover:bg-surface-elevated"
               >
                 Adicionar
               </button>
@@ -342,7 +342,7 @@ export function UrlBuilder() {
                           ),
                         )
                       }
-                      className="border border-border bg-background px-3 py-2 text-sm outline-none focus:border-muted-foreground"
+                      className="rounded-xl border border-white/10 bg-background/80 px-3 py-2 text-sm outline-none focus:border-white/25"
                     />
                     <input
                       value={extra.value}
@@ -357,7 +357,7 @@ export function UrlBuilder() {
                           ),
                         )
                       }
-                      className="border border-border bg-background px-3 py-2 text-sm outline-none focus:border-muted-foreground"
+                      className="rounded-xl border border-white/10 bg-background/80 px-3 py-2 text-sm outline-none focus:border-white/25"
                     />
                     <button
                       type="button"
@@ -366,7 +366,7 @@ export function UrlBuilder() {
                           current.filter((item) => item.id !== extra.id),
                         )
                       }
-                      className="border border-border px-2.5 text-[12px] text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
+                      className="rounded-xl border border-border px-3 text-[12px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
                     >
                       Remover
                     </button>
@@ -378,8 +378,8 @@ export function UrlBuilder() {
         </div>
       </form>
 
-      <section className="border border-border bg-surface">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+      <section className="overflow-hidden rounded-2xl border border-border bg-surface xl:self-start">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
           <div>
             <h2 className="text-sm font-medium">Exemplo de URL final</h2>
             <p className="text-[12px] text-muted">
@@ -390,18 +390,18 @@ export function UrlBuilder() {
           </div>
           {result.url && <CopyButton value={result.url} />}
         </div>
-        <div className="p-4">
+        <div className="p-5">
           {result.error ? (
             <p className="text-[12px] text-negative">{result.error}</p>
           ) : result.url ? (
             <>
-              <p className="break-all font-mono text-[12px] leading-5 text-foreground">
+              <p className="break-all rounded-xl border border-border bg-background/60 p-3.5 font-mono text-[12px] leading-5 text-foreground">
                 {result.url}
               </p>
               {result.url && (
                 <Link
                   href={`/encurtador?url=${encodeURIComponent(result.url)}`}
-                  className="mt-4 inline-block border border-border px-2.5 py-1.5 text-[12px] text-foreground hover:bg-surface-elevated"
+                  className="mt-4 inline-block rounded-xl border border-border px-3.5 py-2 text-[12px] font-medium text-foreground transition hover:bg-surface-elevated"
                 >
                   Encurtar esta URL
                 </Link>

@@ -44,6 +44,7 @@ model Organization {
   updatedAt    DateTime      @updatedAt @map("updated_at")
   companies    Company[]
   accessGrants AccessGrant[]
+  leadForms    LeadForm[]
 
   @@map("organizations")
 }
@@ -58,9 +59,48 @@ model Company {
   organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   trackingSite   TrackingSite?
   grantLinks     AccessGrantCompany[]
+  leadForms      LeadForm[]
 
   @@index([organizationId])
   @@map("companies")
+}
+
+enum LeadFormKind {
+  whatsapp_button
+  popup
+  exit_intent
+}
+
+/// Formulário de captura de lead montado pelo proprietário da organização.
+model LeadForm {
+  id                       String       @id @default(uuid())
+  organizationId           String       @map("organization_id")
+  companyId                String?      @map("company_id")
+  name                     String
+  kind                     LeadFormKind
+  title                    String       @default("")
+  subtitle                 String       @default("")
+  ctaLabel                 String       @default("Enviar") @map("cta_label")
+  whatsappNumber           String       @default("") @map("whatsapp_number")
+  whatsappMessage          String       @default("") @map("whatsapp_message")
+  /// Definição dos campos: [{ id, label, type, required, placeholder?, options? }]
+  fields                   Json
+  sendConfirmationEmail    Boolean      @default(false) @map("send_confirmation_email")
+  confirmationEmailSubject String       @default("") @map("confirmation_email_subject")
+  confirmationEmailBody    String       @default("") @map("confirmation_email_body")
+  active                   Boolean      @default(true)
+  brandLogoUrl             String       @default("") @map("brand_logo_url")
+  brandAccentColor         String       @default("") @map("brand_accent_color")
+  brandHeaderImageUrl      String       @default("") @map("brand_header_image_url")
+  brandTheme               String       @default("dark") @map("brand_theme")
+  createdAt                DateTime     @default(now()) @map("created_at")
+  updatedAt                DateTime     @updatedAt @map("updated_at")
+  organization             Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company                  Company?     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([companyId])
+  @@map("lead_forms")
 }
 
 model AccessGrant {

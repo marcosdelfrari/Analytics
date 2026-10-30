@@ -12,7 +12,7 @@ const statusLabel: Record<CampaignStatus, string> = {
 
 function StatusBadge({ status }: { status: CampaignStatus }) {
   return (
-    <span className="border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+    <span className="rounded-full border border-border bg-background/60 px-2.5 py-0.5 text-[10px] text-muted-foreground">
       {statusLabel[status]}
     </span>
   );
@@ -42,7 +42,7 @@ export function CampaignsHierarchy({
 }) {
   if (campaigns.length === 0) {
     return (
-      <section className="border border-border bg-surface px-4 py-10 text-[13px] text-muted-foreground">
+      <section className="rounded-2xl border border-border bg-surface px-4 py-10 text-[13px] text-muted-foreground">
         Nenhuma campanha publicada ainda. Quando a equipe enviar a estrutura de
         campanhas, ela aparece aqui por plataforma.
       </section>
@@ -54,9 +54,9 @@ export function CampaignsHierarchy({
       {campaigns.map((campaign) => (
         <details
           key={campaign.id}
-          className="group border border-border bg-surface open:bg-surface"
+          className="group overflow-hidden rounded-2xl border border-border bg-surface open:bg-surface"
         >
-          <summary className="cursor-pointer list-none px-4 py-3 marker:content-none [&::-webkit-details-marker]:hidden">
+          <summary className="cursor-pointer list-none px-4 py-3.5 marker:content-none [&::-webkit-details-marker]:hidden">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <p className="text-sm font-medium">{campaign.name}</p>
@@ -72,7 +72,7 @@ export function CampaignsHierarchy({
               <StatusBadge status={campaign.status} />
             </div>
           </summary>
-          <div className="border-t border-border-subtle px-4 py-3">
+          <div className="border-t border-border-subtle px-4 py-3.5">
             <p className="text-[11px] uppercase tracking-wider text-muted">
               Grupos de anúncios
             </p>
@@ -80,7 +80,7 @@ export function CampaignsHierarchy({
               {campaign.adGroups.map((group) => (
                 <li
                   key={group.id}
-                  className="rounded-sm border border-border-subtle bg-background/40 px-3 py-3"
+                  className="rounded-xl border border-border-subtle bg-background/40 px-3.5 py-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>

@@ -10,13 +10,13 @@ export function PlatformCard({ summary }: { summary: PlatformSummary }) {
       : summary.period;
 
   return (
-    <div className="border border-border bg-surface p-4">
+    <div className="rounded-2xl border border-border bg-surface p-5">
       <div className="flex items-start justify-between gap-2">
         <div>
           <PlatformLogoLabel platform={summary.platform} size={18} />
           <p className="mt-1 text-sm font-medium">{summary.label}</p>
         </div>
-        <span className="border border-border px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+        <span className="rounded-full border border-border bg-background/60 px-2.5 py-0.5 font-mono text-[10px] text-muted-foreground">
           {campaignLabel}
         </span>
       </div>

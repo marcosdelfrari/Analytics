@@ -18,7 +18,7 @@ export function PlatformTabs({
   return (
     <div>
       <div
-        className="inline-flex max-w-full flex-wrap rounded-md border border-border p-0.5"
+        className="inline-flex max-w-full flex-wrap rounded-xl border border-border bg-surface p-1"
         role="tablist"
         aria-label="Plataforma"
       >

@@ -25,7 +25,7 @@ export function OrganizationPanel({
 
   if (!activeOrg) {
     return (
-      <p className="border border-border bg-surface px-4 py-6 text-[12px] text-muted">
+      <p className="rounded-2xl border border-border bg-surface px-4 py-6 text-[12px] text-muted">
         Crie uma organização para agrupar empresas e acessos.
       </p>
     );
@@ -33,20 +33,20 @@ export function OrganizationPanel({
 
   return (
     <div className="space-y-4">
-      <section className="border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3">
+      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="border-b border-border px-4 py-3.5">
           <h2 className="text-sm font-medium">{activeOrg.name}</h2>
           <p className="text-[12px] text-muted">Organização</p>
         </div>
-        <div className="flex flex-wrap gap-1 border-b border-border px-2 py-2">
+        <div className="flex flex-wrap gap-1.5 p-2.5">
           {organizations.map((org) => (
             <Link
               key={org.id}
               href={`${basePath}?org=${org.id}`}
-              className={`px-2 py-1 text-[11px] ${
+              className={`rounded-xl px-3 py-1.5 text-[11.5px] transition ${
                 org.id === activeOrg.id
-                  ? "bg-surface-elevated font-medium"
-                  : "text-muted-foreground hover:bg-surface-elevated"
+                  ? "bg-surface-elevated font-medium text-foreground ring-1 ring-white/10"
+                  : "text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
               }`}
             >
               {org.name}
@@ -55,8 +55,8 @@ export function OrganizationPanel({
         </div>
       </section>
 
-      <section className="border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3">
+      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="border-b border-border px-4 py-3.5">
           <h2 className="text-sm font-medium">Empresas</h2>
           <p className="text-[12px] text-muted">
             {activeOrg.companies.length === 1
@@ -69,22 +69,21 @@ export function OrganizationPanel({
             Adicione a primeira empresa desta organização.
           </p>
         ) : (
-          <ul>
+          <ul className="space-y-1 p-2">
             {activeOrg.companies.map((company) => {
               const active = company.id === selectedCompanyId;
               return (
-                <li
-                  key={company.id}
-                  className="border-b border-border-subtle last:border-b-0"
-                >
+                <li key={company.id}>
                   <Link
                     href={`${basePath}?org=${activeOrg.id}&empresa=${company.id}`}
-                    className={`block px-4 py-3 ${
-                      active ? "bg-surface-elevated" : "hover:bg-surface-elevated"
+                    className={`block rounded-xl px-3.5 py-2.5 transition ${
+                      active
+                        ? "bg-surface-elevated ring-1 ring-white/10"
+                        : "hover:bg-surface-elevated/60"
                     }`}
                   >
                     <p className="text-sm font-medium">{company.name}</p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
                       {company.planActive ? "Plano ativo" : "Gratuito"}
                     </p>
                   </Link>
@@ -95,8 +94,8 @@ export function OrganizationPanel({
         )}
       </section>
 
-      <section className="border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3">
+      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="border-b border-border px-4 py-3.5">
           <h2 className="text-sm font-medium">Acessos por e-mail</h2>
           <p className="text-[12px] text-muted">
             Conta Google com visão da organização ou de empresas escolhidas
@@ -130,7 +129,7 @@ export function OrganizationPanel({
                       <input type="hidden" name="org" value={activeOrg.id} />
                       <button
                         type="submit"
-                        className="shrink-0 border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-surface-elevated"
+                        className="shrink-0 rounded-lg border border-border px-2.5 py-1 text-[11px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
                       >
                         Remover
                       </button>

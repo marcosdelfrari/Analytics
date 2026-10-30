@@ -7,7 +7,7 @@ import {
 } from "@/app/(shell)/admin/actions";
 
 const fieldClass =
-  "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
+  "mt-1.5 w-full rounded-xl border border-white/10 bg-background/80 px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-white/25 focus:bg-background";
 
 export function CreateOrganizationForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(
@@ -16,8 +16,8 @@ export function CreateOrganizationForm() {
   );
 
   return (
-    <form action={action} className="border border-border bg-surface">
-      <div className="border-b border-border px-4 py-3">
+    <form action={action} className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <div className="border-b border-border px-4 py-3.5">
         <h2 className="text-sm font-medium">Nova organização</h2>
       </div>
       <div className="p-4">
@@ -33,7 +33,7 @@ export function CreateOrganizationForm() {
         <button
           type="submit"
           disabled={pending}
-          className="border border-foreground bg-foreground px-3 py-1.5 text-[12px] text-background disabled:opacity-60"
+          className="rounded-xl bg-foreground px-3.5 py-1.5 text-[12px] font-medium text-background transition hover:opacity-90 disabled:opacity-60"
         >
           {pending ? "Salvando..." : "Criar"}
         </button>

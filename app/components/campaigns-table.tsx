@@ -19,8 +19,8 @@ const statusLabel: Record<CampaignStatus, string> = {
 
 export function CampaignsTable({ campaigns }: { campaigns: Campaign[] }) {
   return (
-    <div className="border border-border bg-surface">
-      <div className="border-b border-border px-4 py-3">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <div className="border-b border-border px-4 py-3.5">
         <h2 className="text-sm font-medium">Campanhas</h2>
         <p className="text-[12px] text-muted">
           Performance por campanha nas duas plataformas
@@ -63,7 +63,7 @@ export function CampaignsTable({ campaigns }: { campaigns: Campaign[] }) {
                 <td className="px-4 py-3 text-muted-foreground">{row.type}</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`inline-block border px-1.5 py-0.5 text-[10px] ${statusStyles[row.status]}`}
+                    className={`inline-block rounded-full border px-2 py-0.5 text-[10px] ${statusStyles[row.status]}`}
                   >
                     {statusLabel[row.status]}
                   </span>

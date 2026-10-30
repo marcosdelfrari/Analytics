@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { publishReport, type FormState } from "@/app/(shell)/admin/actions";
 
 const fieldClass =
-  "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
+  "mt-1.5 w-full rounded-xl border border-white/10 bg-background/80 px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-white/25 focus:bg-background";
 
 export function PublishForm({
   clientId,
@@ -19,16 +19,16 @@ export function PublishForm({
   );
 
   return (
-    <form action={action} className="border border-border bg-surface">
+    <form action={action} className="overflow-hidden rounded-2xl border border-border bg-surface">
       <input type="hidden" name="clientId" value={clientId} />
       <input type="hidden" name="org" value={orgId} />
-      <div className="border-b border-border px-4 py-3">
+      <div className="border-b border-border px-5 py-3.5">
         <h2 className="text-sm font-medium">Publicar período</h2>
         <p className="text-[12px] text-muted">
           Esses números passam a aparecer no dashboard desse cliente
         </p>
       </div>
-      <div className="grid gap-4 p-4 sm:grid-cols-2">
+      <div className="grid gap-4 p-5 sm:grid-cols-2">
         <label className="block text-[12px] text-muted-foreground">
           Plataforma
           <select name="platform" className={fieldClass} defaultValue="google">
@@ -87,13 +87,13 @@ export function PublishForm({
               name="activeCampaigns"
               inputMode="numeric"
               placeholder="Ativas"
-              className="border border-border bg-background px-3 py-2 text-sm outline-none focus:border-muted-foreground"
+              className="rounded-xl border border-white/10 bg-background/80 px-3 py-2 text-sm outline-none focus:border-white/25"
             />
             <input
               name="totalCampaigns"
               inputMode="numeric"
               placeholder="Total"
-              className="border border-border bg-background px-3 py-2 text-sm outline-none focus:border-muted-foreground"
+              className="rounded-xl border border-white/10 bg-background/80 px-3 py-2 text-sm outline-none focus:border-white/25"
             />
           </span>
         </label>
@@ -103,7 +103,7 @@ export function PublishForm({
             name="file"
             type="file"
             accept=".pdf,.csv,.xlsx,.xls,.png,.jpg,.jpeg,.webp"
-            className="mt-1.5 block w-full text-[12px] text-muted file:mr-3 file:border file:border-border file:bg-surface-elevated file:px-3 file:py-1.5 file:text-[12px] file:text-foreground"
+            className="mt-1.5 block w-full text-[12px] text-muted file:mr-3 file:rounded-lg file:border file:border-border file:bg-surface-elevated file:px-3 file:py-1.5 file:text-[12px] file:text-foreground"
           />
         </label>
         <label className="block text-[12px] text-muted-foreground sm:col-span-2">
@@ -117,13 +117,13 @@ export function PublishForm({
         </label>
       </div>
       {state?.error && (
-        <p className="px-4 text-[12px] text-negative">{state.error}</p>
+        <p className="px-5 text-[12px] text-negative">{state.error}</p>
       )}
-      <div className="flex justify-end border-t border-border px-4 py-3">
+      <div className="flex justify-end border-t border-border px-5 py-3.5">
         <button
           type="submit"
           disabled={pending}
-          className="border border-foreground bg-foreground px-3 py-1.5 text-[12px] text-background disabled:opacity-60"
+          className="rounded-xl bg-foreground px-4 py-2 text-[12px] font-medium text-background transition hover:opacity-90 disabled:opacity-60"
         >
           {pending ? "Publicando..." : "Publicar no dashboard"}
         </button>

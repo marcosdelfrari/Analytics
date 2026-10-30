@@ -29,7 +29,10 @@ export function navItemsForMode(
   if (mode === "agency") {
     const items: NavItem[] = [{ href: "/admin", label: "Plataforma" }];
     if (context.organizationOwner) {
-      items.push({ href: "/organizacao", label: "Organização" });
+      items.push(
+        { href: "/organizacao", label: "Organização" },
+        { href: "/organizacao/formularios", label: "Formulários" },
+      );
     }
     items.push(
       { href: "/documentacao", label: "Guia" },
@@ -47,7 +50,10 @@ export function navItemsForMode(
   ];
 
   if (context.organizationOwner) {
-    items.push({ href: "/organizacao", label: "Organização" });
+    items.push(
+      { href: "/organizacao", label: "Organização" },
+      { href: "/organizacao/formularios", label: "Formulários" },
+    );
   }
 
   items.push(

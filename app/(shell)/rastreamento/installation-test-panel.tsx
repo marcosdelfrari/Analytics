@@ -8,7 +8,7 @@ import {
 import { orderedParamEntries } from "@/lib/tracking-attribution";
 
 const fieldClass =
-  "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
+  "mt-1.5 w-full rounded-xl border border-white/10 bg-background/80 px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-white/25 focus:bg-background";
 
 const POLL_MS = 2_500;
 const LISTEN_MS = 120_000;
@@ -96,8 +96,8 @@ export function InstallationTestPanel({
   const htmlErr = htmlState && "error" in htmlState ? htmlState.error : null;
 
   return (
-    <section className="border border-border bg-surface">
-      <div className="border-b border-border px-4 py-3">
+    <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <div className="border-b border-border px-5 py-3.5">
         <h2 className="text-sm font-medium">Testar instalação</h2>
         <p className="text-[12px] text-muted">
           Duas etapas: conferir se a tag aparece no HTML e confirmar se a visita
@@ -105,7 +105,7 @@ export function InstallationTestPanel({
         </p>
       </div>
 
-      <div className="grid gap-6 p-4 lg:grid-cols-2">
+      <div className="grid gap-6 p-5 lg:grid-cols-2">
         <div className="grid gap-3">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted">
             Etapa 1 — Tag na página
@@ -149,7 +149,7 @@ export function InstallationTestPanel({
             <button
               type="submit"
               disabled={!hasDomains || htmlPending}
-              className="w-fit border border-border px-4 py-2 text-[12px] font-medium disabled:opacity-50"
+              className="w-fit rounded-xl border border-border px-4 py-2 text-[12px] font-medium transition hover:bg-surface-elevated disabled:opacity-50"
             >
               {htmlPending ? "Verificando…" : "Verificar tag no HTML"}
             </button>
@@ -200,7 +200,7 @@ export function InstallationTestPanel({
             type="button"
             onClick={startLiveTest}
             disabled={!hasDomains || listening}
-            className="w-fit border border-border px-4 py-2 text-[12px] font-medium disabled:opacity-50"
+            className="w-fit rounded-xl border border-border px-4 py-2 text-[12px] font-medium transition hover:bg-surface-elevated disabled:opacity-50"
           >
             {listening ? "Escutando…" : "Aguardar visita"}
           </button>

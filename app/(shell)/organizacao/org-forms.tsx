@@ -10,7 +10,7 @@ import {
 import type { OrganizationSummary } from "@/lib/organizations-store";
 
 const fieldClass =
-  "mt-1.5 w-full border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-muted-foreground";
+  "mt-1.5 w-full rounded-xl border border-white/10 bg-background/80 px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-white/25 focus:bg-background";
 
 export function AddCompanyForm({ organizationId }: { organizationId: string }) {
   const [open, setOpen] = useState(false);
@@ -24,17 +24,18 @@ export function AddCompanyForm({ organizationId }: { organizationId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full border border-border bg-surface px-4 py-3 text-left text-[12px] font-medium hover:bg-surface-elevated"
+        className="flex w-full items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3.5 text-left text-[12.5px] font-medium transition hover:border-white/20 hover:bg-surface-elevated"
       >
-        Cadastrar nova empresa
+        <span>Cadastrar nova empresa</span>
+        <span aria-hidden className="text-muted-foreground">+</span>
       </button>
     );
   }
 
   return (
-    <form action={action} className="border border-border bg-surface">
+    <form action={action} className="overflow-hidden rounded-2xl border border-border bg-surface">
       <input type="hidden" name="organizationId" value={organizationId} />
-      <div className="border-b border-border px-4 py-3">
+      <div className="border-b border-border px-4 py-3.5">
         <h2 className="text-sm font-medium">Nova empresa</h2>
         <p className="text-[12px] text-muted">
           Usuários comuns não podem criar empresas; apenas proprietários.
@@ -53,14 +54,14 @@ export function AddCompanyForm({ organizationId }: { organizationId: string }) {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="border border-border px-3 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated"
+          className="rounded-xl border border-border px-3.5 py-1.5 text-[12px] text-muted-foreground transition hover:bg-surface-elevated"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="border border-border px-3 py-1.5 text-[12px] hover:bg-surface-elevated disabled:opacity-60"
+          className="rounded-xl bg-foreground px-3.5 py-1.5 text-[12px] font-medium text-background transition hover:opacity-90 disabled:opacity-60"
         >
           {pending ? "Salvando..." : "Adicionar empresa"}
         </button>
@@ -85,17 +86,18 @@ export function AddAccessGrantForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full border border-border bg-surface px-4 py-3 text-left text-[12px] font-medium hover:bg-surface-elevated"
+        className="flex w-full items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3.5 text-left text-[12.5px] font-medium transition hover:border-white/20 hover:bg-surface-elevated"
       >
-        Convidar usuário
+        <span>Convidar usuário</span>
+        <span aria-hidden className="text-muted-foreground">+</span>
       </button>
     );
   }
 
   return (
-    <form action={action} className="border border-border bg-surface">
+    <form action={action} className="overflow-hidden rounded-2xl border border-border bg-surface">
       <input type="hidden" name="organizationId" value={organization.id} />
-      <div className="border-b border-border px-4 py-3">
+      <div className="border-b border-border px-4 py-3.5">
         <h2 className="text-sm font-medium">Convidar usuário</h2>
         <p className="text-[12px] text-muted">
           E-mail Google de quem usará a plataforma como usuário comum
@@ -140,14 +142,14 @@ export function AddAccessGrantForm({
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="border border-border px-3 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated"
+          className="rounded-xl border border-border px-3.5 py-1.5 text-[12px] text-muted-foreground transition hover:bg-surface-elevated"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="border border-border px-3 py-1.5 text-[12px] hover:bg-surface-elevated disabled:opacity-60"
+          className="rounded-xl bg-foreground px-3.5 py-1.5 text-[12px] font-medium text-background transition hover:opacity-90 disabled:opacity-60"
         >
           {pending ? "Salvando..." : "Liberar acesso"}
         </button>

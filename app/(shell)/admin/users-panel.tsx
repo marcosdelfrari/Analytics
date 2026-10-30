@@ -10,8 +10,8 @@ export function UsersPanel({ users }: UsersPanelProps) {
   const clients = users.filter((user) => user.email !== adminEmail);
 
   return (
-    <section className="border border-border bg-surface">
-      <div className="border-b border-border px-4 py-3">
+    <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <div className="border-b border-border px-4 py-3.5">
         <h2 className="text-sm font-medium">Usuários da plataforma</h2>
         <p className="text-[12px] text-muted">
           Contas que já entraram com Google. Proprietários e membros são
@@ -46,7 +46,7 @@ export function UsersPanel({ users }: UsersPanelProps) {
                 <input type="hidden" name="id" value={user.id} />
                 <button
                   type="submit"
-                  className="shrink-0 border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-surface-elevated"
+                  className="shrink-0 rounded-lg border border-border px-2.5 py-1 text-[11px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
                 >
                   Remover cadastro
                 </button>

@@ -45,15 +45,15 @@ async function ShortenerPageContent({
     >
       <div className="grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
         <ShortenForm origin={origin} initialUrl={url ?? ""} />
-        <section className="border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3">
+        <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+          <div className="border-b border-border px-5 py-3.5">
             <h2 className="text-sm font-medium">Atalhos</h2>
             <p className="text-[12px] text-muted">
               {links.length === 1 ? "1 link" : `${links.length} links`}
             </p>
           </div>
           {links.length === 0 ? (
-            <p className="px-4 py-6 text-[12px] text-muted">
+            <p className="px-5 py-6 text-[12px] text-muted">
               Nenhum link encurtado ainda.
             </p>
           ) : (
@@ -63,7 +63,7 @@ async function ShortenerPageContent({
                 return (
                   <li
                     key={link.code}
-                    className="border-b border-border-subtle px-4 py-4 last:border-b-0"
+                    className="border-b border-border-subtle px-5 py-4 last:border-b-0"
                   >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
@@ -87,7 +87,7 @@ async function ShortenerPageContent({
                           <input type="hidden" name="code" value={link.code} />
                           <button
                             type="submit"
-                            className="border border-border px-2.5 py-1.5 text-[12px] text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
+                            className="rounded-xl border border-border px-3 py-1.5 text-[12px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
                           >
                             Remover
                           </button>

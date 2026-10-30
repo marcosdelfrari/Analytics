@@ -38,7 +38,7 @@ export function CompanySwitcher({
           name="companyId"
           defaultValue={activeCompanyId}
           onChange={(event) => event.currentTarget.form?.requestSubmit()}
-          className="w-full border border-border bg-background px-2 py-1.5 text-[12px] outline-none focus:border-muted-foreground"
+          className="w-full rounded-xl border border-white/10 bg-background/80 px-2.5 py-2 text-[12px] outline-none transition focus:border-white/25"
         >
           {companies.map((company) => (
             <option key={company.id} value={company.id}>

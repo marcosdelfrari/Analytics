@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { OrganizationPanel } from "@/app/(shell)/admin/organization-panel";
@@ -42,7 +43,7 @@ async function OrganizacaoPageContent({
       subtitle="Empresas e quem pode acessar a plataforma"
     >
       {organizations.length === 0 ? (
-        <section className="border border-border bg-surface px-6 py-10">
+        <section className="rounded-2xl border border-border bg-surface px-6 py-10">
           <h2 className="text-lg font-medium tracking-tight">
             Nenhuma organização sob sua gestão
           </h2>
@@ -63,8 +64,17 @@ async function OrganizacaoPageContent({
             />
             {activeOrg && <AddCompanyForm organizationId={activeOrg.id} />}
             {activeOrg && <AddAccessGrantForm organization={activeOrg} />}
+            {activeOrg && (
+              <Link
+                href={`/organizacao/formularios?org=${activeOrg.id}`}
+                className="flex w-full items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3.5 text-left text-[12.5px] font-medium transition hover:border-white/20 hover:bg-surface-elevated"
+              >
+                <span>Formulários de lead</span>
+                <span aria-hidden className="text-muted-foreground">→</span>
+              </Link>
+            )}
           </div>
-          <section className="border border-border bg-surface px-6 py-10">
+          <section className="rounded-2xl border border-border bg-surface px-6 py-10">
             <h2 className="text-lg font-medium tracking-tight">
               Papel de proprietário
             </h2>
@@ -73,6 +83,17 @@ async function OrganizacaoPageContent({
               <span className="text-foreground">usuários comuns</span>. Eles
               usam dashboard, relatórios e ferramentas, mas não criam empresas
               nem convidam outras pessoas.
+            </p>
+            <p className="mt-4 max-w-lg text-sm leading-6 text-muted-foreground">
+              Em{" "}
+              <Link
+                href={`/organizacao/formularios?org=${activeOrg?.id ?? ""}`}
+                className="text-foreground underline-offset-2 hover:underline"
+              >
+                Formulários
+              </Link>{" "}
+              você monta captura de lead (WhatsApp, popup ou exit intent) com
+              prévia e salva as predefinições no banco.
             </p>
             <p className="mt-4 max-w-lg text-sm leading-6 text-muted-foreground">
               Planos, publicação de relatórios e remoção de empresas ficam com o{" "}

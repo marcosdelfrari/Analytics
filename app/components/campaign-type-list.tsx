@@ -13,7 +13,7 @@ export function CampaignTypeList({ items }: { items: BreakdownItem[] }) {
   const max = maxInList(items);
 
   return (
-    <div className="border border-border bg-surface p-4">
+    <div className="rounded-2xl border border-border bg-surface p-5">
       <h2 className="text-sm font-medium">Tipos de campanha</h2>
       <p className="mt-0.5 text-[12px] text-muted">Quantidade por categoria</p>
       <ul className="mt-4 space-y-3">
@@ -23,9 +23,9 @@ export function CampaignTypeList({ items }: { items: BreakdownItem[] }) {
               <span className="text-muted-foreground">{item.type}</span>
               <span className="font-mono text-foreground">{item.count}</span>
             </div>
-            <div className="mt-1.5 h-1 w-full bg-border-subtle">
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-border-subtle">
               <div
-                className={`h-full ${item.platform === "google" ? "bg-google" : "bg-meta"}`}
+                className={`h-full rounded-full ${item.platform === "google" ? "bg-google" : "bg-meta"}`}
                 style={{ width: `${(item.count / max) * 100}%` }}
               />
             </div>
