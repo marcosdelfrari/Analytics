@@ -144,12 +144,18 @@ export async function createClient(input: {
   name: string;
   email: string;
   password?: string;
-}) {
-  const result = await createClientWorkspace({
+}): Promise<
+  { account: Account; companyId: string } | { error: string }
+> {
+  const workspace = await createClientWorkspace({
     name: input.name,
     email: input.email,
   });
-  if ("error" in result) return result;
+  if (!workspace.companyId) {
+    return {
+      error: workspace.error ?? "Não foi possível criar o acesso.",
+    };
+  }
 
   const email = normalizeEmail(input.email);
   if (input.password) {
@@ -162,9 +168,9 @@ export async function createClient(input: {
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
-    return { error: "Não foi possível criar o acesso." } as const;
+    return { error: "Não foi possível criar o acesso." };
   }
-  return { account: toAccount(user), companyId: result.companyId } as const;
+  return { account: toAccount(user), companyId: workspace.companyId };
 }
 
 export async function registerWithPassword(input: {
