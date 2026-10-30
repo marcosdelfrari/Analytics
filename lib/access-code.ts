@@ -1,17 +1,18 @@
 import { authSecret } from "@/lib/auth-secret";
 import type { Role } from "@/lib/types";
 
-import {
-  adminEmailFromEnv,
-  roleForEmail as sharedRoleForEmail,
-} from "@fractal/shared/access-code";
+export function adminEmailFromEnv() {
+  return (process.env.ADMIN_EMAIL ?? "afk.marcos@gmail.com")
+    .trim()
+    .toLowerCase();
+}
 
 export const adminEmail = adminEmailFromEnv();
 
 const encoder = new TextEncoder();
 
 export function roleForEmail(email: string): Role {
-  return sharedRoleForEmail(email, adminEmail);
+  return email.trim().toLowerCase() === adminEmail ? "admin" : "client";
 }
 
 function secret() {
