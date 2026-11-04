@@ -4,9 +4,14 @@ import { useActionState, useState } from "react";
 import {
   addCompaniesToUserGrant,
   removeAccessGrant,
+  updateUserCompanyAccessRole,
   type FormState,
 } from "@/app/(shell)/organizacao/actions";
 import { removeAccessGrant as removeAccessGrantAdmin } from "@/app/(shell)/admin/actions";
+import {
+  COMPANY_ACCESS_ROLE_LABELS,
+  type CompanyAccessRole,
+} from "@/lib/company-access-role";
 import type {
   AccessGrantSummary,
   OrganizationSummary,
@@ -14,6 +19,44 @@ import type {
 
 const fieldClass =
   "mt-1.5 w-full rounded-xl border border-white/10 bg-background/80 px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-white/25 focus:bg-background";
+
+const roleSelectClass =
+  "rounded-md border border-border-subtle bg-background/80 px-1.5 py-0.5 text-[10.5px] text-foreground outline-none focus:border-white/25";
+
+export function CompanyAccessRoleSelect({
+  organizationId,
+  grantId,
+  companyId,
+  value,
+}: {
+  organizationId: string;
+  grantId: string;
+  companyId: string;
+  value: CompanyAccessRole;
+}) {
+  return (
+    <form action={updateUserCompanyAccessRole} className="inline-flex">
+      <input type="hidden" name="organizationId" value={organizationId} />
+      <input type="hidden" name="grantId" value={grantId} />
+      <input type="hidden" name="companyId" value={companyId} />
+      <select
+        name="role"
+        defaultValue={value}
+        className={roleSelectClass}
+        onChange={(event) => event.currentTarget.form?.requestSubmit()}
+        aria-label="Papel nesta empresa"
+      >
+        {(Object.keys(COMPANY_ACCESS_ROLE_LABELS) as CompanyAccessRole[]).map(
+          (role) => (
+            <option key={role} value={role}>
+              {COMPANY_ACCESS_ROLE_LABELS[role]}
+            </option>
+          ),
+        )}
+      </select>
+    </form>
+  );
+}
 
 export function GrantAccessActions({
   grant,
@@ -97,6 +140,18 @@ export function GrantAccessActions({
           <p className="text-[11px] font-medium text-foreground">
             Associar mais empresas
           </p>
+          <label className="mt-2 block text-[11px] text-muted-foreground">
+            Papel nestas empresas
+            <select name="companyRole" defaultValue="analyst" className={fieldClass}>
+              {(Object.keys(COMPANY_ACCESS_ROLE_LABELS) as CompanyAccessRole[]).map(
+                (role) => (
+                  <option key={role} value={role}>
+                    {COMPANY_ACCESS_ROLE_LABELS[role]}
+                  </option>
+                ),
+              )}
+            </select>
+          </label>
           <ul className="mt-2 space-y-1.5">
             {availableCompanies.map((company) => (
               <li key={company.id}>
@@ -171,7 +226,7 @@ export function AssociateUserToCompanyPanel({
         onClick={() => setOpen(true)}
         className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-border bg-surface px-4 py-3 text-left text-[12.5px] font-medium transition hover:border-white/20 hover:bg-surface-elevated"
       >
-        <span>Associar analista a {companyName}</span>
+        <span>Associar usuário a {companyName}</span>
         <span aria-hidden className="text-muted-foreground">
           +
         </span>
@@ -189,12 +244,12 @@ export function AssociateUserToCompanyPanel({
       <input type="hidden" name="companyId" value={companyId} />
       <input type="hidden" name="empresa" value={companyId} />
       <div className="border-b border-border px-4 py-3.5">
-        <h2 className="text-sm font-medium">Associar analista</h2>
+        <h2 className="text-sm font-medium">Associar usuário</h2>
         <p className="text-[12px] text-muted">
-          O mesmo usuário pode acessar várias empresas da organização
+          Escolha o usuário e o papel dele nesta empresa
         </p>
       </div>
-      <div className="p-4">
+      <div className="p-4 space-y-3">
         <label className="block text-[12px] text-muted-foreground">
           Analista já cadastrado na organização
           <select name="grantId" required className={fieldClass}>
@@ -205,6 +260,18 @@ export function AssociateUserToCompanyPanel({
                 {grant.companyIds.length === 1 ? "" : "s"}
               </option>
             ))}
+          </select>
+        </label>
+        <label className="block text-[12px] text-muted-foreground">
+          Papel em {companyName}
+          <select name="companyRole" defaultValue="analyst" className={fieldClass}>
+            {(Object.keys(COMPANY_ACCESS_ROLE_LABELS) as CompanyAccessRole[]).map(
+              (role) => (
+                <option key={role} value={role}>
+                  {COMPANY_ACCESS_ROLE_LABELS[role]}
+                </option>
+              ),
+            )}
           </select>
         </label>
       </div>

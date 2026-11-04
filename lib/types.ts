@@ -76,7 +76,10 @@ export interface SessionCookie {
 
 export interface Session extends SessionCookie {
   planActive: boolean;
-  /** Cliente com papel de proprietário em ao menos uma organização. */
+  /**
+   * Cliente com nível de proprietário: owner da organização ou
+   * administrador de ao menos uma empresa.
+   */
   isOrganizationOwner: boolean;
 }
 

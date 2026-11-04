@@ -1,6 +1,11 @@
 import Link from "next/link";
-import { removePlatformUser } from "@/app/(shell)/admin/actions";
+import { RemoveUserButton } from "@/app/(shell)/admin/remove-user-button";
 import { adminEmail } from "@/lib/access-code";
+import {
+  COMPANY_ACCESS_ROLE_LABELS,
+  hasElevatedCompanyAccess,
+  type CompanyAccessRole,
+} from "@/lib/company-access-role";
 import type { OrganizationSummary } from "@/lib/organizations-store";
 import type { Account } from "@/lib/types";
 
@@ -13,8 +18,10 @@ type UserMembership = {
   orgId: string;
   orgName: string;
   isOwner: boolean;
+  isCompanyAdmin: boolean;
   allCompanies: boolean;
   companyNames: string[];
+  companyRoleLabels: string[];
   hasActivePlanCompany: boolean;
 };
 
@@ -38,12 +45,24 @@ function resolveMemberships(
             grant.companyIds.includes(company.id),
           );
 
+    const companyRoleLabels = grant.isOwner
+      ? accessibleCompanies.map(() => "Proprietário")
+      : grant.allCompanies
+        ? accessibleCompanies.map(() => COMPANY_ACCESS_ROLE_LABELS.analyst)
+        : accessibleCompanies.map((company) => {
+            const role =
+              grant.companyRoles[company.id] ?? ("analyst" as CompanyAccessRole);
+            return COMPANY_ACCESS_ROLE_LABELS[role];
+          });
+
     result.push({
       orgId: org.id,
       orgName: org.name,
       isOwner: grant.isOwner,
+      isCompanyAdmin: hasElevatedCompanyAccess(grant),
       allCompanies: grant.allCompanies,
       companyNames: accessibleCompanies.map((c) => c.name),
+      companyRoleLabels,
       hasActivePlanCompany: accessibleCompanies.some((c) => c.planActive),
     });
   }
@@ -63,8 +82,8 @@ export function UsersPanel({ users, organizations = [] }: UsersPanelProps) {
             Usuários da plataforma
           </h2>
           <p className="mt-0.5 text-[12px] text-muted-foreground">
-            Contas cadastradas, papéis de acesso e pertencimento por organização
-            e empresa.
+            Todas as contas com acesso a organizações (proprietários e usuários
+            comuns), sincronizadas com os grants.
           </p>
         </div>
 
@@ -107,17 +126,21 @@ export function UsersPanel({ users, organizations = [] }: UsersPanelProps) {
                   user.email,
                   organizations,
                 );
-                const isOwnerAnywhere = memberships.some((m) => m.isOwner);
+                const isOwnerAnywhere = memberships.some(
+                  (m) => m.isOwner || m.isCompanyAdmin,
+                );
                 const planActive =
                   isRootAdmin ||
                   user.planActive ||
                   memberships.some((m) => m.hasActivePlanCompany);
 
                 const roleLabel = isRootAdmin
-                  ? "Admin Plataforma"
-                  : isOwnerAnywhere
-                    ? "Administrador (Proprietário)"
-                    : "Analista (Usuário comum)";
+                  ? "Admin plataforma"
+                  : memberships.length === 0
+                    ? "Sem organização"
+                    : isOwnerAnywhere
+                      ? "Proprietário"
+                      : "Usuário comum";
 
                 return (
                   <tr
@@ -156,17 +179,30 @@ export function UsersPanel({ users, organizations = [] }: UsersPanelProps) {
                             <Link
                               key={m.orgId}
                               href={`/admin?org=${m.orgId}`}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-background/70 px-2.5 py-1 text-[11.5px] transition hover:border-white/25"
+                              className="inline-flex max-w-full flex-col gap-0.5 rounded-lg border border-border-subtle bg-background/70 px-2.5 py-1 text-[11.5px] transition hover:border-white/25"
                             >
                               <span className="font-medium text-foreground">
                                 {m.orgName}
+                                {m.isOwner || m.isCompanyAdmin ? (
+                                  <span className="ml-1.5 font-normal text-positive">
+                                    · Proprietário
+                                  </span>
+                                ) : null}
                               </span>
-                              <span className="text-muted">·</span>
-                              <span className="font-mono text-[10.5px] text-muted-foreground">
-                                {m.companyNames.length > 0
-                                  ? m.companyNames.join(", ")
-                                  : "0 emp."}
-                              </span>
+                              {m.companyNames.length > 0 ? (
+                                <span className="font-mono text-[10px] leading-snug text-muted-foreground">
+                                  {m.companyNames.map((name, idx) => (
+                                    <span key={`${m.orgId}-${name}`}>
+                                      {idx > 0 ? " · " : ""}
+                                      {name} ({m.companyRoleLabels[idx] ?? "Analista"})
+                                    </span>
+                                  ))}
+                                </span>
+                              ) : (
+                                <span className="font-mono text-[10px] text-muted">
+                                  Nenhuma empresa
+                                </span>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -196,18 +232,11 @@ export function UsersPanel({ users, organizations = [] }: UsersPanelProps) {
                           Conta principal
                         </span>
                       ) : (
-                        <form
-                          action={removePlatformUser}
-                          className="inline-block"
-                        >
-                          <input type="hidden" name="id" value={user.id} />
-                          <button
-                            type="submit"
-                            className="cursor-pointer rounded-lg border border-border px-2.5 py-1 text-[11.5px] text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
-                          >
-                            Remover
-                          </button>
-                        </form>
+                        <RemoveUserButton
+                          userId={user.id}
+                          userName={user.name}
+                          email={user.email}
+                        />
                       )}
                     </td>
                   </tr>

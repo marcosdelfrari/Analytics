@@ -61,7 +61,7 @@ export function SiteTrafficChart({
         <div>
           <h2 className="text-sm font-medium">{title}</h2>
           <p className="text-[12px] text-muted-foreground">
-            Visitas e eventos customizados (coleta Node)
+            Visitas e eventos customizados do site
           </p>
         </div>
         <div className="flex gap-4 text-[11px]">

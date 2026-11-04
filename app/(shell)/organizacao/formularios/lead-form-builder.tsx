@@ -10,6 +10,7 @@ import {
 } from "@/app/(shell)/organizacao/formularios/actions";
 import { LeadFormPreview } from "@/app/(shell)/organizacao/formularios/lead-form-preview";
 import { LeadFormWizard } from "@/app/(shell)/organizacao/formularios/lead-form-wizard";
+import { ConfirmDialog } from "@/app/components/confirm-dialog";
 import {
   LEAD_FORM_KIND_LABELS,
   defaultLeadFormDraft,
@@ -142,6 +143,7 @@ export function LeadFormBuilder({
     LeadFormActionState,
     FormData
   >(upsertLeadFormAction, null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (state && "ok" in state && state.ok) {
@@ -266,15 +268,7 @@ export function LeadFormBuilder({
           ) : null}
 
           {draft.id ? (
-            <form
-              action={removeLeadFormAction}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-negative/20 bg-negative/[0.04] px-5 py-3.5"
-              onSubmit={(event) => {
-                if (!confirm("Excluir este formulário?")) {
-                  event.preventDefault();
-                }
-              }}
-            >
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-negative/20 bg-negative/[0.04] px-5 py-3.5">
               <div>
                 <p className="text-[12.5px] font-medium text-foreground">
                   Zona de exclusão
@@ -283,15 +277,44 @@ export function LeadFormBuilder({
                   Remove permanentemente este modelo de formulário.
                 </p>
               </div>
-              <input type="hidden" name="id" value={draft.id} />
-              <input type="hidden" name="organizationId" value={organizationId} />
               <button
-                type="submit"
-                className="rounded-xl border border-negative/30 bg-negative/10 px-3.5 py-2 text-[12px] font-medium text-negative transition hover:bg-negative/20"
+                type="button"
+                onClick={() => setDeleteConfirmOpen(true)}
+                className="cursor-pointer rounded-xl border border-negative/30 bg-negative/10 px-3.5 py-2 text-[12px] font-medium text-negative transition hover:bg-negative/20"
               >
                 Excluir formulário
               </button>
-            </form>
+
+              <form
+                id={`delete-lead-form-${draft.id}`}
+                action={removeLeadFormAction}
+                className="hidden"
+              >
+                <input type="hidden" name="id" value={draft.id} />
+                <input
+                  type="hidden"
+                  name="organizationId"
+                  value={organizationId}
+                />
+              </form>
+
+              <ConfirmDialog
+                open={deleteConfirmOpen}
+                tone="danger"
+                title="Excluir este formulário?"
+                description="Essa ação remove permanentemente o modelo e não pode ser desfeita."
+                confirmLabel="Sim, excluir"
+                cancelLabel="Cancelar"
+                onCancel={() => setDeleteConfirmOpen(false)}
+                onConfirm={() => {
+                  setDeleteConfirmOpen(false);
+                  const form = document.getElementById(
+                    `delete-lead-form-${draft.id}`,
+                  ) as HTMLFormElement | null;
+                  form?.requestSubmit();
+                }}
+              />
+            </div>
           ) : null}
         </div>
 

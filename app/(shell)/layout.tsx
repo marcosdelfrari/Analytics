@@ -3,6 +3,7 @@ import { NOINDEX_METADATA } from "@/lib/seo";
 
 export const metadata = NOINDEX_METADATA;
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { AppShellChrome } from "@/app/components/app-shell-chrome";
 import { AppShellMain } from "@/app/components/app-shell";
@@ -28,6 +29,7 @@ async function ShellLayoutWithSession({
 }: {
   children: ReactNode;
 }) {
+  await connection();
   const session = await getSession();
 
   if (authEnabled && !session) {

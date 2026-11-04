@@ -1,5 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { adminEmail, roleForEmail } from "@/lib/access-code";
+import {
+  hasElevatedCompanyAccess,
+  type CompanyAccessRole,
+} from "@/lib/company-access-role";
+import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import type { Role } from "@/lib/types";
 
@@ -23,9 +28,12 @@ export type AccessGrantSummary = {
   email: string;
   userId: string | null;
   userName: string;
+  hasPassword: boolean;
   allCompanies: boolean;
   isOwner: boolean;
   companyIds: string[];
+  /** Papel em cada empresa vinculada (vínculo específico). */
+  companyRoles: Record<string, CompanyAccessRole>;
 };
 
 function normalizeEmail(email: string) {
@@ -97,7 +105,7 @@ export async function listOrganizations(): Promise<OrganizationSummary[]> {
       },
     }),
     prisma.user.findMany({
-      select: { id: true, email: true, name: true },
+      select: { id: true, email: true, name: true, passwordHash: true },
     }),
   ]);
 
@@ -124,12 +132,29 @@ export async function listOrganizations(): Promise<OrganizationSummary[]> {
         userName:
           matchedUser?.name?.trim() ||
           (grant.email.split("@")[0] ?? grant.email),
+        hasPassword: Boolean(matchedUser?.passwordHash),
         allCompanies: grant.allCompanies,
         isOwner: grant.isOwner,
         companyIds: grant.companies.map((link) => link.companyId),
+        companyRoles: Object.fromEntries(
+          grant.companies.map((link) => [
+            link.companyId,
+            link.role as CompanyAccessRole,
+          ]),
+        ),
       };
     }),
   }));
+}
+
+async function accessGrantsForEmail(email: string) {
+  const normalized = normalizeEmail(email);
+  return prisma.accessGrant.findMany({
+    where: {
+      email: { equals: normalized, mode: "insensitive" },
+    },
+    include: { companies: { select: { role: true } } },
+  });
 }
 
 export async function listOrganizationsForOwner(
@@ -140,28 +165,38 @@ export async function listOrganizationsForOwner(
   return all.filter((org) =>
     org.grants.some(
       (grant) =>
-        grant.email === normalized && grant.isOwner,
+        normalizeEmail(grant.email) === normalized &&
+        hasElevatedCompanyAccess(grant),
     ),
   );
 }
 
+/**
+ * Nível de proprietário na sessão/UI: owner da org OU administrador
+ * de ao menos uma empresa vinculada.
+ */
 export async function emailIsOrganizationOwner(email: string) {
-  const normalized = normalizeEmail(email);
-  const count = await prisma.accessGrant.count({
-    where: { email: normalized, isOwner: true },
-  });
-  return count > 0;
+  const grants = await accessGrantsForEmail(email);
+  return grants.some(
+    (grant) =>
+      grant.isOwner ||
+      grant.companies.some((link) => link.role === "administrator"),
+  );
 }
 
 export async function canManageOrganization(email: string, organizationId: string) {
   const normalized = normalizeEmail(email);
   if (roleForEmail(normalized) === "admin") return true;
-  const grant = await prisma.accessGrant.findUnique({
+  const grant = await prisma.accessGrant.findFirst({
     where: {
-      organizationId_email: { organizationId, email: normalized },
+      organizationId,
+      email: { equals: normalized, mode: "insensitive" },
     },
+    include: { companies: true },
   });
-  return grant?.isOwner === true;
+  if (!grant) return false;
+  if (grant.isOwner) return true;
+  return grant.companies.some((link) => link.role === "administrator");
 }
 
 export async function listCompanies(): Promise<CompanyAccount[]> {
@@ -296,13 +331,22 @@ export async function createAccessGrant(input: {
   organizationId: string;
   name?: string;
   email: string;
+  password?: string;
   allCompanies: boolean;
   companyIds: string[];
+  companyRoles?: Record<string, CompanyAccessRole>;
   isOwner?: boolean;
 }) {
   const email = normalizeEmail(input.email);
   if (!email.includes("@")) {
     return { error: "Informe um e-mail válido." } as const;
+  }
+
+  const rawPassword = (input.password ?? "").trim();
+  if (rawPassword && rawPassword.length < 8) {
+    return {
+      error: "A senha inicial precisa ter pelo menos 8 caracteres.",
+    } as const;
   }
 
   const cleanName = (input.name ?? "").trim();
@@ -322,6 +366,9 @@ export async function createAccessGrant(input: {
         org.companies.some((company) => company.id === id),
       );
 
+  const roleForCompanyId = (companyId: string): CompanyAccessRole =>
+    input.companyRoles?.[companyId] ?? "analyst";
+
   const existing = await prisma.accessGrant.findUnique({
     where: {
       organizationId_email: { organizationId: org.id, email },
@@ -330,6 +377,7 @@ export async function createAccessGrant(input: {
   });
 
   const role: Role = roleForEmail(email);
+  const passwordHash = rawPassword ? await hashPassword(rawPassword) : undefined;
 
   await prisma.$transaction(async (tx) => {
     await tx.user.upsert({
@@ -339,8 +387,12 @@ export async function createAccessGrant(input: {
         name: cleanName || (email.split("@")[0] ?? email),
         role,
         planActive: role === "admin",
+        ...(passwordHash ? { passwordHash } : {}),
       },
-      update: {},
+      update: {
+        ...(cleanName ? { name: cleanName } : {}),
+        ...(passwordHash ? { passwordHash } : {}),
+      },
     });
 
     if (existing) {
@@ -363,6 +415,7 @@ export async function createAccessGrant(input: {
             data: toAdd.map((companyId) => ({
               grantId: existing.id,
               companyId,
+              role: roleForCompanyId(companyId),
             })),
             skipDuplicates: true,
           });
@@ -380,7 +433,10 @@ export async function createAccessGrant(input: {
         companies: allCompanies
           ? undefined
           : {
-              create: companyIds.map((companyId) => ({ companyId })),
+              create: companyIds.map((companyId) => ({
+                companyId,
+                role: roleForCompanyId(companyId),
+              })),
             },
       },
     });
@@ -429,6 +485,7 @@ export async function toggleAccessGrantCompany(input: {
           data: remaining.map((companyId) => ({
             grantId: grant.id,
             companyId,
+            role: "analyst",
           })),
           skipDuplicates: true,
         });
@@ -451,6 +508,7 @@ export async function toggleAccessGrantCompany(input: {
         data: {
           grantId: grant.id,
           companyId: input.companyId,
+          role: "analyst",
         },
       });
     }
@@ -463,6 +521,7 @@ export async function associateFlowCompanyAndGrant(input: {
   grantId: string;
   organizationId: string;
   companyId: string;
+  role?: CompanyAccessRole;
 }) {
   const grant = await prisma.accessGrant.findUnique({
     where: { id: input.grantId },
@@ -485,6 +544,8 @@ export async function associateFlowCompanyAndGrant(input: {
     return { ok: true } as const;
   }
 
+  const linkRole = input.role ?? "analyst";
+
   await prisma.accessGrantCompany.upsert({
     where: {
       grantId_companyId: {
@@ -495,6 +556,7 @@ export async function associateFlowCompanyAndGrant(input: {
     create: {
       grantId: grant.id,
       companyId: input.companyId,
+      role: linkRole,
     },
     update: {},
   });
@@ -537,7 +599,7 @@ export async function setAccessGrantAllCompanies(input: {
       await tx.accessGrantCompany.deleteMany({ where: { grantId: grant.id } });
       if (firstCompanyId) {
         await tx.accessGrantCompany.create({
-          data: { grantId: grant.id, companyId: firstCompanyId },
+          data: { grantId: grant.id, companyId: firstCompanyId, role: "analyst" },
         });
       }
     }
@@ -550,6 +612,7 @@ export async function addCompaniesToAccessGrant(input: {
   grantId: string;
   organizationId: string;
   companyIds: string[];
+  role?: CompanyAccessRole;
 }) {
   const grant = await prisma.accessGrant.findUnique({
     where: { id: input.grantId },
@@ -583,15 +646,212 @@ export async function addCompaniesToAccessGrant(input: {
     } as const;
   }
 
+  const linkRole = input.role ?? "analyst";
+
   await prisma.accessGrantCompany.createMany({
     data: toAdd.map((companyId) => ({
       grantId: grant.id,
       companyId,
+      role: linkRole,
     })),
     skipDuplicates: true,
   });
 
   return { ok: true, added: toAdd.length } as const;
+}
+
+export async function setAccessGrantCompanyRole(input: {
+  grantId: string;
+  organizationId: string;
+  companyId: string;
+  role: CompanyAccessRole;
+}) {
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: input.grantId },
+    include: { companies: true },
+  });
+
+  if (!grant || grant.organizationId !== input.organizationId) {
+    return { error: "Acesso não encontrado nesta organização." } as const;
+  }
+  if (grant.isOwner) {
+    return {
+      error: "Proprietários da organização já têm acesso total.",
+    } as const;
+  }
+  if (grant.allCompanies) {
+    return {
+      error:
+        "Usuários com acesso a todas as empresas não têm papel por vínculo.",
+    } as const;
+  }
+
+  const link = grant.companies.find((item) => item.companyId === input.companyId);
+  if (!link) {
+    return { error: "Empresa não vinculada a este usuário." } as const;
+  }
+
+  await prisma.accessGrantCompany.update({
+    where: {
+      grantId_companyId: {
+        grantId: grant.id,
+        companyId: input.companyId,
+      },
+    },
+    data: { role: input.role },
+  });
+
+  return { ok: true } as const;
+}
+
+export async function updateOrganizationUserConfiguration(input: {
+  organizationId: string;
+  grantId: string;
+  name?: string;
+  isOwner?: boolean;
+  allCompanies?: boolean;
+  companyIds?: string[];
+  companyRoles?: Record<string, CompanyAccessRole>;
+  newPassword?: string;
+  allowOwnerChange?: boolean;
+}) {
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: input.grantId },
+    include: {
+      companies: true,
+      organization: { include: { companies: true } },
+    },
+  });
+
+  if (!grant || grant.organizationId !== input.organizationId) {
+    return { error: "Usuário não encontrado nesta organização." } as const;
+  }
+
+  const rawPassword = (input.newPassword ?? "").trim();
+  if (rawPassword && rawPassword.length < 8) {
+    return {
+      error: "A nova senha precisa ter pelo menos 8 caracteres.",
+    } as const;
+  }
+
+  const email = normalizeEmail(grant.email);
+  const role: Role = roleForEmail(email);
+  const cleanName = (input.name ?? "").trim();
+  const passwordHash = rawPassword ? await hashPassword(rawPassword) : undefined;
+
+  const isPlatformAdminSelfOwner =
+    email === normalizeEmail(adminEmail) && grant.isOwner;
+
+  const nextIsOwner = isPlatformAdminSelfOwner
+    ? true
+    : input.allowOwnerChange && typeof input.isOwner === "boolean"
+      ? input.isOwner
+      : grant.isOwner;
+
+  const nextAllCompanies = nextIsOwner
+    ? true
+    : typeof input.allCompanies === "boolean"
+      ? input.allCompanies
+      : grant.allCompanies;
+
+  const orgCompanyIds = new Set(grant.organization.companies.map((c) => c.id));
+  const selectedCompanyIds = nextAllCompanies
+    ? []
+    : [...new Set(input.companyIds ?? grant.companies.map((c) => c.companyId))].filter(
+        (id) => orgCompanyIds.has(id),
+      );
+
+  const roleForCompany = (companyId: string): CompanyAccessRole => {
+    const provided = input.companyRoles?.[companyId];
+    if (provided === "administrator" || provided === "analyst") {
+      return provided;
+    }
+    const existing = grant.companies.find((c) => c.companyId === companyId);
+    return (existing?.role as CompanyAccessRole) ?? "analyst";
+  };
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.upsert({
+      where: { email },
+      create: {
+        email,
+        name: cleanName || (email.split("@")[0] ?? email),
+        role,
+        planActive: role === "admin",
+        ...(passwordHash ? { passwordHash } : {}),
+      },
+      update: {
+        ...(cleanName ? { name: cleanName } : {}),
+        ...(passwordHash ? { passwordHash } : {}),
+      },
+    });
+
+    await tx.accessGrant.update({
+      where: { id: grant.id },
+      data: {
+        isOwner: nextIsOwner,
+        allCompanies: nextAllCompanies,
+      },
+    });
+
+    await tx.accessGrantCompany.deleteMany({
+      where: { grantId: grant.id },
+    });
+
+    if (!nextIsOwner && !nextAllCompanies && selectedCompanyIds.length > 0) {
+      await tx.accessGrantCompany.createMany({
+        data: selectedCompanyIds.map((companyId) => ({
+          grantId: grant.id,
+          companyId,
+          role: roleForCompany(companyId),
+        })),
+        skipDuplicates: true,
+      });
+    }
+  });
+
+  return { ok: true, passwordUpdated: Boolean(passwordHash) } as const;
+}
+
+export async function resetOrganizationUserPassword(input: {
+  organizationId: string;
+  grantId: string;
+  newPassword: string;
+}) {
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: input.grantId },
+  });
+
+  if (!grant || grant.organizationId !== input.organizationId) {
+    return { error: "Usuário não encontrado nesta organização." } as const;
+  }
+
+  const rawPassword = input.newPassword.trim();
+  if (rawPassword.length < 8) {
+    return {
+      error: "A nova senha precisa ter pelo menos 8 caracteres.",
+    } as const;
+  }
+
+  const email = normalizeEmail(grant.email);
+  const role: Role = roleForEmail(email);
+  const passwordHash = await hashPassword(rawPassword);
+
+  await prisma.user.upsert({
+    where: { email },
+    create: {
+      email,
+      name: email.split("@")[0] ?? email,
+      role,
+      planActive: role === "admin",
+      passwordHash,
+    },
+    update: {
+      passwordHash,
+    },
+  });
+
+  return { ok: true } as const;
 }
 
 export async function deleteAccessGrant(id: string) {

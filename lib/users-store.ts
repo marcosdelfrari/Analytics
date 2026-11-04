@@ -102,6 +102,36 @@ export async function listAccounts() {
   return ensureUsers();
 }
 
+/** Garante linha em `users` para cada e-mail com grant (evita “fantasma” só na org). */
+async function syncUsersFromAccessGrants() {
+  const grants = await prisma.accessGrant.findMany({
+    select: { email: true },
+    distinct: ["email"],
+  });
+
+  for (const grant of grants) {
+    const email = normalizeEmail(grant.email);
+    if (!email.includes("@")) continue;
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) continue;
+    const local = email.split("@")[0] ?? email;
+    await prisma.user.create({
+      data: {
+        email,
+        name: local,
+        role: roleForEmail(email),
+        planActive: roleForEmail(email) === "admin",
+      },
+    });
+  }
+}
+
+/** Diretório admin: contas da tabela + e-mails que só existiam em grants. */
+export async function listAccountsForDirectory() {
+  await syncUsersFromAccessGrants();
+  return ensureUsers();
+}
+
 export async function listClients() {
   const users = await ensureUsers();
   return users.filter((user) => user.role === "client");
@@ -284,8 +314,24 @@ export async function authenticateWithPassword(input: {
 
 export async function deleteAccount(id: string) {
   const user = await prisma.user.findUnique({ where: { id } });
-  if (!user || user.email === adminEmail) return;
-  await prisma.user.delete({ where: { id } });
+  if (!user) return;
+  await deleteUserCompletely(user.email);
+}
+
+/** Remove conta, OTP e todos os grants da organização desse e-mail. */
+export async function deleteUserCompletely(rawEmail: string) {
+  const email = normalizeEmail(rawEmail);
+  if (!email.includes("@") || email === normalizeEmail(adminEmail)) {
+    return { error: "Não é possível remover esta conta." } as const;
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.accessGrant.deleteMany({ where: { email } });
+    await tx.loginOtp.deleteMany({ where: { email } });
+    await tx.user.deleteMany({ where: { email } });
+  });
+
+  return { ok: true } as const;
 }
 
 export async function setClientPlanActive(id: string, planActive: boolean) {

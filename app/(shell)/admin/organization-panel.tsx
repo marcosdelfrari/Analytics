@@ -3,6 +3,7 @@ import {
   AssociateUserToCompanyPanel,
   GrantAccessActions,
 } from "@/app/(shell)/organizacao/grant-access-actions";
+import { hasElevatedCompanyAccess } from "@/lib/company-access-role";
 import type { OrganizationSummary } from "@/lib/organizations-store";
 
 type OrganizationPanelProps = {
@@ -194,8 +195,10 @@ export function OrganizationPanel({
                         {grant.email}
                       </p>
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        {grant.isOwner
-                          ? "Proprietário"
+                        {hasElevatedCompanyAccess(grant)
+                          ? grant.isOwner
+                            ? "Proprietário"
+                            : "Proprietário · administrador de empresa"
                           : grant.allCompanies
                             ? "Usuário comum · toda a organização"
                             : `Usuário comum · ${grant.companyIds.length} empresa(s)`}

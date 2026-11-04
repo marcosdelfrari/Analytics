@@ -31,6 +31,7 @@ type CachedPrismaClient = PrismaClient & {
   _runtimeDataModel?: {
     models?: {
       AccessGrant?: { fields?: Array<{ name: string }> };
+      AccessGrantCompany?: { fields?: Array<{ name: string }> };
       LeadForm?: { fields?: Array<{ name: string }> };
     };
   };
@@ -48,9 +49,13 @@ function clientMatchesCurrentSchema(client: PrismaClient) {
     extended._runtimeDataModel?.models?.AccessGrant?.fields?.some(
       (field) => field.name === "isOwner",
     ) === true;
+  const hasCompanyAccessRole =
+    extended._runtimeDataModel?.models?.AccessGrantCompany?.fields?.some(
+      (field) => field.name === "role",
+    ) === true;
   const hasLeadForm = typeof extended.leadForm?.findMany === "function";
 
-  return hasTracking && hasOwner && hasLeadForm;
+  return hasTracking && hasOwner && hasCompanyAccessRole && hasLeadForm;
 }
 
 function getPrismaClient() {

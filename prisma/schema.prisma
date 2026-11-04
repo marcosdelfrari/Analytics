@@ -15,6 +15,13 @@ enum Role {
   client
 }
 
+enum CompanyAccessRole {
+  administrator
+  analyst
+
+  @@map("company_access_role")
+}
+
 model User {
   id         String   @id @default(uuid())
   email      String   @unique
@@ -155,10 +162,11 @@ model AccessGrant {
 }
 
 model AccessGrantCompany {
-  grantId   String      @map("grant_id")
-  companyId String      @map("company_id")
-  grant     AccessGrant @relation(fields: [grantId], references: [id], onDelete: Cascade)
-  company   Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  grantId   String             @map("grant_id")
+  companyId String             @map("company_id")
+  role      CompanyAccessRole  @default(analyst)
+  grant     AccessGrant        @relation(fields: [grantId], references: [id], onDelete: Cascade)
+  company   Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@id([grantId, companyId])
   @@map("access_grant_companies")

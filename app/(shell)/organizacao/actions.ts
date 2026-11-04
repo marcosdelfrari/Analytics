@@ -4,14 +4,19 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
+import { parseCompanyAccessRole, type CompanyAccessRole } from "@/lib/company-access-role";
 import {
   addCompaniesToAccessGrant,
   associateFlowCompanyAndGrant,
+  canManageOrganization,
   createAccessGrant,
   createCompany,
   deleteAccessGrant,
+  resetOrganizationUserPassword,
   setAccessGrantAllCompanies,
+  setAccessGrantCompanyRole,
   toggleAccessGrantCompany,
+  updateOrganizationUserConfiguration,
 } from "@/lib/organizations-store";
 import { prisma } from "@/lib/prisma";
 
@@ -29,15 +34,8 @@ async function requireOrganizationOwnerOrAdmin(organizationId: string) {
   if (!session.isOrganizationOwner) {
     redirect("/dashboard");
   }
-  const grant = await prisma.accessGrant.findUnique({
-    where: {
-      organizationId_email: {
-        organizationId,
-        email: session.email.trim().toLowerCase(),
-      },
-    },
-  });
-  if (grant?.isOwner !== true) {
+  const canManage = await canManageOrganization(session.email, organizationId);
+  if (!canManage) {
     redirect("/dashboard");
   }
   return { isAdmin: false };
@@ -70,10 +68,17 @@ export async function addOrganizationAccess(
   await requireOrganizationOwnerOrAdmin(organizationId);
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "").trim();
   const isOwner = String(formData.get("isOwner") ?? "") === "true";
   const companyIds = formData
     .getAll("companyIds")
     .map((value) => String(value));
+  const companyRoles: Record<string, CompanyAccessRole> = {};
+  for (const companyId of companyIds) {
+    companyRoles[companyId] = parseCompanyAccessRole(
+      formData.get(`companyRole_${companyId}`),
+    );
+  }
   const allCompanies =
     isOwner ||
     String(formData.get("allCompanies") ?? "") === "true";
@@ -82,8 +87,10 @@ export async function addOrganizationAccess(
     organizationId,
     name,
     email,
+    password: password || undefined,
     allCompanies,
     companyIds,
+    companyRoles,
     isOwner,
   });
   if ("error" in result) {
@@ -184,6 +191,7 @@ export async function addCompaniesToUserGrant(
     grantId,
     organizationId,
     companyIds: mergedIds,
+    role: parseCompanyAccessRole(formData.get("companyRole")),
   });
   if ("error" in result) {
     return { error: result.error ?? "Não foi possível associar a empresa." };
@@ -195,6 +203,26 @@ export async function addCompaniesToUserGrant(
   const query = new URLSearchParams({ org: organizationId });
   if (empresa) query.set("empresa", empresa);
   redirect(`${basePath}?${query.toString()}`);
+}
+
+export async function updateUserCompanyAccessRole(formData: FormData) {
+  const organizationId = String(formData.get("organizationId") ?? "");
+  const grantId = String(formData.get("grantId") ?? "");
+  const companyId = String(formData.get("companyId") ?? "");
+  const role = parseCompanyAccessRole(formData.get("role"));
+  if (!organizationId || !grantId || !companyId) return;
+  await requireOrganizationOwnerOrAdmin(organizationId);
+
+  await setAccessGrantCompanyRole({
+    grantId,
+    organizationId,
+    companyId,
+    role,
+  });
+
+  revalidatePath("/organizacao");
+  revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
 }
 
 export async function removeAccessGrant(formData: FormData) {
@@ -218,3 +246,129 @@ export async function removeAccessGrant(formData: FormData) {
   if (empresa) query.set("empresa", empresa);
   redirect(`${basePath}?${query.toString()}`);
 }
+
+export async function saveUserFlowConfigAction(input: {
+  organizationId: string;
+  grantId: string;
+  name?: string;
+  isOwner?: boolean;
+  allCompanies?: boolean;
+  companyIds?: string[];
+  companyRoles?: Record<string, CompanyAccessRole>;
+  newPassword?: string;
+  confirmPassword?: string;
+}): Promise<{ ok: boolean; error?: string; passwordUpdated?: boolean }> {
+  if (!input.organizationId || !input.grantId) {
+    return { ok: false, error: "Dados incompletos para atualizar o usuário." };
+  }
+  const { isAdmin } = await requireOrganizationOwnerOrAdmin(
+    input.organizationId,
+  );
+
+  const rawPassword = (input.newPassword ?? "").trim();
+  const rawConfirm = (input.confirmPassword ?? "").trim();
+  if (rawPassword || rawConfirm) {
+    if (rawPassword.length < 8) {
+      return {
+        ok: false,
+        error: "A nova senha precisa ter pelo menos 8 caracteres.",
+      };
+    }
+    if (rawPassword !== rawConfirm) {
+      return { ok: false, error: "As senhas informadas não coincidem." };
+    }
+  }
+
+  const result = await updateOrganizationUserConfiguration({
+    organizationId: input.organizationId,
+    grantId: input.grantId,
+    name: input.name,
+    isOwner: input.isOwner,
+    allCompanies: input.allCompanies,
+    companyIds: input.companyIds,
+    companyRoles: input.companyRoles,
+    newPassword: rawPassword || undefined,
+    allowOwnerChange: isAdmin,
+  });
+
+  if ("error" in result) {
+    return { ok: false, error: result.error };
+  }
+
+  revalidatePath("/organizacao");
+  revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
+  return { ok: true, passwordUpdated: result.passwordUpdated };
+}
+
+export async function resetUserPasswordInOrgAction(input: {
+  organizationId: string;
+  grantId: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  if (!input.organizationId || !input.grantId) {
+    return { ok: false, error: "Dados incompletos para redefinir a senha." };
+  }
+  await requireOrganizationOwnerOrAdmin(input.organizationId);
+
+  const rawPassword = input.newPassword.trim();
+  const rawConfirm = input.confirmPassword.trim();
+
+  if (rawPassword.length < 8) {
+    return {
+      ok: false,
+      error: "A nova senha precisa ter pelo menos 8 caracteres.",
+    };
+  }
+  if (rawPassword !== rawConfirm) {
+    return { ok: false, error: "As senhas informadas não coincidem." };
+  }
+
+  const result = await resetOrganizationUserPassword({
+    organizationId: input.organizationId,
+    grantId: input.grantId,
+    newPassword: rawPassword,
+  });
+
+  if ("error" in result) {
+    return { ok: false, error: result.error };
+  }
+
+  revalidatePath("/organizacao");
+  revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
+  return { ok: true };
+}
+
+export async function removeUserFromOrgFlowAction(input: {
+  organizationId: string;
+  grantId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  if (!input.organizationId || !input.grantId) {
+    return { ok: false, error: "Dados incompletos para remoção." };
+  }
+  const { isAdmin } = await requireOrganizationOwnerOrAdmin(
+    input.organizationId,
+  );
+
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: input.grantId },
+  });
+  if (!grant || grant.organizationId !== input.organizationId) {
+    return { ok: false, error: "Acesso não encontrado nesta organização." };
+  }
+  if (!isAdmin && grant.isOwner) {
+    return {
+      ok: false,
+      error: "Apenas o administrador da plataforma pode remover um proprietário.",
+    };
+  }
+
+  await deleteAccessGrant(grant.id);
+  revalidatePath("/organizacao");
+  revalidatePath("/admin");
+  revalidatePath("/admin/usuarios");
+  return { ok: true };
+}
+

@@ -14,7 +14,7 @@ import { AppShellMain } from "@/app/components/app-shell";
 import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { listOrganizations } from "@/lib/organizations-store";
 import { requireAdmin } from "@/lib/require-admin";
-import { listAccounts } from "@/lib/users-store";
+import { listAccountsForDirectory } from "@/lib/users-store";
 
 async function AdminPageContent({
   searchParams,
@@ -27,7 +27,7 @@ async function AdminPageContent({
   const { org, empresa } = await searchParams;
   const [organizations, users] = await Promise.all([
     listOrganizations(),
-    listAccounts(),
+    listAccountsForDirectory(),
   ]);
   const selectedOrgId = org ?? organizations[0]?.id ?? null;
   const activeOrg =
@@ -51,7 +51,7 @@ async function AdminPageContent({
   return (
     <AppShellMain
       title="Plataforma"
-      subtitle="Organizações, empresas e fluxo BPMN de pertencimento"
+      subtitle="Organizações e empresas"
     >
       <div className="space-y-6">
         {/* Resumo da Plataforma + Atalhos para as Páginas Dedicadas */}
@@ -175,6 +175,7 @@ async function AdminPageContent({
                 organization={activeOrg}
                 allOrganizations={organizations}
                 defaultShowAll={!org}
+                allowOwnerRole
               />
             ) : (
               <div className="rounded-2xl border border-border bg-surface px-6 py-10">

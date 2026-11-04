@@ -58,14 +58,29 @@ export function IncludeUserInlineForm({
   basePath?: "/organizacao" | "/admin";
   allowOwnerRole?: boolean;
 }) {
-  const [allCompanies, setAllCompanies] = useState(
-    organization.companies.length === 0,
+  const [scope, setScope] = useState<"by_company" | "all_companies" | "owner">(
+    organization.companies.length === 0 ? "all_companies" : "by_company",
   );
-  const [isOwner, setIsOwner] = useState(false);
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>(() =>
+    organization.companies.length === 1 && organization.companies[0]
+      ? [organization.companies[0].id]
+      : organization.companies.map((c) => c.id),
+  );
   const [state, action, pending] = useActionState<FormState, FormData>(
     addOrganizationAccess,
     null,
   );
+
+  const isOwner = scope === "owner";
+  const allCompanies = scope === "all_companies" || scope === "owner";
+
+  const toggleCompanySelection = (companyId: string) => {
+    setSelectedCompanies((prev) =>
+      prev.includes(companyId)
+        ? prev.filter((id) => id !== companyId)
+        : [...prev, companyId],
+    );
+  };
 
   return (
     <form
@@ -74,8 +89,14 @@ export function IncludeUserInlineForm({
     >
       <input type="hidden" name="organizationId" value={organization.id} />
       <input type="hidden" name="basePath" value={basePath} />
+      <input type="hidden" name="isOwner" value={isOwner ? "true" : "false"} />
+      <input
+        type="hidden"
+        name="allCompanies"
+        value={allCompanies ? "true" : "false"}
+      />
 
-      <div className="grid gap-3 md:grid-cols-[1fr_1.2fr_auto] md:items-end">
+      <div className="grid gap-3 md:grid-cols-[1fr_1.15fr_0.95fr_auto] md:items-end">
         <label className="block text-[12px] text-muted-foreground">
           Nome do usuário
           <input
@@ -96,63 +117,119 @@ export function IncludeUserInlineForm({
           />
         </label>
 
+        <label className="block text-[12px] text-muted-foreground">
+          Senha inicial{" "}
+          <span className="font-mono text-[10.5px] text-muted">(opcional)</span>
+          <input
+            name="password"
+            type="password"
+            minLength={8}
+            placeholder="Mín. 8 caracteres"
+            autoComplete="new-password"
+            className="mt-1 w-full rounded-xl border border-white/10 bg-background px-3.5 py-2 text-[13px] text-foreground outline-none transition focus:border-white/25"
+          />
+        </label>
+
         <button
           type="submit"
           disabled={pending}
           className="h-[38px] cursor-pointer rounded-xl bg-foreground px-4 text-[12.5px] font-medium text-background transition hover:opacity-90 disabled:opacity-60"
         >
-          {pending ? "Incluindo..." : "Incluir usuário"}
+          {pending ? "Incluindo..." : "+ Incluir usuário"}
         </button>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px]">
+      <div className="mt-3.5 flex flex-wrap items-center gap-3 text-[12px]">
         <span className="font-mono text-[10.5px] uppercase tracking-wider text-muted">
-          Empresas com acesso:
+          Escopo de acesso:
         </span>
 
-        {allowOwnerRole && (
-          <label className="inline-flex cursor-pointer items-center gap-1.5 text-foreground">
-            <input
-              type="checkbox"
-              name="isOwner"
-              value="true"
-              checked={isOwner}
-              onChange={(e) => {
-                setIsOwner(e.target.checked);
-                if (e.target.checked) setAllCompanies(true);
-              }}
-            />
-            <span>Proprietário (Owner)</span>
-          </label>
-        )}
-
-        <label className="inline-flex cursor-pointer items-center gap-1.5 text-foreground">
-          <input
-            type="checkbox"
-            name="allCompanies"
-            value="true"
-            checked={allCompanies || isOwner}
-            onChange={(e) => setAllCompanies(e.target.checked)}
-          />
-          <span>Todas as empresas da organização</span>
-        </label>
-
-        {!allCompanies &&
-          !isOwner &&
-          organization.companies.map((company, idx) => (
-            <label
-              key={company.id}
-              className="inline-flex cursor-pointer items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-xl border border-border-subtle bg-background/70 p-1">
+          <button
+            type="button"
+            onClick={() => setScope("by_company")}
+            className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11.5px] font-medium transition ${
+              scope === "by_company"
+                ? "bg-surface-elevated text-foreground ring-1 ring-white/15"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Por empresa
+          </button>
+          <button
+            type="button"
+            onClick={() => setScope("all_companies")}
+            className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11.5px] font-medium transition ${
+              scope === "all_companies"
+                ? "bg-surface-elevated text-foreground ring-1 ring-white/15"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Todas as empresas
+          </button>
+          {allowOwnerRole && (
+            <button
+              type="button"
+              onClick={() => setScope("owner")}
+              className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11.5px] font-medium transition ${
+                scope === "owner"
+                  ? "bg-positive/15 text-positive ring-1 ring-positive/35"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <input
-                type="checkbox"
-                name="companyIds"
-                value={company.id}
-                defaultChecked={idx === 0}
-              />
-              <span>{company.name}</span>
-            </label>
-          ))}
+              Proprietário (Owner)
+            </button>
+          )}
+        </div>
+
+        {scope === "by_company" && organization.companies.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-mono text-[10.5px] uppercase tracking-wider text-muted">
+              Empresas e papel:
+            </span>
+            {organization.companies.map((company) => {
+              const checked = selectedCompanies.includes(company.id);
+              return (
+                <div
+                  key={company.id}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1 transition ${
+                    checked
+                      ? "border-positive/35 bg-positive/10"
+                      : "border-border-subtle bg-background/40 opacity-65"
+                  }`}
+                >
+                  {checked && (
+                    <input
+                      type="hidden"
+                      name="companyIds"
+                      value={company.id}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => toggleCompanySelection(company.id)}
+                    className={`cursor-pointer text-[11.5px] font-medium ${
+                      checked ? "text-positive" : "text-muted-foreground"
+                    }`}
+                  >
+                    {checked ? `✓ ${company.name}` : `+ ${company.name}`}
+                  </button>
+                  {checked && (
+                    <select
+                      name={`companyRole_${company.id}`}
+                      defaultValue="analyst"
+                      className="rounded-md border border-border-subtle bg-background/90 px-1.5 py-0.5 text-[10.5px] text-foreground outline-none focus:border-white/25"
+                      aria-label={`Papel em ${company.name}`}
+                    >
+                      <option value="analyst">Analista</option>
+                      <option value="administrator">Administrador</option>
+                    </select>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {state?.error && (
@@ -301,7 +378,10 @@ export function AddAccessGrantForm({
             </legend>
             <ul className="space-y-2">
               {organization.companies.map((company) => (
-                <li key={company.id}>
+                <li
+                  key={company.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border-subtle bg-background/40 px-2 py-1.5"
+                >
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -310,6 +390,14 @@ export function AddAccessGrantForm({
                     />
                     {company.name}
                   </label>
+                  <select
+                    name={`companyRole_${company.id}`}
+                    defaultValue="analyst"
+                    className="rounded-md border border-border-subtle bg-background/80 px-2 py-1 text-[11px]"
+                  >
+                    <option value="analyst">Analista</option>
+                    <option value="administrator">Administrador</option>
+                  </select>
                 </li>
               ))}
             </ul>

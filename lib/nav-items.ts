@@ -151,11 +151,8 @@ export function navSectionsForMode(
 
   if (context.organizationOwner || context.platformAdmin) {
     sections.push(trackingSection());
-  }
-
-  if (context.organizationOwner) {
     sections.push(organizationSection());
-  } else if (!context.platformAdmin) {
+  } else {
     sections.push({
       id: "data",
       label: "Dados",
@@ -243,7 +240,7 @@ export function mobileMenuItems(
     }
   }
 
-  if (context.organizationOwner) {
+  if (context.organizationOwner || context.platformAdmin) {
     items.push(
       mobileMenuItem("/organizacao", "Empresas e acessos", "organization", true),
       mobileMenuItem("/organizacao/leads", "Leads", "leads", true),
@@ -252,16 +249,10 @@ export function mobileMenuItems(
       mobileMenuItem("/parametros", "Parâmetros UTM", "params"),
       mobileMenuItem("/encurtador", "Encurtador", "shortener"),
     );
-  } else if (!context.platformAdmin) {
+  } else {
     items.push(
       mobileMenuItem("/organizacao/leads", "Leads", "leads", true),
       mobileMenuItem("/parametros", "Parâmetros UTM", "params"),
-    );
-  } else if (context.platformAdmin && mode !== "agency") {
-    items.push(
-      mobileMenuItem("/rastreamento", "Script e pixel", "script"),
-      mobileMenuItem("/parametros", "Parâmetros UTM", "params"),
-      mobileMenuItem("/encurtador", "Encurtador", "shortener"),
     );
   }
 

@@ -6,9 +6,10 @@ import { UsersPanel } from "@/app/(shell)/admin/users-panel";
 import { AppShellMain } from "@/app/components/app-shell";
 import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { adminEmail } from "@/lib/access-code";
+import { hasElevatedCompanyAccess } from "@/lib/company-access-role";
 import { listOrganizations } from "@/lib/organizations-store";
 import { requireAdmin } from "@/lib/require-admin";
-import { listAccounts } from "@/lib/users-store";
+import { listAccountsForDirectory } from "@/lib/users-store";
 
 async function AdminUsersContent() {
   await connection();
@@ -16,13 +17,14 @@ async function AdminUsersContent() {
 
   const [organizations, users] = await Promise.all([
     listOrganizations(),
-    listAccounts(),
+    listAccountsForDirectory(),
   ]);
 
+  // Owner da org ou administrador de ao menos uma empresa = nível Proprietário
   const ownerEmails = new Set(
     organizations.flatMap((org) =>
       org.grants
-        .filter((grant) => grant.isOwner)
+        .filter((grant) => hasElevatedCompanyAccess(grant))
         .map((grant) => grant.email.trim().toLowerCase()),
     ),
   );

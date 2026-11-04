@@ -21,7 +21,7 @@ import {
   findCompanyById,
   setCompanyPlanActive,
 } from "@/lib/organizations-store";
-import { deleteAccount, setClientPlanActive } from "@/lib/users-store";
+import { deleteUserCompletely, setClientPlanActive } from "@/lib/users-store";
 
 const allowedExtensions = new Set([
   ".pdf",
@@ -108,11 +108,22 @@ export async function createOrganizationAccount(
 export async function removePlatformUser(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
-  if (!id) return;
-  await deleteAccount(id);
+  const email = String(formData.get("email") ?? "").trim();
+  if (!id && !email) return;
+
+  if (email) {
+    await deleteUserCompletely(email);
+  } else {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (user) {
+      await deleteUserCompletely(user.email);
+    }
+  }
+
   revalidatePath("/admin");
   revalidatePath("/admin/usuarios");
   revalidatePath("/admin/planos");
+  revalidatePath("/organizacao");
 }
 
 export async function removeAccessGrant(formData: FormData) {

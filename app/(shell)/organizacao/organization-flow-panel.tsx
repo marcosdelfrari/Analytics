@@ -8,7 +8,12 @@ import {
   type DragEvent,
 } from "react";
 import { useRouter } from "next/navigation";
+import {
+  hasElevatedCompanyAccess,
+  isAdministratorAtCompany,
+} from "@/lib/company-access-role";
 import { associateCompanyWithUserInFlow } from "@/app/(shell)/organizacao/actions";
+import { UserConfigModal } from "@/app/(shell)/organizacao/user-config-modal";
 import type {
   AccessGrantSummary,
   CompanyAccount,
@@ -54,6 +59,14 @@ function isConnected(
   );
 }
 
+function isDashedCompanyEdge(
+  grant: AccessGrantSummary,
+  companyId: string,
+): boolean {
+  if (grant.isOwner || grant.allCompanies) return false;
+  return !isAdministratorAtCompany(grant, companyId);
+}
+
 function useIsNarrow(breakpoint = 768) {
   const [narrow, setNarrow] = useState(false);
 
@@ -72,11 +85,16 @@ function SingleOrganizationBpmnDiagram({
   organization,
   extraLinks,
   onAssociate,
+  onOpenUserConfig,
   savePending,
 }: {
   organization: OrganizationSummary;
   extraLinks: Record<string, string[]>;
   onAssociate: (companyId: string, grantId: string) => void;
+  onOpenUserConfig: (
+    grant: AccessGrantSummary,
+    organization: OrganizationSummary,
+  ) => void;
   savePending: boolean;
 }) {
   const [selected, setSelected] = useState<HoveredNode>(null);
@@ -307,18 +325,18 @@ function SingleOrganizationBpmnDiagram({
                     )}
                     stroke={
                       active
-                        ? grant.isOwner
+                        ? isAdministratorAtCompany(grant, company.id)
                           ? "rgba(74,222,128,0.7)"
                           : "rgba(237,237,237,0.5)"
                         : "rgba(255,255,255,0.08)"
                     }
                     strokeWidth={active ? "1.5" : "1.1"}
                     strokeDasharray={
-                      grant.isOwner || grant.allCompanies ? undefined : "5 4"
+                      isDashedCompanyEdge(grant, company.id) ? "5 4" : undefined
                     }
                     markerEnd={
                       active
-                        ? grant.isOwner
+                        ? isAdministratorAtCompany(grant, company.id)
                           ? `url(#arrow-positive-v-${organization.id})`
                           : `url(#arrow-default-v-${organization.id})`
                         : `url(#arrow-muted-v-${organization.id})`
@@ -480,7 +498,8 @@ function SingleOrganizationBpmnDiagram({
                 selected?.type === "grant" && selected.id === grant.id;
               const isDrop =
                 dropTarget?.type === "grant" && dropTarget.id === grant.id;
-              const roleTitle = grant.isOwner ? "Administrador" : "Analista";
+              const elevated = hasElevatedCompanyAccess(grant);
+              const roleTitle = elevated ? "Proprietário" : "Por empresa";
               const canDropHere =
                 dragActive?.type === "company" &&
                 !isConnected(grant, dragActive.id, extraLinks);
@@ -520,13 +539,18 @@ function SingleOrganizationBpmnDiagram({
                   onClick={() =>
                     handleNodeClick({ type: "grant", id: grant.id })
                   }
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    onOpenUserConfig(grant, organization);
+                  }}
+                  title="Clique para isolar o fluxo · Duplo clique para editar acessos e senha"
                   style={{
                     left: `${COL_X}px`,
                     top: `${gy - NODE_H / 2}px`,
                     width: `${COL_W}px`,
                     height: `${NODE_H}px`,
                   }}
-                  className={`absolute flex cursor-grab flex-col justify-center rounded-xl border px-3.5 py-2 text-left transition-all active:cursor-grabbing ${
+                  className={`group/grant absolute flex cursor-grab flex-col justify-center rounded-xl border px-3.5 py-2 text-left transition-all active:cursor-grabbing ${
                     isDrop && canDropHere
                       ? "border-positive/60 bg-positive/10 ring-1 ring-positive/40"
                       : isSelected
@@ -542,7 +566,7 @@ function SingleOrganizationBpmnDiagram({
                     </p>
                     <span
                       className={`shrink-0 rounded border px-1.5 py-0.5 text-[9.5px] font-medium ${
-                        grant.isOwner
+                        elevated
                           ? "border-positive/30 bg-positive/10 text-positive"
                           : "border-border bg-background/70 text-muted-foreground"
                       }`}
@@ -747,7 +771,7 @@ function SingleOrganizationBpmnDiagram({
 
               const gy = centerYForIndex(gIdx, grants.length);
               const active = isEdgeActive(company.id, grant);
-              const isOwnerEdge = grant.isOwner;
+              const isAdminEdge = isAdministratorAtCompany(grant, company.id);
 
               return (
                 <path
@@ -755,18 +779,18 @@ function SingleOrganizationBpmnDiagram({
                   d={bezierPath(COL2_X + COL2_W, cy, COL3_X, gy)}
                   stroke={
                     active
-                      ? isOwnerEdge
+                      ? isAdminEdge
                         ? "rgba(74,222,128,0.75)"
                         : "rgba(237,237,237,0.55)"
                       : "rgba(255,255,255,0.08)"
                   }
-                  strokeWidth={active ? (isOwnerEdge ? "1.9" : "1.5") : "1.1"}
+                  strokeWidth={active ? (isAdminEdge ? "1.9" : "1.5") : "1.1"}
                   strokeDasharray={
-                    grant.isOwner || grant.allCompanies ? undefined : "5 4"
+                    isDashedCompanyEdge(grant, company.id) ? "5 4" : undefined
                   }
                   markerEnd={
                     active
-                      ? isOwnerEdge
+                      ? isAdminEdge
                         ? `url(#arrow-positive-${organization.id})`
                         : `url(#arrow-default-${organization.id})`
                       : `url(#arrow-muted-${organization.id})`
@@ -983,15 +1007,18 @@ function SingleOrganizationBpmnDiagram({
               selected?.type === "grant" && selected.id === grant.id;
             const isDrop =
               dropTarget?.type === "grant" && dropTarget.id === grant.id;
-            const roleTitle = grant.isOwner ? "Administrador" : "Analista";
+            const elevated = hasElevatedCompanyAccess(grant);
+            const roleTitle = elevated ? "Proprietário" : "Por empresa";
             const scopeSubtitle = grant.isOwner
               ? "Proprietário · Toda a org"
-              : grant.allCompanies
-                ? "Usuário comum · Toda a org"
-                : `Usuário comum · ${
-                    grant.companyIds.length +
-                    (extraLinks[grant.id]?.length ?? 0)
-                  } emp.`;
+              : elevated
+                ? "Proprietário · Admin de empresa"
+                : grant.allCompanies
+                  ? "Usuário comum · Toda a org"
+                  : `Usuário comum · ${
+                      grant.companyIds.length +
+                      (extraLinks[grant.id]?.length ?? 0)
+                    } emp.`;
             const canDropHere =
               dragActive?.type === "company" &&
               !isConnected(grant, dragActive.id, extraLinks);
@@ -1031,13 +1058,18 @@ function SingleOrganizationBpmnDiagram({
                 onClick={() =>
                   handleNodeClick({ type: "grant", id: grant.id })
                 }
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  onOpenUserConfig(grant, organization);
+                }}
+                title="Clique para isolar o fluxo · Duplo clique para editar acessos e senha"
                 style={{
                   left: `${COL3_X}px`,
                   top: `${gy - NODE_H / 2}px`,
                   width: `${COL3_W}px`,
                   height: `${NODE_H}px`,
                 }}
-                className={`absolute flex cursor-grab flex-col justify-center rounded-xl border px-3.5 py-2 text-left transition-all active:cursor-grabbing ${
+                className={`group/grant absolute flex cursor-grab flex-col justify-center rounded-xl border px-3.5 py-2 text-left transition-all active:cursor-grabbing ${
                   isDrop && canDropHere
                     ? "border-positive/60 bg-positive/10 ring-1 ring-positive/40"
                     : isSelected
@@ -1050,7 +1082,7 @@ function SingleOrganizationBpmnDiagram({
                 <span
                   aria-hidden
                   className={`absolute -left-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-sm border ${
-                    grant.isOwner
+                    elevated
                       ? "border-positive bg-positive/25"
                       : "border-foreground bg-background"
                   }`}
@@ -1062,7 +1094,7 @@ function SingleOrganizationBpmnDiagram({
                   </p>
                   <span
                     className={`shrink-0 rounded border px-1.5 py-0.5 text-[9.5px] font-medium ${
-                      grant.isOwner
+                      elevated
                         ? "border-positive/30 bg-positive/10 text-positive"
                         : "border-border bg-background/70 text-muted-foreground"
                     }`}
@@ -1087,10 +1119,12 @@ export function OrganizationFlowPanel({
   organization,
   allOrganizations,
   defaultShowAll = false,
+  allowOwnerRole = false,
 }: {
   organization: OrganizationSummary;
   allOrganizations?: OrganizationSummary[];
   defaultShowAll?: boolean;
+  allowOwnerRole?: boolean;
   showFooter?: boolean;
 }) {
   const router = useRouter();
@@ -1098,6 +1132,10 @@ export function OrganizationFlowPanel({
   const [extraLinks, setExtraLinks] = useState<Record<string, string[]>>({});
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<{
+    grant: AccessGrantSummary;
+    organization: OrganizationSummary;
+  } | null>(null);
   const [isPending, startTransition] = useTransition();
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -1171,12 +1209,7 @@ export function OrganizationFlowPanel({
     <section className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex h-2 w-2 rotate-45 bg-positive" />
-            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-muted">
-              Fluxo BPMN de Pertencimento
-            </p>
-          </div>
+      
           <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground">
             {showAllOrgs
               ? `Arquitetura de todas as organizações (${displayedOrgs.length})`
@@ -1238,6 +1271,9 @@ export function OrganizationFlowPanel({
               onAssociate={
                 org.id === organization.id ? handleAssociate : () => undefined
               }
+              onOpenUserConfig={(grant, targetOrg) =>
+                setEditingUser({ grant, organization: targetOrg })
+              }
               savePending={isPending || saveStatus === "saving"}
             />
           </div>
@@ -1246,8 +1282,9 @@ export function OrganizationFlowPanel({
         <div className="flex flex-wrap items-center justify-between gap-2 px-1">
           <p className="text-[11.5px] text-muted">
             Arraste uma <strong>empresa</strong> até um{" "}
-            <strong>usuário</strong> (ou o contrário) para associar e salvar
-            automaticamente. Clique para isolar o fluxo.
+            <strong>usuário</strong> (ou o contrário) para associar. Clique
+            para isolar o fluxo ou dê <strong>duplo clique no usuário</strong>{" "}
+            para editar acessos, papel e redefinir senha.
           </p>
           <p
             aria-live="polite"
@@ -1265,6 +1302,25 @@ export function OrganizationFlowPanel({
           </p>
         </div>
       </div>
+
+      {editingUser && (
+        <UserConfigModal
+          grant={
+            (
+              displayedOrgs
+                .find((o) => o.id === editingUser.organization.id)
+                ?.grants.find((g) => g.id === editingUser.grant.id) ??
+              editingUser.grant
+            )
+          }
+          organization={
+            displayedOrgs.find((o) => o.id === editingUser.organization.id) ??
+            editingUser.organization
+          }
+          allowOwnerRole={allowOwnerRole}
+          onClose={() => setEditingUser(null)}
+        />
+      )}
     </section>
   );
 }

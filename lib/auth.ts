@@ -24,7 +24,9 @@ export async function getSession(): Promise<Session | null> {
     if (company) planActive = company.planActive;
   }
 
-  const isOrganizationOwner = await emailIsOrganizationOwner(account.email);
+  const isOrganizationOwner = await emailIsOrganizationOwner(
+    account.email.trim().toLowerCase(),
+  );
 
   return {
     userId: account.id,

@@ -35,7 +35,7 @@ export function DashboardHome({
           </h2>
           <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
             Quando a equipe publicar Google Ads ou Meta Ads, os números de mídia
-            aparecem aqui. O tráfego do site vem da coleta Node abaixo.
+            aparecem aqui. As visitas do site ficam no relatório abaixo.
           </p>
         </section>
         {siteTracking && (

@@ -15,7 +15,7 @@ import {
   deleteLeadForm,
   saveLeadForm,
 } from "@/lib/lead-forms-store";
-import { prisma } from "@/lib/prisma";
+import { canManageOrganization } from "@/lib/organizations-store";
 
 export type LeadFormActionState =
   | { ok: true; formId: string }
@@ -34,15 +34,8 @@ async function requireOrganizationOwner(organizationId: string) {
   if (!session.isOrganizationOwner) {
     redirect("/dashboard");
   }
-  const grant = await prisma.accessGrant.findUnique({
-    where: {
-      organizationId_email: {
-        organizationId,
-        email: session.email.trim().toLowerCase(),
-      },
-    },
-  });
-  if (grant?.isOwner !== true) {
+  const canManage = await canManageOrganization(session.email, organizationId);
+  if (!canManage) {
     redirect("/dashboard");
   }
 }
