@@ -56,6 +56,10 @@ export {
   listAttributionForPlatform,
   listEventBreakdownForPlatform,
   listEventBreakdownFromHits,
+  listEventDailySeries,
+  listEventPlatformBreakdown,
+  listPathBreakdown,
+  listPathFlowBreakdown,
 } from "@/lib/tracking-breakdown-sql";
 
 export async function listAllowedDomains(siteId: string) {

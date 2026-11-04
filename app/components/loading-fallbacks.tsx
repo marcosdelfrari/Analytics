@@ -5,27 +5,26 @@ export function DashboardLoadingFallback() {
   return (
     <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando dashboard" />
-      <div className="pointer-events-none space-y-6" aria-hidden>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="pointer-events-none space-y-5" aria-hidden>
+        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="rounded-2xl border border-border bg-surface p-4">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="mt-3 h-7 w-28" />
+            <div key={index} className="rounded-xl border border-border bg-surface px-3.5 py-2.5">
+              <Skeleton className="h-2.5 w-20" />
+              <Skeleton className="mt-2 h-5 w-24" />
             </div>
           ))}
         </div>
-        <div className="rounded-2xl border border-border bg-surface p-4">
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="mt-2 h-3 w-56 max-w-full" />
-          <Skeleton className="mt-6 h-44 w-full" />
-        </div>
-        <div className="grid gap-3 lg:grid-cols-2">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <div key={index} className="rounded-2xl border border-border bg-surface p-4">
-              <Skeleton className="h-3 w-20" />
-              <Skeleton className="mt-4 h-24 w-full" />
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="rounded-xl border border-border bg-surface px-3.5 py-2.5">
+              <Skeleton className="h-2.5 w-20" />
+              <Skeleton className="mt-2 h-5 w-20" />
             </div>
           ))}
+        </div>
+        <div className="rounded-xl border border-border bg-surface p-3.5">
+          <Skeleton className="h-3.5 w-36" />
+          <Skeleton className="mt-4 h-36 w-full" />
         </div>
       </div>
     </AppShellMain>
@@ -37,16 +36,24 @@ export function ReportsLoadingFallback() {
     <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando relatórios" />
       <div className="pointer-events-none space-y-4" aria-hidden>
-        <Skeleton className="h-4 w-36" />
-        <Skeleton className="h-6 w-52 max-w-full" />
-        <Skeleton className="h-9 w-56" />
-        <div className="rounded-2xl border border-border bg-surface p-4">
-          <Skeleton className="h-4 w-28" />
-          <div className="mt-4 space-y-3">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <Skeleton key={index} className="h-3 w-full" />
-            ))}
-          </div>
+        <div className="rounded-xl border border-border bg-surface px-3.5 py-2.5">
+          <Skeleton className="h-3.5 w-full max-w-xl" />
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <Skeleton className="h-8 w-80 max-w-full rounded-xl" />
+          <Skeleton className="h-7 w-24 rounded-lg" />
+        </div>
+        <div className="grid gap-3 lg:grid-cols-2">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <div key={index} className="rounded-xl border border-border bg-surface p-3.5">
+              <Skeleton className="h-3.5 w-28" />
+              <Skeleton className="mt-3 h-20 w-full" />
+            </div>
+          ))}
+        </div>
+        <div className="rounded-xl border border-border bg-surface p-3.5">
+          <Skeleton className="h-3.5 w-36" />
+          <Skeleton className="mt-4 h-36 w-full" />
         </div>
       </div>
     </AppShellMain>

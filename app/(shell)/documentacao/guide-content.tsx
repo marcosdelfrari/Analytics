@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { SITE_CONVERSION_EVENT_NAME } from "@/lib/tracking-events";
 
 function DocSection({
   id,
@@ -251,14 +252,15 @@ export function GuideContent() {
           O <InternalLink href="/dashboard">Dashboard</InternalLink> resume o
           período da empresa ativa: investimento, conversões, CTR, custo por
           conversão, evolução e os cartões de Google Ads e Meta Ads. A coleta
-          do site (visitas e eventos) entra no topo quando o script já está
-          publicando.
+          do site entra no topo com visitas, eventos, taxa de evento e o
+          evento líder, quando o script já está publicando.
         </p>
         <p>
-          Em <InternalLink href="/relatorios">Relatórios</InternalLink>, as abas
-          separam Google Ads e Meta Ads. Cada uma mostra o tráfego filtrado por{" "}
-          <code className="font-mono text-[12px]">utm_source</code> e o
-          relatório de mídia. Abaixo, a visão geral junta todas as origens.
+          Em <InternalLink href="/relatorios">Relatórios</InternalLink>, a
+          análise de eventos vem primeiro: mix por nome, origem Google/Meta e
+          tendência diária.           Em seguida aparecem as páginas (entradas e visitas por URL),
+          a navegação entre URLs quando o script registra a página anterior,
+          o tráfego por UTM e as abas de Google Ads e Meta Ads.
         </p>
         <p>
           <InternalLink href="/campanhas">Campanhas</InternalLink> lista a
@@ -338,7 +340,13 @@ export function GuideContent() {
             fractal.track(&quot;nome_do_evento&quot;, {"{ ... }"})
           </code>
           . O teste confere a tag no HTML e espera a visita (até 2 minutos).
-          Últimas coletas lista o que chegou.
+          Últimas coletas lista o que chegou. A seção{" "}
+          <strong className="font-medium text-foreground">
+            Evento de conversão do site
+          </strong>{" "}
+          indica o nome fixo{" "}
+          <code className="font-mono text-[12px]">{SITE_CONVERSION_EVENT_NAME}</code>{" "}
+          — diferente das conversões de mídia publicadas no dashboard.
         </p>
         <p>
           <InternalLink href="/parametros">Parâmetros UTM</InternalLink> monta
@@ -351,9 +359,10 @@ export function GuideContent() {
           separarem a origem.
         </p>
         <Tip>
-          O script guarda na sessão os parâmetros da primeira URL. O analista
-          acompanha visitas e eventos no dashboard e nos relatórios, sem
-          precisar abrir o cadastro do script.
+          O script guarda na sessão os parâmetros da primeira URL e registra a
+          página inicial e as navegações seguintes (incluindo rotas de SPA). O
+          analista acompanha visitas, páginas e eventos no dashboard e nos
+          relatórios, sem precisar abrir o cadastro do script.
         </Tip>
       </DocSection>
 

@@ -1,10 +1,16 @@
+import { EventMixList } from "@/app/components/event-mix-list";
+import { MetricCard } from "@/app/components/metric-card";
+import { PlatformLogoLabel } from "@/app/components/platform-logo";
+import { formatNumber, formatPercent } from "@/lib/format";
 import type {
   AttributionBreakdownRow,
   EventBreakdownRow,
 } from "@/lib/tracking-analytics";
-import { PlatformLogoLabel } from "@/app/components/platform-logo";
-import { formatNumber } from "@/lib/format";
 import { platformLabel, type Platform } from "@/lib/types";
+
+function eventRate(pageviews: number, events: number) {
+  return pageviews > 0 ? (events / pageviews) * 100 : 0;
+}
 
 function totals(rows: AttributionBreakdownRow[]) {
   return rows.reduce(
@@ -28,46 +34,35 @@ export function TrackingPlatformPanel({
   const sum = totals(attribution);
 
   return (
-    <section className="space-y-4">
-      <div>
-        <p className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wider text-muted">
-          <span>Coleta do site ·</span>
-          <PlatformLogoLabel platform={platform} size={16} className="normal-case" />
-        </p>
-        <p className="mt-1 text-[12px] text-muted-foreground">
-          Visitas e eventos com utm_source desta plataforma (script Fractal).
-        </p>
+    <section className="space-y-3">
+      <div className="flex items-center gap-2 text-xs font-medium text-foreground">
+        <span>Coleta do site via UTM ·</span>
+        <PlatformLogoLabel platform={platform} size={15} />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-surface px-4 py-3.5">
-          <p className="text-[11px] uppercase tracking-wider text-muted">
-            Visitas
-          </p>
-          <p className="mt-1 font-mono text-xl">{formatNumber(sum.pageviews)}</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-surface px-4 py-3.5">
-          <p className="text-[11px] uppercase tracking-wider text-muted">
-            Eventos
-          </p>
-          <p className="mt-1 font-mono text-xl">{formatNumber(sum.events)}</p>
-        </div>
+      <div className="grid grid-cols-2 gap-2.5 sm:max-w-md">
+        <MetricCard label="Visitas" value={formatNumber(sum.pageviews)} />
+        <MetricCard
+          label="Eventos"
+          value={formatNumber(sum.events)}
+          tone="positive"
+        />
       </div>
 
       {attribution.length === 0 ? (
-        <p className="rounded-2xl border border-border bg-surface px-4 py-6 text-[12px] text-muted-foreground">
-          Nenhuma visita ou evento com origem {platformLabel(platform)} no
-          período. Use UTMs como utm_source=google ou utm_source=facebook na URL.
+        <p className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
+          Sem visitas com origem {platformLabel(platform)} no período.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
+        <div className="overflow-x-auto rounded-xl border border-border bg-surface">
           <table className="w-full min-w-[28rem] text-left text-[12px]">
             <thead>
-              <tr className="border-b border-border-subtle text-[11px] uppercase tracking-wider text-muted">
-                <th className="px-4 py-2 font-medium">Meio</th>
-                <th className="px-4 py-2 font-medium">Campanha</th>
-                <th className="px-4 py-2 text-right font-medium">Visitas</th>
-                <th className="px-4 py-2 text-right font-medium">Eventos</th>
+              <tr className="border-b border-border-subtle text-[10px] uppercase tracking-wider text-muted">
+                <th className="px-3.5 py-2 font-medium">Meio</th>
+                <th className="px-3.5 py-2 font-medium">Campanha</th>
+                <th className="px-3.5 py-2 text-right font-medium">Visitas</th>
+                <th className="px-3.5 py-2 text-right font-medium">Eventos</th>
+                <th className="px-3.5 py-2 text-right font-medium">Taxa</th>
               </tr>
             </thead>
             <tbody>
@@ -76,15 +71,18 @@ export function TrackingPlatformPanel({
                   key={`${row.medium}-${row.campaign}`}
                   className="border-b border-border-subtle last:border-b-0"
                 >
-                  <td className="px-4 py-2.5 font-mono">{row.medium}</td>
-                  <td className="max-w-[12rem] truncate px-4 py-2.5 font-mono">
+                  <td className="px-3.5 py-2 font-mono">{row.medium}</td>
+                  <td className="max-w-[12rem] truncate px-3.5 py-2 font-mono">
                     {row.campaign}
                   </td>
-                  <td className="px-4 py-2.5 text-right font-mono">
+                  <td className="px-3.5 py-2 text-right font-mono">
                     {formatNumber(row.pageviews)}
                   </td>
-                  <td className="px-4 py-2.5 text-right font-mono">
+                  <td className="px-3.5 py-2 text-right font-mono">
                     {formatNumber(row.events)}
+                  </td>
+                  <td className="px-3.5 py-2 text-right font-mono text-muted-foreground">
+                    {formatPercent(eventRate(row.pageviews, row.events), 1)}
                   </td>
                 </tr>
               ))}
@@ -94,23 +92,11 @@ export function TrackingPlatformPanel({
       )}
 
       {eventsByName.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3">
-            <h3 className="text-sm font-medium">Eventos customizados</h3>
+        <div className="overflow-hidden rounded-xl border border-border bg-surface">
+          <div className="border-b border-border px-3.5 py-2.5">
+            <h3 className="text-xs font-medium">Eventos nesta origem</h3>
           </div>
-          <ul>
-            {eventsByName.map((row) => (
-              <li
-                key={row.name}
-                className="flex justify-between gap-3 border-b border-border-subtle px-4 py-2.5 last:border-b-0"
-              >
-                <span className="font-mono">{row.name}</span>
-                <span className="font-mono text-muted-foreground">
-                  {formatNumber(row.count)}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <EventMixList rows={eventsByName} />
         </div>
       )}
     </section>

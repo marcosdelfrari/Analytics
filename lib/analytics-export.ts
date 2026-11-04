@@ -118,6 +118,43 @@ export function analyticsToCsv(analytics: ClientAnalytics) {
         row.events,
       ]);
     }
+    for (const row of tracking.byPath) {
+      rows.push([
+        base,
+        "página",
+        "",
+        tracking.period,
+        row.path,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        row.pageviews,
+        row.events,
+      ]);
+    }
+    for (const row of tracking.byPathFlow) {
+      if (!row.fromPath.trim()) continue;
+      rows.push([
+        base,
+        "navegação",
+        "",
+        tracking.period,
+        `${row.fromPath} → ${row.path}`,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        row.count,
+      ]);
+    }
     for (const row of tracking.eventsByName) {
       rows.push([
         base,

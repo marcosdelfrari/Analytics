@@ -14,7 +14,7 @@ async function DashboardPageContent() {
   return (
     <AppShellMain
       title={title}
-      subtitle={clientSubtitle(planActive, analytics.dashboard.period)}
+      subtitle={`Visão executiva · ${clientSubtitle(planActive, analytics.dashboard.period)}`}
       planActive={planActive}
     >
       <DashboardHome

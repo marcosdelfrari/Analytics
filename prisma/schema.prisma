@@ -185,6 +185,9 @@ model TrackingSite {
   campaignDailyMetrics TrackingCampaignDailyMetric[]
   attributionDailyMetrics TrackingAttributionDailyMetric[]
   eventPlatformDailyMetrics TrackingEventPlatformDailyMetric[]
+  pathDailyMetrics TrackingPathDailyMetric[]
+  pathFlowDailyMetrics TrackingPathFlowDailyMetric[]
+  visitorDaily TrackingVisitorDaily[]
   allowedDomains TrackingAllowedDomain[]
 
   @@map("tracking_sites")
@@ -205,6 +208,7 @@ model TrackingAllowedDomain {
 model TrackingHit {
   id            String    @id @default(uuid())
   clientEventId String?   @map("client_event_id")
+  visitorId     String?   @map("visitor_id")
   siteId        String    @map("site_id")
   kind          String
   name          String
@@ -220,6 +224,7 @@ model TrackingHit {
   @@unique([siteId, clientEventId])
   @@index([siteId, createdAt])
   @@index([processedAt, createdAt])
+  @@index([siteId, visitorId, createdAt])
   @@map("tracking_hits")
 }
 
@@ -228,10 +233,22 @@ model TrackingDailyMetric {
   day       DateTime @db.Date
   pageviews Int      @default(0)
   events    Int      @default(0)
+  visitors  Int      @default(0)
   site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@id([siteId, day])
   @@map("tracking_daily_metrics")
+}
+
+model TrackingVisitorDaily {
+  siteId    String   @map("site_id")
+  day       DateTime @db.Date
+  visitorId String   @map("visitor_id")
+  site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([siteId, day, visitorId])
+  @@index([siteId, day])
+  @@map("tracking_visitor_daily")
 }
 
 model TrackingEventDailyMetric {
@@ -281,6 +298,31 @@ model TrackingEventPlatformDailyMetric {
 
   @@id([siteId, day, eventName, platform])
   @@map("tracking_event_platform_daily_metrics")
+}
+
+model TrackingPathDailyMetric {
+  siteId    String   @map("site_id")
+  day       DateTime @db.Date
+  path      String
+  pageviews Int      @default(0)
+  events    Int      @default(0)
+  landings  Int      @default(0)
+  site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([siteId, day, path])
+  @@map("tracking_path_daily_metrics")
+}
+
+model TrackingPathFlowDailyMetric {
+  siteId   String   @map("site_id")
+  day      DateTime @db.Date
+  fromPath String   @map("from_path")
+  path     String
+  count    Int      @default(0)
+  site     TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([siteId, day, fromPath, path])
+  @@map("tracking_path_flow_daily_metrics")
 }
 
 model ShortLink {

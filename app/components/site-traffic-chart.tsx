@@ -2,10 +2,10 @@ import type { SiteTrafficPoint } from "@/lib/tracking-analytics";
 import { formatNumber } from "@/lib/format";
 
 const WIDTH = 1000;
-const HEIGHT = 220;
+const HEIGHT = 170;
 const PAD_X = 36;
-const PAD_TOP = 24;
-const LABEL_AREA = 28;
+const PAD_TOP = 18;
+const LABEL_AREA = 24;
 
 function plotHeight() {
   return HEIGHT - PAD_TOP - LABEL_AREA;
@@ -41,13 +41,13 @@ export function SiteTrafficChart({
 }) {
   if (points.length === 0) {
     return (
-      <section className="rounded-2xl border border-border bg-surface px-4 py-8 text-[13px] text-muted-foreground">
-        Ainda não há visitas agregadas. Confira o script em Rastreamento e aguarde
-        o worker processar os eventos.
+      <section className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
+        Sem visitas agregadas no período.
       </section>
     );
   }
 
+  const visitorPath = buildPath(points.map((point) => point.visitors));
   const pageviewPath = buildPath(points.map((point) => point.pageviews));
   const eventPath = buildPath(points.map((point) => point.events));
   const last = points[points.length - 1];
@@ -56,31 +56,36 @@ export function SiteTrafficChart({
   );
 
   return (
-    <section className="rounded-2xl border border-border bg-surface p-5">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-3">
-        <div>
-          <h2 className="text-sm font-medium">{title}</h2>
-          <p className="text-[12px] text-muted-foreground">
-            Visitas e eventos customizados do site
-          </p>
-        </div>
-        <div className="flex gap-4 text-[11px]">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-0.5 w-4 bg-accent" />
-            Visitas
+    <section className="rounded-xl border border-border bg-surface p-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2.5">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xs font-medium">{title}</h2>
+          <span className="font-mono text-[10px] text-muted">
+            Último ({last.label}): {formatNumber(last.visitors)} vis ·{" "}
+            {formatNumber(last.pageviews)} pv · {formatNumber(last.events)} ev
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-0.5 w-4 bg-positive" />
+        </div>
+        <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-0.5 w-3 bg-foreground" />
+            Visitantes
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-0.5 w-3 bg-accent" />
+            Pageviews
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-0.5 w-3 bg-positive" />
             Eventos
           </span>
         </div>
       </div>
-      <div className="mt-4 w-full">
+      <div className="mt-2.5 w-full">
         <svg
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           className="block h-auto w-full text-muted"
           role="img"
-          aria-label="Gráfico de visitas e eventos do site"
+          aria-label="Gráfico de visitantes, pageviews e eventos do site"
           preserveAspectRatio="xMidYMid meet"
         >
           {gridY.map((y, index) => (
@@ -95,6 +100,13 @@ export function SiteTrafficChart({
               vectorEffect="non-scaling-stroke"
             />
           ))}
+          <path
+            d={visitorPath}
+            fill="none"
+            className="stroke-foreground"
+            strokeWidth={2}
+            vectorEffect="non-scaling-stroke"
+          />
           <path
             d={pageviewPath}
             fill="none"
@@ -114,20 +126,16 @@ export function SiteTrafficChart({
             <text
               key={`${point.label}-${index}`}
               x={xAt(index, points.length)}
-              y={HEIGHT - 8}
+              y={HEIGHT - 6}
               textAnchor="middle"
               fill="currentColor"
-              fontSize={11}
+              fontSize={10}
             >
               {point.label}
             </text>
           ))}
         </svg>
       </div>
-      <p className="mt-3 font-mono text-[11px] text-muted-foreground">
-        Último dia ({last.label}): {formatNumber(last.pageviews)} visitas ·{" "}
-        {formatNumber(last.events)} eventos
-      </p>
     </section>
   );
 }
