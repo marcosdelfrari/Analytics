@@ -1,8 +1,15 @@
-/** Origem pública da Fractal API (`../fractal-api`, padrão porta 4000). */
+/** Origem pública da Fractal API (Vercel ou `../Fractal-Api` local). */
+export const FRACTAL_API_ORIGIN_PRODUCTION =
+  "https://fractal.marcosdelfrari.com";
+
 export function coletaOrigin() {
-  return (
-    process.env.FRACTAL_ORIGIN ??
-    process.env.COLETA_ORIGIN ??
-    "http://localhost:4000"
-  ).replace(/\/$/, "");
+  const configured =
+    process.env.FRACTAL_ORIGIN ?? process.env.COLETA_ORIGIN;
+  if (configured) return configured.replace(/\/$/, "");
+
+  if (process.env.NODE_ENV === "production") {
+    return FRACTAL_API_ORIGIN_PRODUCTION;
+  }
+
+  return "http://localhost:4000";
 }
