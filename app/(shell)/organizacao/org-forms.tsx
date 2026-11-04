@@ -7,6 +7,9 @@ import {
   type FormState,
 } from "@/app/(shell)/organizacao/actions";
 import type { OrganizationSummary } from "@/lib/organizations-store";
+import { ORG_OWNER_SCOPE_LABEL } from "@/lib/access-roles";
+import { OrgMemberRole } from "@/lib/access-roles";
+import { COMPANY_ACCESS_ROLE_LABELS } from "@/lib/company-access-role";
 
 const fieldClass =
   "mt-1.5 w-full rounded-xl border border-white/10 bg-background/80 px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-white/25 focus:bg-background";
@@ -177,7 +180,7 @@ export function IncludeUserInlineForm({
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Proprietário (Owner)
+              {ORG_OWNER_SCOPE_LABEL}
             </button>
           )}
         </div>
@@ -222,7 +225,9 @@ export function IncludeUserInlineForm({
                       aria-label={`Papel em ${company.name}`}
                     >
                       <option value="analyst">Analista</option>
-                      <option value="administrator">Administrador</option>
+                      <option value={OrgMemberRole.proprietario}>
+                        {COMPANY_ACCESS_ROLE_LABELS.proprietario}
+                      </option>
                     </select>
                   )}
                 </div>
@@ -364,7 +369,7 @@ export function AddAccessGrantForm({
         {allowOwnerRole && (
           <label className="flex items-center gap-2 text-[12px] text-foreground">
             <input type="checkbox" name="isOwner" value="true" />
-            Definir como proprietário (Owner) da organização
+            Definir como {ORG_OWNER_SCOPE_LABEL.toLowerCase()}
           </label>
         )}
         <label className="flex items-center gap-2 text-[12px]">
@@ -396,7 +401,9 @@ export function AddAccessGrantForm({
                     className="rounded-md border border-border-subtle bg-background/80 px-2 py-1 text-[11px]"
                   >
                     <option value="analyst">Analista</option>
-                    <option value="administrator">Administrador</option>
+                    <option value={OrgMemberRole.proprietario}>
+                      {COMPANY_ACCESS_ROLE_LABELS.proprietario}
+                    </option>
                   </select>
                 </li>
               ))}

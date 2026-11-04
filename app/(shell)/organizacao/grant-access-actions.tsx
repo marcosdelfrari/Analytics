@@ -87,10 +87,10 @@ export function GrantAccessActions({
   );
 
   const canAssociate =
-    !grant.isOwner && !grant.allCompanies && availableCompanies.length > 0;
+    !grant.isOrgProprietario && !grant.allCompanies && availableCompanies.length > 0;
 
   const canRemove =
-    manageAccess && !(blockRemoveOnOrganizacaoOwner && grant.isOwner);
+    manageAccess && !(blockRemoveOnOrganizacaoOwner && grant.isOrgProprietario);
 
   if (!canAssociate && !canRemove) {
     return null;
@@ -210,7 +210,7 @@ export function AssociateUserToCompanyPanel({
 
   const eligibleGrants = organization.grants.filter(
     (grant) =>
-      !grant.isOwner &&
+      !grant.isOrgProprietario &&
       !grant.allCompanies &&
       !grant.companyIds.includes(companyId),
   );

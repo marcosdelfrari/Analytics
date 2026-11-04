@@ -17,9 +17,10 @@ import {
 import { UserConfigModal } from "@/app/(shell)/organizacao/user-config-modal";
 import { ConfirmDialog } from "@/app/components/confirm-dialog";
 import {
-  COMPANY_ACCESS_ROLE_LABELS,
-  hasElevatedCompanyAccess,
-} from "@/lib/company-access-role";
+  ORG_OWNER_SCOPE_LABEL,
+  ORG_PROPRIETARIO_LABEL,
+} from "@/lib/access-roles";
+import { hasProprietarioAccess, COMPANY_ACCESS_ROLE_LABELS } from "@/lib/company-access-role";
 import type {
   AccessGrantSummary,
   CompanyAccount,
@@ -32,7 +33,7 @@ function usersForCompany(
 ) {
   return grants.filter(
     (grant) =>
-      grant.isOwner ||
+      grant.isOrgProprietario ||
       grant.allCompanies ||
       grant.companyIds.includes(company.id),
   );
@@ -42,18 +43,18 @@ function roleLabelForUserAtCompany(
   grant: AccessGrantSummary,
   companyId: string,
 ): string {
-  if (grant.isOwner) return "Proprietário";
-  if (grant.allCompanies) return COMPANY_ACCESS_ROLE_LABELS.analyst;
+  if (grant.isOrgProprietario) return ORG_PROPRIETARIO_LABEL;
+  if (grant.allCompanies) return COMPANY_ACCESS_ROLE_LABELS.analista;
   return (
-    COMPANY_ACCESS_ROLE_LABELS[grant.companyRoles[companyId] ?? "analyst"] ??
-    COMPANY_ACCESS_ROLE_LABELS.analyst
+    COMPANY_ACCESS_ROLE_LABELS[grant.companyRoles[companyId] ?? "analista"] ??
+    COMPANY_ACCESS_ROLE_LABELS.analista
   );
 }
 
 function scopeLabelForGrant(grant: AccessGrantSummary, companiesCount: number) {
-  if (grant.isOwner) return "Proprietário da organização";
-  if (hasElevatedCompanyAccess(grant)) {
-    return "Proprietário · administrador de empresa";
+  if (grant.isOrgProprietario) return ORG_OWNER_SCOPE_LABEL;
+  if (hasProprietarioAccess(grant)) {
+    return ORG_PROPRIETARIO_LABEL;
   }
   if (grant.allCompanies) return "Todas as empresas";
   return `Por empresa (${grant.companyIds.length}/${companiesCount})`;
@@ -103,7 +104,7 @@ export function OrganizationAccordions({
   const activePlanCount = organization.companies.filter(
     (c) => c.planActive,
   ).length;
-  const ownersCount = organization.grants.filter((g) => g.isOwner).length;
+  const ownersCount = organization.grants.filter((g) => g.isOrgProprietario).length;
   const withPasswordCount = organization.grants.filter(
     (g) => g.hasPassword,
   ).length;
@@ -245,7 +246,7 @@ export function OrganizationAccordions({
         {organization.companies.some((company) =>
           organization.grants.some(
             (g) =>
-              !g.isOwner &&
+              !g.isOrgProprietario &&
               !g.allCompanies &&
               !g.companyIds.includes(company.id),
           ),
@@ -351,7 +352,7 @@ export function OrganizationAccordions({
               </thead>
               <tbody className="divide-y divide-border-subtle text-[13px]">
                 {filteredGrants.map((grant) => {
-                  const canRemove = isAdmin || !grant.isOwner;
+                  const canRemove = isAdmin || !grant.isOrgProprietario;
                   const initials = getInitials(grant.userName, grant.email);
 
                   return (
@@ -398,7 +399,7 @@ export function OrganizationAccordions({
                       <td className="px-4 py-3.5">
                         <span
                           className={`inline-flex rounded-md border px-2.5 py-1 text-[11px] font-medium ${
-                            hasElevatedCompanyAccess(grant)
+                            hasProprietarioAccess(grant)
                               ? "border-positive/30 bg-positive/10 text-positive"
                               : grant.allCompanies
                                 ? "border-foreground/25 bg-surface-elevated text-foreground"
@@ -413,7 +414,7 @@ export function OrganizationAccordions({
                       </td>
 
                       <td className="px-4 py-3.5">
-                        {grant.isOwner ? (
+                        {grant.isOrgProprietario ? (
                           <span className="text-[12px] text-muted-foreground">
                             Acesso total de administrador em todas as empresas
                           </span>
@@ -500,7 +501,7 @@ export function OrganizationAccordions({
                                     </button>
                                   </form>
                                   {hasCompany &&
-                                    !grant.isOwner &&
+                                    !grant.isOrgProprietario &&
                                     !grant.allCompanies && (
                                       <CompanyAccessRoleSelect
                                         organizationId={organization.id}
@@ -559,7 +560,7 @@ export function OrganizationAccordions({
                             </>
                           ) : (
                             <span className="px-1.5 font-mono text-[10.5px] text-muted">
-                              Owner
+                              {ORG_PROPRIETARIO_LABEL}
                             </span>
                           )}
                         </div>

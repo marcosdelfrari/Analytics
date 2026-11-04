@@ -1,9 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { adminEmail, roleForEmail } from "@/lib/access-code";
 import {
-  hasElevatedCompanyAccess,
-  type CompanyAccessRole,
-} from "@/lib/company-access-role";
+  AccountRole,
+  OrgMemberRole,
+  hasProprietarioAccess,
+  isOrgProprietarioMemberRole,
+  isSystemAdminAccount,
+  parseOrgMemberRole,
+  type OrgMemberRole as OrgMemberRoleType,
+} from "@/lib/access-roles";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import type { Role } from "@/lib/types";
@@ -30,10 +35,10 @@ export type AccessGrantSummary = {
   userName: string;
   hasPassword: boolean;
   allCompanies: boolean;
-  isOwner: boolean;
+  isOrgProprietario: boolean;
   companyIds: string[];
   /** Papel em cada empresa vinculada (vínculo específico). */
-  companyRoles: Record<string, CompanyAccessRole>;
+  companyRoles: Record<string, OrgMemberRoleType>;
 };
 
 function normalizeEmail(email: string) {
@@ -83,11 +88,11 @@ export async function ensureAdminLotusOrganization() {
       organizationId: admin.id,
       email: admin.email,
       allCompanies: true,
-      isOwner: true,
+      isOrgProprietario: true,
     },
     update: {
       allCompanies: true,
-      isOwner: true,
+      isOrgProprietario: true,
     },
   });
 }
@@ -99,7 +104,7 @@ export async function listOrganizations(): Promise<OrganizationSummary[]> {
       include: {
         companies: { orderBy: { name: "asc" } },
         accessGrants: {
-          orderBy: [{ isOwner: "desc" }, { email: "asc" }],
+          orderBy: [{ isOrgProprietario: "desc" }, { email: "asc" }],
           include: { companies: true },
         },
       },
@@ -134,12 +139,12 @@ export async function listOrganizations(): Promise<OrganizationSummary[]> {
           (grant.email.split("@")[0] ?? grant.email),
         hasPassword: Boolean(matchedUser?.passwordHash),
         allCompanies: grant.allCompanies,
-        isOwner: grant.isOwner,
+        isOrgProprietario: grant.isOrgProprietario,
         companyIds: grant.companies.map((link) => link.companyId),
         companyRoles: Object.fromEntries(
           grant.companies.map((link) => [
             link.companyId,
-            link.role as CompanyAccessRole,
+            link.role as OrgMemberRoleType,
           ]),
         ),
       };
@@ -166,7 +171,7 @@ export async function listOrganizationsForOwner(
     org.grants.some(
       (grant) =>
         normalizeEmail(grant.email) === normalized &&
-        hasElevatedCompanyAccess(grant),
+        hasProprietarioAccess(grant),
     ),
   );
 }
@@ -175,18 +180,21 @@ export async function listOrganizationsForOwner(
  * Nível de proprietário na sessão/UI: owner da org OU administrador
  * de ao menos uma empresa vinculada.
  */
-export async function emailIsOrganizationOwner(email: string) {
+export async function emailHasProprietarioAccess(email: string) {
   const grants = await accessGrantsForEmail(email);
   return grants.some(
     (grant) =>
-      grant.isOwner ||
-      grant.companies.some((link) => link.role === "administrator"),
+      grant.isOrgProprietario ||
+      grant.companies.some((link) => isOrgProprietarioMemberRole(link.role)),
   );
 }
 
+/** @deprecated Use `emailHasProprietarioAccess`. */
+export const emailIsOrganizationOwner = emailHasProprietarioAccess;
+
 export async function canManageOrganization(email: string, organizationId: string) {
   const normalized = normalizeEmail(email);
-  if (roleForEmail(normalized) === "admin") return true;
+  if (isSystemAdminAccount(roleForEmail(normalized))) return true;
   const grant = await prisma.accessGrant.findFirst({
     where: {
       organizationId,
@@ -195,8 +203,8 @@ export async function canManageOrganization(email: string, organizationId: strin
     include: { companies: true },
   });
   if (!grant) return false;
-  if (grant.isOwner) return true;
-  return grant.companies.some((link) => link.role === "administrator");
+  if (grant.isOrgProprietario) return true;
+  return grant.companies.some((link) => isOrgProprietarioMemberRole(link.role));
 }
 
 export async function listCompanies(): Promise<CompanyAccount[]> {
@@ -232,7 +240,7 @@ export async function listAccessibleCompanies(
   email: string,
 ): Promise<CompanyAccount[]> {
   const normalized = normalizeEmail(email);
-  if (roleForEmail(normalized) === "admin") {
+  if (isSystemAdminAccount(roleForEmail(normalized))) {
     return listCompanies();
   }
 
@@ -284,14 +292,14 @@ export async function listAccessibleCompanies(
 
 export async function emailHasPlatformAccess(email: string) {
   const normalized = normalizeEmail(email);
-  if (roleForEmail(normalized) === "admin") return true;
+  if (isSystemAdminAccount(roleForEmail(normalized))) return true;
   const count = await prisma.accessGrant.count({ where: { email: normalized } });
   return count > 0;
 }
 
 export async function canAccessCompany(email: string, companyId: string) {
   const normalized = normalizeEmail(email);
-  if (roleForEmail(normalized) === "admin") return true;
+  if (isSystemAdminAccount(roleForEmail(normalized))) return true;
   const accessible = await listAccessibleCompanies(normalized);
   return accessible.some((company) => company.id === companyId);
 }
@@ -334,8 +342,8 @@ export async function createAccessGrant(input: {
   password?: string;
   allCompanies: boolean;
   companyIds: string[];
-  companyRoles?: Record<string, CompanyAccessRole>;
-  isOwner?: boolean;
+  companyRoles?: Record<string, OrgMemberRoleType>;
+  isOrgProprietario?: boolean;
 }) {
   const email = normalizeEmail(input.email);
   if (!email.includes("@")) {
@@ -357,8 +365,8 @@ export async function createAccessGrant(input: {
   });
   if (!org) return { error: "Organização não encontrada." } as const;
 
-  const isOwner = input.isOwner === true;
-  const allCompanies = isOwner || input.allCompanies;
+  const isOrgProprietario = input.isOrgProprietario === true;
+  const allCompanies = isOrgProprietario || input.allCompanies;
 
   const companyIds = allCompanies
     ? []
@@ -366,8 +374,8 @@ export async function createAccessGrant(input: {
         org.companies.some((company) => company.id === id),
       );
 
-  const roleForCompanyId = (companyId: string): CompanyAccessRole =>
-    input.companyRoles?.[companyId] ?? "analyst";
+  const roleForCompanyId = (companyId: string): OrgMemberRoleType =>
+    input.companyRoles?.[companyId] ?? OrgMemberRole.analista;
 
   const existing = await prisma.accessGrant.findUnique({
     where: {
@@ -386,7 +394,7 @@ export async function createAccessGrant(input: {
         email,
         name: cleanName || (email.split("@")[0] ?? email),
         role,
-        planActive: role === "admin",
+        planActive: isSystemAdminAccount(role),
         ...(passwordHash ? { passwordHash } : {}),
       },
       update: {
@@ -396,18 +404,18 @@ export async function createAccessGrant(input: {
     });
 
     if (existing) {
-      if (isOwner || allCompanies) {
+      if (isOrgProprietario || allCompanies) {
         await tx.accessGrant.update({
           where: { id: existing.id },
           data: {
-            isOwner: existing.isOwner || isOwner,
+            isOrgProprietario: existing.isOrgProprietario || isOrgProprietario,
             allCompanies: true,
           },
         });
         await tx.accessGrantCompany.deleteMany({
           where: { grantId: existing.id },
         });
-      } else if (!existing.isOwner && !existing.allCompanies) {
+      } else if (!existing.isOrgProprietario && !existing.allCompanies) {
         const currentIds = new Set(existing.companies.map((c) => c.companyId));
         const toAdd = companyIds.filter((id) => !currentIds.has(id));
         if (toAdd.length > 0) {
@@ -429,7 +437,7 @@ export async function createAccessGrant(input: {
         organizationId: org.id,
         email,
         allCompanies,
-        isOwner,
+        isOrgProprietario,
         companies: allCompanies
           ? undefined
           : {
@@ -461,7 +469,7 @@ export async function toggleAccessGrantCompany(input: {
   if (!grant || grant.organizationId !== input.organizationId) {
     return { error: "Acesso não encontrado nesta organização." } as const;
   }
-  if (grant.isOwner) {
+  if (grant.isOrgProprietario) {
     return { error: "Proprietários têm acesso a toda a organização." } as const;
   }
 
@@ -485,7 +493,7 @@ export async function toggleAccessGrantCompany(input: {
           data: remaining.map((companyId) => ({
             grantId: grant.id,
             companyId,
-            role: "analyst",
+            role: OrgMemberRole.analista,
           })),
           skipDuplicates: true,
         });
@@ -508,7 +516,7 @@ export async function toggleAccessGrantCompany(input: {
         data: {
           grantId: grant.id,
           companyId: input.companyId,
-          role: "analyst",
+          role: OrgMemberRole.analista,
         },
       });
     }
@@ -521,7 +529,7 @@ export async function associateFlowCompanyAndGrant(input: {
   grantId: string;
   organizationId: string;
   companyId: string;
-  role?: CompanyAccessRole;
+  role?: OrgMemberRoleType;
 }) {
   const grant = await prisma.accessGrant.findUnique({
     where: { id: input.grantId },
@@ -540,11 +548,11 @@ export async function associateFlowCompanyAndGrant(input: {
     return { error: "Empresa inválida." } as const;
   }
 
-  if (grant.isOwner || grant.allCompanies) {
+  if (grant.isOrgProprietario || grant.allCompanies) {
     return { ok: true } as const;
   }
 
-  const linkRole = input.role ?? "analyst";
+  const linkRole = input.role ?? OrgMemberRole.analista;
 
   await prisma.accessGrantCompany.upsert({
     where: {
@@ -579,7 +587,7 @@ export async function setAccessGrantAllCompanies(input: {
   if (!grant || grant.organizationId !== input.organizationId) {
     return { error: "Acesso não encontrado nesta organização." } as const;
   }
-  if (grant.isOwner) {
+  if (grant.isOrgProprietario) {
     return { error: "Proprietários têm acesso a toda a organização." } as const;
   }
 
@@ -599,7 +607,7 @@ export async function setAccessGrantAllCompanies(input: {
       await tx.accessGrantCompany.deleteMany({ where: { grantId: grant.id } });
       if (firstCompanyId) {
         await tx.accessGrantCompany.create({
-          data: { grantId: grant.id, companyId: firstCompanyId, role: "analyst" },
+          data: { grantId: grant.id, companyId: firstCompanyId, role: OrgMemberRole.analista },
         });
       }
     }
@@ -612,7 +620,7 @@ export async function addCompaniesToAccessGrant(input: {
   grantId: string;
   organizationId: string;
   companyIds: string[];
-  role?: CompanyAccessRole;
+  role?: OrgMemberRoleType;
 }) {
   const grant = await prisma.accessGrant.findUnique({
     where: { id: input.grantId },
@@ -625,7 +633,7 @@ export async function addCompaniesToAccessGrant(input: {
   if (!grant || grant.organizationId !== input.organizationId) {
     return { error: "Acesso não encontrado nesta organização." } as const;
   }
-  if (grant.isOwner) {
+  if (grant.isOrgProprietario) {
     return { error: "Proprietários já têm acesso a toda a organização." } as const;
   }
   if (grant.allCompanies) {
@@ -646,7 +654,7 @@ export async function addCompaniesToAccessGrant(input: {
     } as const;
   }
 
-  const linkRole = input.role ?? "analyst";
+  const linkRole = input.role ?? OrgMemberRole.analista;
 
   await prisma.accessGrantCompany.createMany({
     data: toAdd.map((companyId) => ({
@@ -664,7 +672,7 @@ export async function setAccessGrantCompanyRole(input: {
   grantId: string;
   organizationId: string;
   companyId: string;
-  role: CompanyAccessRole;
+  role: OrgMemberRoleType;
 }) {
   const grant = await prisma.accessGrant.findUnique({
     where: { id: input.grantId },
@@ -674,7 +682,7 @@ export async function setAccessGrantCompanyRole(input: {
   if (!grant || grant.organizationId !== input.organizationId) {
     return { error: "Acesso não encontrado nesta organização." } as const;
   }
-  if (grant.isOwner) {
+  if (grant.isOrgProprietario) {
     return {
       error: "Proprietários da organização já têm acesso total.",
     } as const;
@@ -708,10 +716,10 @@ export async function updateOrganizationUserConfiguration(input: {
   organizationId: string;
   grantId: string;
   name?: string;
-  isOwner?: boolean;
+  isOrgProprietario?: boolean;
   allCompanies?: boolean;
   companyIds?: string[];
-  companyRoles?: Record<string, CompanyAccessRole>;
+  companyRoles?: Record<string, OrgMemberRoleType>;
   newPassword?: string;
   allowOwnerChange?: boolean;
 }) {
@@ -740,13 +748,13 @@ export async function updateOrganizationUserConfiguration(input: {
   const passwordHash = rawPassword ? await hashPassword(rawPassword) : undefined;
 
   const isPlatformAdminSelfOwner =
-    email === normalizeEmail(adminEmail) && grant.isOwner;
+    email === normalizeEmail(adminEmail) && grant.isOrgProprietario;
 
   const nextIsOwner = isPlatformAdminSelfOwner
     ? true
-    : input.allowOwnerChange && typeof input.isOwner === "boolean"
-      ? input.isOwner
-      : grant.isOwner;
+    : input.allowOwnerChange && typeof input.isOrgProprietario === "boolean"
+      ? input.isOrgProprietario
+      : grant.isOrgProprietario;
 
   const nextAllCompanies = nextIsOwner
     ? true
@@ -761,13 +769,13 @@ export async function updateOrganizationUserConfiguration(input: {
         (id) => orgCompanyIds.has(id),
       );
 
-  const roleForCompany = (companyId: string): CompanyAccessRole => {
+  const roleForCompany = (companyId: string): OrgMemberRoleType => {
     const provided = input.companyRoles?.[companyId];
-    if (provided === "administrator" || provided === "analyst") {
-      return provided;
+    if (provided !== undefined) {
+      return parseOrgMemberRole(provided);
     }
     const existing = grant.companies.find((c) => c.companyId === companyId);
-    return (existing?.role as CompanyAccessRole) ?? "analyst";
+    return (existing?.role as OrgMemberRoleType) ?? OrgMemberRole.analista;
   };
 
   await prisma.$transaction(async (tx) => {
@@ -777,7 +785,7 @@ export async function updateOrganizationUserConfiguration(input: {
         email,
         name: cleanName || (email.split("@")[0] ?? email),
         role,
-        planActive: role === "admin",
+        planActive: isSystemAdminAccount(role),
         ...(passwordHash ? { passwordHash } : {}),
       },
       update: {
@@ -789,7 +797,7 @@ export async function updateOrganizationUserConfiguration(input: {
     await tx.accessGrant.update({
       where: { id: grant.id },
       data: {
-        isOwner: nextIsOwner,
+        isOrgProprietario: nextIsOwner,
         allCompanies: nextAllCompanies,
       },
     });
@@ -843,7 +851,7 @@ export async function resetOrganizationUserPassword(input: {
       email,
       name: email.split("@")[0] ?? email,
       role,
-      planActive: role === "admin",
+      planActive: isSystemAdminAccount(role),
       passwordHash,
     },
     update: {
@@ -911,14 +919,14 @@ export async function createClientWorkspace(input: { name: string; email: string
         create: {
           id: companyId,
           name,
-          planActive: role === "admin",
+          planActive: isSystemAdminAccount(role),
         },
       },
       accessGrants: {
         create: {
           email,
           allCompanies: true,
-          isOwner: true,
+          isOrgProprietario: true,
         },
       },
     },
@@ -930,7 +938,7 @@ export async function createClientWorkspace(input: { name: string; email: string
       email,
       name,
       role,
-      planActive: role === "admin",
+      planActive: isSystemAdminAccount(role),
     },
     update: { name },
   });

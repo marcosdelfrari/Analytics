@@ -1,11 +1,13 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { adminEmail, roleForEmail } from "@/lib/access-code";
+import { AccountRole, isSystemAdminAccount } from "@/lib/access-roles";
 import { createClientWorkspace } from "@/lib/organizations-store";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import type { Account, Role } from "@/lib/types";
 import type { User } from "@/lib/generated/prisma/client";
+import { Role as DbRole } from "@/lib/generated/prisma/client";
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -34,7 +36,7 @@ function toAccount(user: User): Account {
     name: user.name,
     email: user.email,
     role,
-    planActive: role === "admin",
+    planActive: isSystemAdminAccount(role),
   };
 }
 
@@ -43,13 +45,13 @@ async function ensureAdminUser() {
     where: { email: adminEmail },
     create: {
       email: adminEmail,
-      name: "Administrador",
-      role: "admin",
+      name: "Admin do sistema",
+      role: DbRole.system_admin,
       planActive: true,
     },
     update: {
-      name: "Administrador",
-      role: "admin",
+      name: "Admin do sistema",
+      role: DbRole.system_admin,
       planActive: true,
     },
   });
@@ -80,7 +82,7 @@ async function importLegacyUsersIfEmpty() {
         email: resolvedEmail,
         name: String(row.name ?? "").trim() || resolvedEmail,
         role,
-        planActive: role === "admin" ? true : row.planActive === true,
+        planActive: isSystemAdminAccount(role) ? true : row.planActive === true,
       },
       update: {},
     });
@@ -120,7 +122,7 @@ async function syncUsersFromAccessGrants() {
         email,
         name: local,
         role: roleForEmail(email),
-        planActive: roleForEmail(email) === "admin",
+        planActive: isSystemAdminAccount(roleForEmail(email)),
       },
     });
   }
@@ -146,7 +148,7 @@ export async function ensureUserForEmail(input: { name: string; email: string })
       email,
       name: input.name.trim() || email,
       role,
-      planActive: role === "admin",
+      planActive: isSystemAdminAccount(role),
     },
     update: {
       name: input.name.trim() || email,
@@ -341,7 +343,7 @@ export async function setClientPlanActive(id: string, planActive: boolean) {
   }
 
   const ownerGrants = await prisma.accessGrant.findMany({
-    where: { email: normalizeEmail(user.email), isOwner: true },
+    where: { email: normalizeEmail(user.email), isOrgProprietario: true },
     select: { organizationId: true },
   });
   const orgIds = ownerGrants.map((grant) => grant.organizationId);

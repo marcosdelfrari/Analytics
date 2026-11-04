@@ -6,7 +6,8 @@ import { UsersPanel } from "@/app/(shell)/admin/users-panel";
 import { AppShellMain } from "@/app/components/app-shell";
 import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { adminEmail } from "@/lib/access-code";
-import { hasElevatedCompanyAccess } from "@/lib/company-access-role";
+import { isSystemAdminAccount } from "@/lib/access-roles";
+import { hasProprietarioAccess } from "@/lib/company-access-role";
 import { listOrganizations } from "@/lib/organizations-store";
 import { requireAdmin } from "@/lib/require-admin";
 import { listAccountsForDirectory } from "@/lib/users-store";
@@ -20,21 +21,21 @@ async function AdminUsersContent() {
     listAccountsForDirectory(),
   ]);
 
-  // Owner da org ou administrador de ao menos uma empresa = nível Proprietário
+  // Proprietário da org ou gestor (administrator) em ao menos uma empresa
   const ownerEmails = new Set(
     organizations.flatMap((org) =>
       org.grants
-        .filter((grant) => hasElevatedCompanyAccess(grant))
+        .filter((grant) => hasProprietarioAccess(grant))
         .map((grant) => grant.email.trim().toLowerCase()),
     ),
   );
 
   const rootAdminsCount = users.filter(
-    (u) => u.role === "admin" || u.email === adminEmail,
+    (u) => isSystemAdminAccount(u.role) || u.email === adminEmail,
   ).length;
   const ownersCount = users.filter(
     (u) =>
-      u.role !== "admin" &&
+      !isSystemAdminAccount(u.role) &&
       u.email !== adminEmail &&
       ownerEmails.has(u.email.trim().toLowerCase()),
   ).length;
@@ -91,13 +92,25 @@ async function AdminUsersContent() {
 
           <div className="rounded-2xl border border-border bg-surface p-4">
             <p className="font-mono text-[10.5px] uppercase tracking-wider text-muted">
-              Proprietários (Owners)
+              Admin do sistema
+            </p>
+            <p className="mt-1.5 font-mono text-2xl font-semibold text-foreground">
+              {rootAdminsCount}
+            </p>
+            <p className="mt-1 text-[11.5px] text-muted-foreground">
+              Operação global da plataforma
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-surface p-4">
+            <p className="font-mono text-[10.5px] uppercase tracking-wider text-muted">
+              Proprietários
             </p>
             <p className="mt-1.5 font-mono text-2xl font-semibold text-foreground">
               {ownersCount}
             </p>
             <p className="mt-1 text-[11.5px] text-muted-foreground">
-              Administradores de organizações
+              Gestão de organizações cliente
             </p>
           </div>
 

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { CompanyAccount } from "@/lib/organizations-store";
 import { listAccessibleCompanies } from "@/lib/organizations-store";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import type { Session } from "@/lib/types";
 
 export const companyCookie = "analytics_company";
@@ -22,7 +23,7 @@ export function companyCookieOptions(origin?: string) {
 export async function resolveClientCompanyContext(session: Session) {
   const accessible = await listAccessibleCompanies(session.email);
   if (accessible.length === 0) {
-    if (session.role === "admin") {
+    if (isSystemAdminAccount(session.role)) {
       return {
         clientId: undefined,
         title: "Conta",
@@ -41,7 +42,7 @@ export async function resolveClientCompanyContext(session: Session) {
     accessible.find((item) => item.id === preferred) ?? accessible[0];
 
   const planActive =
-    session.role === "admin" ? true : company.planActive;
+    isSystemAdminAccount(session.role) ? true : company.planActive;
 
   return {
     clientId: company.id,

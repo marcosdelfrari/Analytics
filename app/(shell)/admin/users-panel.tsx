@@ -2,9 +2,14 @@ import Link from "next/link";
 import { RemoveUserButton } from "@/app/(shell)/admin/remove-user-button";
 import { adminEmail } from "@/lib/access-code";
 import {
+  ORG_PROPRIETARIO_LABEL,
+  PLATFORM_SYSTEM_ADMIN_LABEL,
+  isSystemAdminAccount,
+} from "@/lib/access-roles";
+import {
   COMPANY_ACCESS_ROLE_LABELS,
-  hasElevatedCompanyAccess,
-  type CompanyAccessRole,
+  hasProprietarioAccess,
+  type OrgMemberRole,
 } from "@/lib/company-access-role";
 import type { OrganizationSummary } from "@/lib/organizations-store";
 import type { Account } from "@/lib/types";
@@ -17,7 +22,7 @@ type UsersPanelProps = {
 type UserMembership = {
   orgId: string;
   orgName: string;
-  isOwner: boolean;
+  isOrgProprietario: boolean;
   isCompanyAdmin: boolean;
   allCompanies: boolean;
   companyNames: string[];
@@ -39,27 +44,27 @@ function resolveMemberships(
     if (!grant) continue;
 
     const accessibleCompanies =
-      grant.isOwner || grant.allCompanies
+      grant.isOrgProprietario || grant.allCompanies
         ? org.companies
         : org.companies.filter((company) =>
             grant.companyIds.includes(company.id),
           );
 
-    const companyRoleLabels = grant.isOwner
-      ? accessibleCompanies.map(() => "Proprietário")
+    const companyRoleLabels = grant.isOrgProprietario
+      ? accessibleCompanies.map(() => ORG_PROPRIETARIO_LABEL)
       : grant.allCompanies
-        ? accessibleCompanies.map(() => COMPANY_ACCESS_ROLE_LABELS.analyst)
+        ? accessibleCompanies.map(() => COMPANY_ACCESS_ROLE_LABELS.analista)
         : accessibleCompanies.map((company) => {
             const role =
-              grant.companyRoles[company.id] ?? ("analyst" as CompanyAccessRole);
+              grant.companyRoles[company.id] ?? ("analista" as OrgMemberRole);
             return COMPANY_ACCESS_ROLE_LABELS[role];
           });
 
     result.push({
       orgId: org.id,
       orgName: org.name,
-      isOwner: grant.isOwner,
-      isCompanyAdmin: hasElevatedCompanyAccess(grant),
+      isOrgProprietario: grant.isOrgProprietario,
+      isCompanyAdmin: hasProprietarioAccess(grant),
       allCompanies: grant.allCompanies,
       companyNames: accessibleCompanies.map((c) => c.name),
       companyRoleLabels,
@@ -82,8 +87,8 @@ export function UsersPanel({ users, organizations = [] }: UsersPanelProps) {
             Usuários da plataforma
           </h2>
           <p className="mt-0.5 text-[12px] text-muted-foreground">
-            Todas as contas com acesso a organizações (proprietários e usuários
-            comuns), sincronizadas com os grants.
+            Todas as contas com acesso a organizações (proprietários e
+            analistas), sincronizadas com os grants.
           </p>
         </div>
 
@@ -121,13 +126,13 @@ export function UsersPanel({ users, organizations = [] }: UsersPanelProps) {
             <tbody className="divide-y divide-border-subtle text-[13px]">
               {users.map((user) => {
                 const isRootAdmin =
-                  user.role === "admin" || user.email === adminEmail;
+                  isSystemAdminAccount(user.role) || user.email === adminEmail;
                 const memberships = resolveMemberships(
                   user.email,
                   organizations,
                 );
                 const isOwnerAnywhere = memberships.some(
-                  (m) => m.isOwner || m.isCompanyAdmin,
+                  (m) => m.isOrgProprietario || m.isCompanyAdmin,
                 );
                 const planActive =
                   isRootAdmin ||
@@ -135,12 +140,12 @@ export function UsersPanel({ users, organizations = [] }: UsersPanelProps) {
                   memberships.some((m) => m.hasActivePlanCompany);
 
                 const roleLabel = isRootAdmin
-                  ? "Admin plataforma"
+                  ? PLATFORM_SYSTEM_ADMIN_LABEL
                   : memberships.length === 0
                     ? "Sem organização"
                     : isOwnerAnywhere
-                      ? "Proprietário"
-                      : "Usuário comum";
+                      ? ORG_PROPRIETARIO_LABEL
+                      : "Analista";
 
                 return (
                   <tr
@@ -183,9 +188,9 @@ export function UsersPanel({ users, organizations = [] }: UsersPanelProps) {
                             >
                               <span className="font-medium text-foreground">
                                 {m.orgName}
-                                {m.isOwner || m.isCompanyAdmin ? (
+                                {m.isOrgProprietario || m.isCompanyAdmin ? (
                                   <span className="ml-1.5 font-normal text-positive">
-                                    · Proprietário
+                                    · {ORG_PROPRIETARIO_LABEL}
                                   </span>
                                 ) : null}
                               </span>

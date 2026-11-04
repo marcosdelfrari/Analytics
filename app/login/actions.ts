@@ -20,6 +20,7 @@ import {
   registerWithPassword,
   setPasswordForAuthenticatedUser,
 } from "@/lib/users-store";
+import type { AccountRole } from "@/lib/types";
 
 export type AuthFormState = {
   error?: string;
@@ -39,7 +40,7 @@ async function requestOrigin() {
 
 async function establishSession(account: {
   id: string;
-  role: "admin" | "client";
+  role: AccountRole;
   name: string;
   email: string;
 }) {

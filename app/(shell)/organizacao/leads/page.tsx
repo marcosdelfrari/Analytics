@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import Link from "next/link";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
@@ -20,10 +21,10 @@ async function LeadsPageContent({
   const session = await getSession();
   if (authEnabled) {
     if (!session) redirect("/login");
-    if (session.role !== "admin" && session.role !== "client") {
+    if (!isSystemAdminAccount(session.role) && session.role !== "client") {
       redirect("/login");
     }
-    if (session.role === "admin") {
+    if (isSystemAdminAccount(session.role)) {
       await ensureAdminLotusOrganization();
     }
   }

@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { csvAttachment } from "@/lib/csv";
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   if (!session) {
     return new Response("Não autenticado", { status: 401 });
   }
-  if (session.role !== "admin" && session.role !== "client") {
+  if (!isSystemAdminAccount(session.role) && session.role !== "client") {
     return new Response("Sem permissão", { status: 403 });
   }
 

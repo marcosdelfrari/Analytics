@@ -3,7 +3,8 @@ import {
   AssociateUserToCompanyPanel,
   GrantAccessActions,
 } from "@/app/(shell)/organizacao/grant-access-actions";
-import { hasElevatedCompanyAccess } from "@/lib/company-access-role";
+import { grantScopeSummary } from "@/lib/access-roles";
+import { hasProprietarioAccess } from "@/lib/company-access-role";
 import type { OrganizationSummary } from "@/lib/organizations-store";
 
 type OrganizationPanelProps = {
@@ -18,7 +19,7 @@ function companyNamesForGrant(
   grant: OrganizationSummary["grants"][number],
   companies: OrganizationSummary["companies"],
 ) {
-  if (grant.isOwner || grant.allCompanies) {
+  if (grant.isOrgProprietario || grant.allCompanies) {
     return companies.map((c) => c.name);
   }
   return grant.companyIds
@@ -195,13 +196,11 @@ export function OrganizationPanel({
                         {grant.email}
                       </p>
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        {hasElevatedCompanyAccess(grant)
-                          ? grant.isOwner
-                            ? "Proprietário"
-                            : "Proprietário · administrador de empresa"
+                        {hasProprietarioAccess(grant)
+                          ? grantScopeSummary(grant)
                           : grant.allCompanies
-                            ? "Usuário comum · toda a organização"
-                            : `Usuário comum · ${grant.companyIds.length} empresa(s)`}
+                            ? "Analista · toda a organização"
+                            : `Analista · ${grant.companyIds.length} empresa(s)`}
                       </p>
                       {linkedNames.length > 0 && !grant.allCompanies && (
                         <div className="mt-2 flex flex-wrap gap-1">

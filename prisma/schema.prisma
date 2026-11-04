@@ -11,13 +11,13 @@ datasource db {
 }
 
 enum Role {
-  admin
+  system_admin @map("admin")
   client
 }
 
 enum CompanyAccessRole {
-  administrator
-  analyst
+  proprietario @map("administrator")
+  analista @map("analyst")
 
   @@map("company_access_role")
 }
@@ -151,7 +151,7 @@ model AccessGrant {
   organizationId String               @map("organization_id")
   email          String
   allCompanies   Boolean              @default(true) @map("all_companies")
-  isOwner        Boolean              @default(false) @map("is_owner")
+  isOrgProprietario Boolean           @default(false) @map("is_owner")
   createdAt      DateTime             @default(now()) @map("created_at")
   organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   companies      AccessGrantCompany[]
@@ -164,7 +164,7 @@ model AccessGrant {
 model AccessGrantCompany {
   grantId   String             @map("grant_id")
   companyId String             @map("company_id")
-  role      CompanyAccessRole  @default(analyst)
+  role      CompanyAccessRole  @default(analista)
   grant     AccessGrant        @relation(fields: [grantId], references: [id], onDelete: Cascade)
   company   Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
 

@@ -45,9 +45,9 @@ function clientMatchesCurrentSchema(client: PrismaClient) {
   const hasTracking =
     typeof extended.trackingEventDailyMetric?.groupBy === "function" &&
     typeof extended.trackingCampaignDailyMetric?.groupBy === "function";
-  const hasOwner =
+  const hasOrgProprietario =
     extended._runtimeDataModel?.models?.AccessGrant?.fields?.some(
-      (field) => field.name === "isOwner",
+      (field) => field.name === "isOrgProprietario",
     ) === true;
   const hasCompanyAccessRole =
     extended._runtimeDataModel?.models?.AccessGrantCompany?.fields?.some(
@@ -55,7 +55,7 @@ function clientMatchesCurrentSchema(client: PrismaClient) {
     ) === true;
   const hasLeadForm = typeof extended.leadForm?.findMany === "function";
 
-  return hasTracking && hasOwner && hasCompanyAccessRole && hasLeadForm;
+  return hasTracking && hasOrgProprietario && hasCompanyAccessRole && hasLeadForm;
 }
 
 function getPrismaClient() {

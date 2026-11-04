@@ -9,8 +9,13 @@ import {
 } from "@/app/(shell)/organizacao/actions";
 import { ConfirmDialog } from "@/app/components/confirm-dialog";
 import {
+  ORG_OWNER_SCOPE_LABEL,
+  ORG_PROPRIETARIO_LABEL,
+  OrgMemberRole,
+} from "@/lib/access-roles";
+import {
   COMPANY_ACCESS_ROLE_LABELS,
-  type CompanyAccessRole,
+  type OrgMemberRole as OrgMemberRoleType,
 } from "@/lib/company-access-role";
 import type {
   AccessGrantSummary,
@@ -20,7 +25,7 @@ import type {
 type AccessScopeMode = "owner" | "all_companies" | "by_company";
 
 function getInitialScopeMode(grant: AccessGrantSummary): AccessScopeMode {
-  if (grant.isOwner) return "owner";
+  if (grant.isOrgProprietario) return "owner";
   if (grant.allCompanies) return "all_companies";
   return "by_company";
 }
@@ -57,16 +62,16 @@ export function UserConfigModal({
     getInitialScopeMode(grant),
   );
   const [selectedCompanyIds, setSelectedCompanyIds] = useState<string[]>(() =>
-    grant.allCompanies || grant.isOwner
+    grant.allCompanies || grant.isOrgProprietario
       ? organization.companies.map((c) => c.id)
       : [...grant.companyIds],
   );
   const [companyRoles, setCompanyRoles] = useState<
-    Record<string, CompanyAccessRole>
+    Record<string, OrgMemberRoleType>
   >(() => {
-    const initial: Record<string, CompanyAccessRole> = {};
+    const initial: Record<string, OrgMemberRoleType> = {};
     for (const company of organization.companies) {
-      initial[company.id] = grant.companyRoles[company.id] ?? "analyst";
+      initial[company.id] = grant.companyRoles[company.id] ?? OrgMemberRole.analista;
     }
     return initial;
   });
@@ -86,11 +91,11 @@ export function UserConfigModal({
     setName(grant.userName);
     setScopeMode(getInitialScopeMode(grant));
     setSelectedCompanyIds(
-      grant.allCompanies || grant.isOwner
+      grant.allCompanies || grant.isOrgProprietario
         ? organization.companies.map((c) => c.id)
         : [...grant.companyIds],
     );
-    const updatedRoles: Record<string, CompanyAccessRole> = {};
+    const updatedRoles: Record<string, OrgMemberRoleType> = {};
     for (const company of organization.companies) {
       updatedRoles[company.id] = grant.companyRoles[company.id] ?? "analyst";
     }
@@ -112,7 +117,7 @@ export function UserConfigModal({
   }, [isPending, onClose]);
 
   const canChangeOwner = allowOwnerRole;
-  const canRemoveUser = allowOwnerRole || !grant.isOwner;
+  const canRemoveUser = allowOwnerRole || !grant.isOrgProprietario;
 
   const toggleCompany = (companyId: string) => {
     setSelectedCompanyIds((prev) =>
@@ -122,7 +127,7 @@ export function UserConfigModal({
     );
   };
 
-  const setRoleForCompany = (companyId: string, role: CompanyAccessRole) => {
+  const setRoleForCompany = (companyId: string, role: OrgMemberRoleType) => {
     setCompanyRoles((prev) => ({
       ...prev,
       [companyId]: role,
@@ -187,7 +192,7 @@ export function UserConfigModal({
         organizationId: organization.id,
         grantId: grant.id,
         name: name.trim(),
-        isOwner: scopeMode === "owner",
+        isOrgProprietario: scopeMode === "owner",
         allCompanies: scopeMode === "owner" || scopeMode === "all_companies",
         companyIds: scopeMode === "by_company" ? selectedCompanyIds : [],
         companyRoles,
@@ -284,7 +289,7 @@ export function UserConfigModal({
                   }`}
                 >
                   {scopeMode === "owner"
-                    ? "Proprietário"
+                    ? ORG_PROPRIETARIO_LABEL
                     : scopeMode === "all_companies"
                       ? "Todas as empresas"
                       : "Acesso por empresa"}
@@ -374,7 +379,7 @@ export function UserConfigModal({
                 <div className="grid gap-2.5 sm:grid-cols-3">
                   <button
                     type="button"
-                    disabled={grant.isOwner && !canChangeOwner}
+                    disabled={grant.isOrgProprietario && !canChangeOwner}
                     onClick={() => setScopeMode("by_company")}
                     className={`flex cursor-pointer flex-col items-start rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
                       scopeMode === "by_company"
@@ -392,7 +397,7 @@ export function UserConfigModal({
 
                   <button
                     type="button"
-                    disabled={grant.isOwner && !canChangeOwner}
+                    disabled={grant.isOrgProprietario && !canChangeOwner}
                     onClick={() => setScopeMode("all_companies")}
                     className={`flex cursor-pointer flex-col items-start rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
                       scopeMode === "all_companies"
@@ -411,7 +416,7 @@ export function UserConfigModal({
 
                   <button
                     type="button"
-                    disabled={!canChangeOwner && !grant.isOwner}
+                    disabled={!canChangeOwner && !grant.isOrgProprietario}
                     onClick={() => {
                       if (canChangeOwner) setScopeMode("owner");
                     }}
@@ -422,7 +427,7 @@ export function UserConfigModal({
                     }`}
                   >
                     <span className="text-[12.5px] font-semibold text-positive">
-                      Proprietário (Owner)
+                      {ORG_OWNER_SCOPE_LABEL}
                     </span>
                     <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
                       Gestão total de empresas, usuários e acessos da
@@ -441,10 +446,10 @@ export function UserConfigModal({
                     </p>
                     <p className="text-[11.5px] text-muted-foreground">
                       {scopeMode === "owner"
-                        ? "Como proprietário, este usuário possui papel de Administrador em todas as empresas."
+                        ? "Como proprietário da organização, este usuário gerencia empresas, usuários e acessos em toda a organização."
                         : scopeMode === "all_companies"
-                          ? "Este usuário acessa todas as empresas da organização."
-                          : "Marque as empresas permitidas e defina se atua como Analista ou Administrador."}
+                          ? "Este usuário acessa todas as empresas da organização como analista."
+                          : "Marque as empresas permitidas e defina se atua como Proprietário ou Analista."}
                     </p>
                   </div>
 
@@ -486,7 +491,7 @@ export function UserConfigModal({
                         selectedCompanyIds.includes(company.id);
                       const roleValue =
                         scopeMode === "owner"
-                          ? "administrator"
+                          ? OrgMemberRole.proprietario
                           : scopeMode === "all_companies"
                             ? "analyst"
                             : (companyRoles[company.id] ?? "analyst");
@@ -532,7 +537,7 @@ export function UserConfigModal({
                                 {(
                                   Object.keys(
                                     COMPANY_ACCESS_ROLE_LABELS,
-                                  ) as CompanyAccessRole[]
+                                  ) as OrgMemberRoleType[]
                                 ).map((roleKey) => {
                                   const selectedRole = roleValue === roleKey;
                                   return (
@@ -545,7 +550,7 @@ export function UserConfigModal({
                                       }
                                       className={`cursor-pointer rounded-md px-2.5 py-1 text-[11px] font-medium transition disabled:cursor-not-allowed ${
                                         selectedRole && isLinked
-                                          ? roleKey === "administrator"
+                                          ? roleKey === OrgMemberRole.proprietario
                                             ? "bg-positive/20 text-positive ring-1 ring-positive/40"
                                             : "bg-surface-elevated text-foreground ring-1 ring-white/15"
                                           : "text-muted-foreground hover:text-foreground"
@@ -565,8 +570,8 @@ export function UserConfigModal({
                                 }`}
                               >
                                 {scopeMode === "owner"
-                                  ? "Administrador (Owner)"
-                                  : "Analista (Organização)"}
+                                  ? ORG_PROPRIETARIO_LABEL
+                                  : "Analista (organização)"}
                               </span>
                             )}
                           </div>
@@ -706,7 +711,7 @@ export function UserConfigModal({
               </button>
             ) : (
               <span className="font-mono text-[11px] text-muted">
-                Proprietário protegido
+                {ORG_PROPRIETARIO_LABEL} protegido
               </span>
             )}
           </div>

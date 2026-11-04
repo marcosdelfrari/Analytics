@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import { analyticsToCsv } from "@/lib/analytics-export";
 import { loadClientAnalytics } from "@/lib/analytics";
 import { getSession } from "@/lib/auth";
@@ -11,7 +12,7 @@ export async function GET() {
   if (authEnabled) {
     const session = await getSession();
     if (!session) return new Response("Não autenticado", { status: 401 });
-    if (session.role !== "admin" && session.role !== "client") {
+    if (!isSystemAdminAccount(session.role) && session.role !== "client") {
       return new Response("Sem permissão", { status: 403 });
     }
   }

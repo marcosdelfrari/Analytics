@@ -1,4 +1,5 @@
 "use server";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -15,7 +16,7 @@ export async function selectActiveCompany(formData: FormData) {
   if (!authEnabled) redirect("/login");
 
   const session = await getSession();
-  if (!session || (session.role !== "client" && session.role !== "admin")) {
+  if (!session || (session.role !== "client" && !isSystemAdminAccount(session.role))) {
     redirect("/login");
   }
 

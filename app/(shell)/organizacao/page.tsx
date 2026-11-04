@@ -9,6 +9,7 @@ import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { canAccessOrganizationWorkspace } from "@/lib/organization-access";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import {
   ensureAdminLotusOrganization,
   listOrganizationsForOwner,
@@ -26,7 +27,7 @@ async function OrganizacaoPageContent({
     if (!canAccessOrganizationWorkspace(session)) {
       redirect("/dashboard");
     }
-    if (session.role === "admin") {
+    if (isSystemAdminAccount(session.role)) {
       await ensureAdminLotusOrganization();
     }
   }
@@ -41,7 +42,7 @@ async function OrganizacaoPageContent({
     organizations[0] ??
     null;
 
-  const isAdmin = !authEnabled || session?.role === "admin";
+  const isAdmin = !authEnabled || isSystemAdminAccount(session?.role);
 
   return (
     <AppShellMain

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
+import { AccountRole, isSystemAdminAccount } from "@/lib/access-roles";
 
 /** Garante sessão de administrador da plataforma. */
 export async function requireAdmin() {
@@ -8,6 +9,6 @@ export async function requireAdmin() {
 
   const session = await getSession();
   if (!session) redirect("/login");
-  if (session.role !== "admin") redirect("/dashboard");
+  if (!isSystemAdminAccount(session.role)) redirect("/dashboard");
   return session;
 }

@@ -1,5 +1,9 @@
 import { authSecret } from "@/lib/auth-secret";
-import type { Role } from "@/lib/types";
+import {
+  AccountRole,
+  isSystemAdminAccount,
+  type AccountRole as AccountRoleType,
+} from "@/lib/access-roles";
 
 export function adminEmailFromEnv() {
   return (process.env.ADMIN_EMAIL ?? "afk.marcos@gmail.com")
@@ -11,8 +15,10 @@ export const adminEmail = adminEmailFromEnv();
 
 const encoder = new TextEncoder();
 
-export function roleForEmail(email: string): Role {
-  return email.trim().toLowerCase() === adminEmail ? "admin" : "client";
+export function roleForEmail(email: string): AccountRoleType {
+  return email.trim().toLowerCase() === adminEmail
+    ? AccountRole.systemAdmin
+    : AccountRole.client;
 }
 
 function secret() {
@@ -41,14 +47,17 @@ async function key() {
   return crypto.subtle.importKey("raw", digest, "AES-GCM", false, ["encrypt", "decrypt"]);
 }
 
-export async function sealAccess(email: string, role: Role) {
+export async function sealAccess(email: string, role: AccountRoleType) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const plain = encoder.encode(`${email.trim().toLowerCase()}\n${role}`);
   const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await key(), plain);
   return `${toBase64Url(iv)}.${toBase64Url(new Uint8Array(cipher))}`;
 }
 
-export async function openAccess(email: string, sealed: string): Promise<Role | null> {
+export async function openAccess(
+  email: string,
+  sealed: string,
+): Promise<AccountRoleType | null> {
   const [iv, cipher] = sealed.split(".");
   if (!iv || !cipher || sealed.split(".").length !== 2) return null;
 
@@ -60,9 +69,16 @@ export async function openAccess(email: string, sealed: string): Promise<Role | 
     );
     const [storedEmail, role] = new TextDecoder().decode(plain).split("\n");
     const normalized = email.trim().toLowerCase();
-    if (storedEmail !== normalized || (role !== "admin" && role !== "client")) return null;
-    if (role === "admin" && normalized !== adminEmail) return null;
-    return role;
+    const validRole =
+      role === AccountRole.systemAdmin ||
+      role === AccountRole.client ||
+      role === "admin" ||
+      role === "client";
+    if (storedEmail !== normalized || !validRole) return null;
+    if (isSystemAdminAccount(role) && normalized !== adminEmail) return null;
+    return isSystemAdminAccount(role)
+      ? AccountRole.systemAdmin
+      : AccountRole.client;
   } catch {
     return null;
   }

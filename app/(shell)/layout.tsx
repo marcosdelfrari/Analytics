@@ -12,6 +12,8 @@ import { CompanySwitcher } from "@/app/components/company-switcher";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { resolveClientCompanyContext } from "@/lib/company-context";
+import { sessionRoleLabel } from "@/lib/access-labels";
+import { AccountRole, isSystemAdminAccount } from "@/lib/access-roles";
 import { shellModeFromRole } from "@/lib/shell-mode";
 
 function ShellLayoutFallback() {
@@ -39,8 +41,8 @@ async function ShellLayoutWithSession({
   if (
     authEnabled &&
     session &&
-    session.role !== "admin" &&
-    session.role !== "client"
+    !isSystemAdminAccount(session.role) &&
+    session.role !== AccountRole.client
   ) {
     redirect("/login");
   }
@@ -50,9 +52,9 @@ async function ShellLayoutWithSession({
   const navContext =
     authEnabled && session
       ? {
-          platformAdmin: session.role === "admin",
+          platformAdmin: isSystemAdminAccount(session.role),
           organizationOwner:
-            session.role !== "admin" && session.isOrganizationOwner,
+            !isSystemAdminAccount(session.role) && session.isProprietario,
         }
       : undefined;
 
@@ -74,12 +76,7 @@ async function ShellLayoutWithSession({
       ? {
           name: session.name,
           email: session.email,
-          roleLabel:
-            session.role === "admin"
-              ? "Administrador"
-              : session.isOrganizationOwner
-                ? "Proprietário"
-                : "Analista",
+          roleLabel: sessionRoleLabel(session),
         }
       : undefined;
 

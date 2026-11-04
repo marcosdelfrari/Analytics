@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import { connection } from "next/server";
 import { getSession } from "@/lib/auth";
 import { canAccessCompany } from "@/lib/organizations-store";
@@ -29,7 +30,7 @@ export async function GET(
     !authEnabled ||
     (session &&
       report &&
-      (session.role === "admin" ||
+      (isSystemAdminAccount(session.role) ||
         (await canAccessCompany(session.email, report.clientId))));
   if (!allowed || !report?.storedFile || report.storedFile.includes("..")) {
     return new Response("Arquivo não encontrado", { status: 404 });

@@ -9,8 +9,12 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import {
-  hasElevatedCompanyAccess,
-  isAdministratorAtCompany,
+  ORG_PROPRIETARIO_LABEL,
+  grantScopeSummary,
+} from "@/lib/access-roles";
+import {
+  hasProprietarioAccess,
+  isProprietarioAtCompany,
 } from "@/lib/company-access-role";
 import { associateCompanyWithUserInFlow } from "@/app/(shell)/organizacao/actions";
 import { UserConfigModal } from "@/app/(shell)/organizacao/user-config-modal";
@@ -38,7 +42,7 @@ function grantsForCompany(
 ) {
   return grants.filter((grant) => {
     const linked =
-      grant.isOwner ||
+      grant.isOrgProprietario ||
       grant.allCompanies ||
       grant.companyIds.includes(company.id) ||
       (extraLinks[grant.id] ?? []).includes(company.id);
@@ -52,7 +56,7 @@ function isConnected(
   extraLinks: Record<string, string[]>,
 ) {
   return (
-    grant.isOwner ||
+    grant.isOrgProprietario ||
     grant.allCompanies ||
     grant.companyIds.includes(companyId) ||
     (extraLinks[grant.id] ?? []).includes(companyId)
@@ -63,8 +67,8 @@ function isDashedCompanyEdge(
   grant: AccessGrantSummary,
   companyId: string,
 ): boolean {
-  if (grant.isOwner || grant.allCompanies) return false;
-  return !isAdministratorAtCompany(grant, companyId);
+  if (grant.isOrgProprietario || grant.allCompanies) return false;
+  return !isProprietarioAtCompany(grant, companyId);
 }
 
 function useIsNarrow(breakpoint = 768) {
@@ -325,7 +329,7 @@ function SingleOrganizationBpmnDiagram({
                     )}
                     stroke={
                       active
-                        ? isAdministratorAtCompany(grant, company.id)
+                        ? isProprietarioAtCompany(grant, company.id)
                           ? "rgba(74,222,128,0.7)"
                           : "rgba(237,237,237,0.5)"
                         : "rgba(255,255,255,0.08)"
@@ -336,7 +340,7 @@ function SingleOrganizationBpmnDiagram({
                     }
                     markerEnd={
                       active
-                        ? isAdministratorAtCompany(grant, company.id)
+                        ? isProprietarioAtCompany(grant, company.id)
                           ? `url(#arrow-positive-v-${organization.id})`
                           : `url(#arrow-default-v-${organization.id})`
                         : `url(#arrow-muted-v-${organization.id})`
@@ -498,8 +502,8 @@ function SingleOrganizationBpmnDiagram({
                 selected?.type === "grant" && selected.id === grant.id;
               const isDrop =
                 dropTarget?.type === "grant" && dropTarget.id === grant.id;
-              const elevated = hasElevatedCompanyAccess(grant);
-              const roleTitle = elevated ? "Proprietário" : "Por empresa";
+              const elevated = hasProprietarioAccess(grant);
+              const roleTitle = elevated ? ORG_PROPRIETARIO_LABEL : "Por empresa";
               const canDropHere =
                 dragActive?.type === "company" &&
                 !isConnected(grant, dragActive.id, extraLinks);
@@ -508,7 +512,7 @@ function SingleOrganizationBpmnDiagram({
                 <button
                   key={grant.id}
                   type="button"
-                  draggable={!savePending && !grant.isOwner}
+                  draggable={!savePending && !grant.isOrgProprietario}
                   onDragStart={(e) =>
                     startDrag(e, { type: "grant", id: grant.id })
                   }
@@ -771,7 +775,7 @@ function SingleOrganizationBpmnDiagram({
 
               const gy = centerYForIndex(gIdx, grants.length);
               const active = isEdgeActive(company.id, grant);
-              const isAdminEdge = isAdministratorAtCompany(grant, company.id);
+              const isAdminEdge = isProprietarioAtCompany(grant, company.id);
 
               return (
                 <path
@@ -1007,18 +1011,9 @@ function SingleOrganizationBpmnDiagram({
               selected?.type === "grant" && selected.id === grant.id;
             const isDrop =
               dropTarget?.type === "grant" && dropTarget.id === grant.id;
-            const elevated = hasElevatedCompanyAccess(grant);
-            const roleTitle = elevated ? "Proprietário" : "Por empresa";
-            const scopeSubtitle = grant.isOwner
-              ? "Proprietário · Toda a org"
-              : elevated
-                ? "Proprietário · Admin de empresa"
-                : grant.allCompanies
-                  ? "Usuário comum · Toda a org"
-                  : `Usuário comum · ${
-                      grant.companyIds.length +
-                      (extraLinks[grant.id]?.length ?? 0)
-                    } emp.`;
+            const elevated = hasProprietarioAccess(grant);
+            const roleTitle = elevated ? ORG_PROPRIETARIO_LABEL : "Por empresa";
+            const scopeSubtitle = grantScopeSummary(grant);
             const canDropHere =
               dragActive?.type === "company" &&
               !isConnected(grant, dragActive.id, extraLinks);
@@ -1027,7 +1022,7 @@ function SingleOrganizationBpmnDiagram({
               <button
                 key={grant.id}
                 type="button"
-                draggable={!savePending && !grant.isOwner}
+                draggable={!savePending && !grant.isOrgProprietario}
                 onDragStart={(e) =>
                   startDrag(e, { type: "grant", id: grant.id })
                 }
@@ -1221,7 +1216,7 @@ export function OrganizationFlowPanel({
           <div className="hidden items-center gap-3 rounded-lg border border-border-subtle bg-background/50 px-3 py-1.5 text-[11px] text-muted-foreground sm:flex">
             <span className="inline-flex items-center gap-1.5">
               <span className="h-0.5 w-4 bg-positive" />
-              <span>Administrador</span>
+              <span>{ORG_PROPRIETARIO_LABEL}</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-0.5 w-4 bg-foreground/60" />

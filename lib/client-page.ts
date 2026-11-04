@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { resolveClientCompanyContext } from "@/lib/company-context";
+import { AccountRole, isSystemAdminAccount } from "@/lib/access-roles";
 import { listCompanies } from "@/lib/organizations-store";
 
 export async function getClientPageContext() {
@@ -12,7 +13,10 @@ export async function getClientPageContext() {
     redirect("/login");
   }
 
-  if (session?.role === "client" || session?.role === "admin") {
+  if (
+    session &&
+    (session.role === AccountRole.client || isSystemAdminAccount(session.role))
+  ) {
     const companyContext = await resolveClientCompanyContext(session);
     return {
       session,

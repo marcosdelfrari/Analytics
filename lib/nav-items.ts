@@ -33,9 +33,9 @@ export type NavSection = {
 };
 
 export type NavContext = {
-  /** Administrador da plataforma (papel `admin`). */
+  /** Admin do sistema (papel `admin` na conta). */
   platformAdmin?: boolean;
-  /** Proprietário de alguma organização (cliente). */
+  /** Proprietário de organização (cliente). */
   organizationOwner?: boolean;
 };
 

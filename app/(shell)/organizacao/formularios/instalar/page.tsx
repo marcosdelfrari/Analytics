@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import Link from "next/link";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
@@ -28,7 +29,7 @@ async function InstalarFormulariosContent({
     if (!canAccessOrganizationWorkspace(session)) {
       redirect("/dashboard");
     }
-    if (session.role === "admin") {
+    if (isSystemAdminAccount(session.role)) {
       await ensureAdminLotusOrganization();
     }
   }

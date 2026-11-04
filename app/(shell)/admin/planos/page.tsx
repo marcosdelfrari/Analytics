@@ -147,7 +147,7 @@ async function AdminPlansContent() {
                 const allActive =
                   org.companies.length > 0 &&
                   activeCount === org.companies.length;
-                const owners = org.grants.filter((g) => g.isOwner);
+                const owners = org.grants.filter((g) => g.isOrgProprietario);
 
                 return (
                   <div key={org.id} className="p-6">
@@ -173,13 +173,13 @@ async function AdminPlansContent() {
                         <p className="mt-1 text-[12px] text-muted-foreground">
                           {owners.length > 0 ? (
                             <>
-                              Administrador(es):{" "}
+                              Proprietário(s):{" "}
                               <span className="font-mono text-[11px] text-foreground">
                                 {owners.map((o) => o.email).join(", ")}
                               </span>
                             </>
                           ) : (
-                            "Sem administrador vinculado"
+                            "Sem proprietário vinculado"
                           )}
                         </p>
                       </div>

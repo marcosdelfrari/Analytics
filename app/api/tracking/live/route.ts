@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import { authEnabled } from "@/lib/auth-config";
 import { getActiveCompanyIdForSession, getSession } from "@/lib/auth";
 import { ensureTrackingSite } from "@/lib/tracking";
@@ -13,10 +14,10 @@ export async function GET(request: Request) {
   if (!session) {
     return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
-  if (session.role !== "admin" && session.role !== "client") {
+  if (!isSystemAdminAccount(session.role) && session.role !== "client") {
     return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
   }
-  if (session.role === "client" && !session.isOrganizationOwner) {
+  if (session.role === "client" && !session.isProprietario) {
     return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
   }
 

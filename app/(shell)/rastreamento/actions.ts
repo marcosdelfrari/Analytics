@@ -1,4 +1,5 @@
 "use server";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -22,10 +23,10 @@ async function requireTrackingSite() {
   if (!authEnabled) redirect("/login");
   const session = await getSession();
   if (!session) redirect("/login");
-  if (session.role !== "admin" && session.role !== "client") {
+  if (!isSystemAdminAccount(session.role) && session.role !== "client") {
     redirect("/login");
   }
-  if (session.role === "client" && !session.isOrganizationOwner) {
+  if (session.role === "client" && !session.isProprietario) {
     redirect("/dashboard");
   }
   const companyId = await getActiveCompanyIdForSession(session);

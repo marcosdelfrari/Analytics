@@ -1,4 +1,5 @@
 "use server";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
@@ -23,11 +24,11 @@ async function requireAccess() {
   const session = await getSession();
   if (!session) redirect("/login");
   if (!hasActivePlan(session)) redirect("/dashboard");
-  if (session.role === "client" && !session.isOrganizationOwner) {
+  if (session.role === "client" && !session.isProprietario) {
     redirect("/dashboard");
   }
 
-  if (session.role === "admin") {
+  if (isSystemAdminAccount(session.role)) {
     const companyId = await getActiveCompanyIdForSession(session);
     return { companyId: companyId ?? null, isAdmin: true };
   }

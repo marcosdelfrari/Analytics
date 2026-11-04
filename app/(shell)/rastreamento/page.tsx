@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { CopyButton } from "@/app/(shell)/encurtador/copy-button";
@@ -32,18 +33,18 @@ async function TrackingPageContent() {
   if (authEnabled) {
     const session = await getSession();
     if (!session) redirect("/login");
-    if (session.role !== "admin" && session.role !== "client") {
+    if (!isSystemAdminAccount(session.role) && session.role !== "client") {
       redirect("/login");
     }
-    if (session.role === "client" && !session.isOrganizationOwner) {
+    if (session.role === "client" && !session.isProprietario) {
       redirect("/dashboard");
     }
-    planActive = session.role === "admin" || session.planActive;
+    planActive = isSystemAdminAccount(session.role) || session.planActive;
 
     const companyId = await getActiveCompanyIdForSession(session);
     if (!companyId) {
       redirect(
-        session.role === "admin" ? "/dashboard" : "/login?erro=sem-acesso",
+        isSystemAdminAccount(session.role) ? "/dashboard" : "/login?erro=sem-acesso",
       );
     }
     const site = await ensureTrackingSite(companyId);

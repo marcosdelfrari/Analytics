@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
-import { parseCompanyAccessRole, type CompanyAccessRole } from "@/lib/company-access-role";
+import { OrgMemberRole, isSystemAdminAccount } from "@/lib/access-roles";
+import { parseOrgMemberRole } from "@/lib/company-access-role";
 import {
   addCompaniesToAccessGrant,
   associateFlowCompanyAndGrant,
@@ -28,10 +29,10 @@ async function requireOrganizationOwnerOrAdmin(organizationId: string) {
   if (!session) {
     redirect("/login");
   }
-  if (session.role === "admin") {
+  if (isSystemAdminAccount(session.role)) {
     return { isAdmin: true };
   }
-  if (!session.isOrganizationOwner) {
+  if (!session.isProprietario) {
     redirect("/dashboard");
   }
   const canManage = await canManageOrganization(session.email, organizationId);
@@ -69,18 +70,18 @@ export async function addOrganizationAccess(
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
-  const isOwner = String(formData.get("isOwner") ?? "") === "true";
+  const isOrgProprietario = String(formData.get("isOwner") ?? "") === "true";
   const companyIds = formData
     .getAll("companyIds")
     .map((value) => String(value));
-  const companyRoles: Record<string, CompanyAccessRole> = {};
+  const companyRoles: Record<string, OrgMemberRole> = {};
   for (const companyId of companyIds) {
-    companyRoles[companyId] = parseCompanyAccessRole(
+    companyRoles[companyId] = parseOrgMemberRole(
       formData.get(`companyRole_${companyId}`),
     );
   }
   const allCompanies =
-    isOwner ||
+    isOrgProprietario ||
     String(formData.get("allCompanies") ?? "") === "true";
 
   const result = await createAccessGrant({
@@ -91,7 +92,7 @@ export async function addOrganizationAccess(
     allCompanies,
     companyIds,
     companyRoles,
-    isOwner,
+    isOrgProprietario,
   });
   if ("error" in result) {
     return { error: result.error ?? "Não foi possível incluir o usuário." };
@@ -191,7 +192,7 @@ export async function addCompaniesToUserGrant(
     grantId,
     organizationId,
     companyIds: mergedIds,
-    role: parseCompanyAccessRole(formData.get("companyRole")),
+    role: parseOrgMemberRole(formData.get("companyRole")),
   });
   if ("error" in result) {
     return { error: result.error ?? "Não foi possível associar a empresa." };
@@ -209,7 +210,7 @@ export async function updateUserCompanyAccessRole(formData: FormData) {
   const organizationId = String(formData.get("organizationId") ?? "");
   const grantId = String(formData.get("grantId") ?? "");
   const companyId = String(formData.get("companyId") ?? "");
-  const role = parseCompanyAccessRole(formData.get("role"));
+  const role = parseOrgMemberRole(formData.get("role"));
   if (!organizationId || !grantId || !companyId) return;
   await requireOrganizationOwnerOrAdmin(organizationId);
 
@@ -234,7 +235,7 @@ export async function removeAccessGrant(formData: FormData) {
   const { isAdmin } = await requireOrganizationOwnerOrAdmin(org);
 
   const grant = await prisma.accessGrant.findUnique({ where: { id: grantId } });
-  if (!grant || grant.organizationId !== org || (!isAdmin && grant.isOwner)) {
+  if (!grant || grant.organizationId !== org || (!isAdmin && grant.isOrgProprietario)) {
     return;
   }
 
@@ -251,10 +252,10 @@ export async function saveUserFlowConfigAction(input: {
   organizationId: string;
   grantId: string;
   name?: string;
-  isOwner?: boolean;
+  isOrgProprietario?: boolean;
   allCompanies?: boolean;
   companyIds?: string[];
-  companyRoles?: Record<string, CompanyAccessRole>;
+  companyRoles?: Record<string, OrgMemberRole>;
   newPassword?: string;
   confirmPassword?: string;
 }): Promise<{ ok: boolean; error?: string; passwordUpdated?: boolean }> {
@@ -283,7 +284,7 @@ export async function saveUserFlowConfigAction(input: {
     organizationId: input.organizationId,
     grantId: input.grantId,
     name: input.name,
-    isOwner: input.isOwner,
+    isOrgProprietario: input.isOrgProprietario,
     allCompanies: input.allCompanies,
     companyIds: input.companyIds,
     companyRoles: input.companyRoles,
@@ -358,7 +359,7 @@ export async function removeUserFromOrgFlowAction(input: {
   if (!grant || grant.organizationId !== input.organizationId) {
     return { ok: false, error: "Acesso não encontrado nesta organização." };
   }
-  if (!isAdmin && grant.isOwner) {
+  if (!isAdmin && grant.isOrgProprietario) {
     return {
       ok: false,
       error: "Apenas o administrador da plataforma pode remover um proprietário.",

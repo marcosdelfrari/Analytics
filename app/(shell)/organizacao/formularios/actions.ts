@@ -1,4 +1,5 @@
 "use server";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -28,10 +29,10 @@ async function requireOrganizationOwner(organizationId: string) {
   if (!session) {
     redirect("/login");
   }
-  if (session.role === "admin") {
+  if (isSystemAdminAccount(session.role)) {
     return;
   }
-  if (!session.isOrganizationOwner) {
+  if (!session.isProprietario) {
     redirect("/dashboard");
   }
   const canManage = await canManageOrganization(session.email, organizationId);

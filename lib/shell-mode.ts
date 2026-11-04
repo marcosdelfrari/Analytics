@@ -1,7 +1,9 @@
 import { authEnabled } from "@/lib/auth-config";
-import type { Role, Session } from "@/lib/types";
+import type { AccountRole } from "@/lib/access-roles";
+import { isSystemAdminAccount } from "@/lib/access-roles";
+import type { Session } from "@/lib/types";
 
-/** Modo de navegação do app (UI). Papel no banco continua `admin` | `client`. */
+/** Modo de navegação do app (UI). Conta: `system_admin` | `client`. */
 export type ShellMode = "client" | "agency";
 
 const CLIENT_PREFIXES = [
@@ -11,8 +13,8 @@ const CLIENT_PREFIXES = [
   "/organizacao",
 ];
 
-export function shellModeFromRole(role: Role): ShellMode {
-  return role === "admin" ? "agency" : "client";
+export function shellModeFromRole(role: AccountRole): ShellMode {
+  return isSystemAdminAccount(role) ? "agency" : "client";
 }
 
 export function shellModeFromPathname(pathname: string): ShellMode {

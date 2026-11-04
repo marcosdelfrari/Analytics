@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { AppShellMain } from "@/app/components/app-shell";
@@ -14,10 +15,10 @@ async function DocumentacaoPageContent() {
   if (authEnabled) {
     const session = await getSession();
     if (!session) redirect("/login");
-    if (session.role !== "admin" && session.role !== "client") {
+    if (!isSystemAdminAccount(session.role) && session.role !== "client") {
       redirect("/login");
     }
-    planActive = session.role === "admin" || session.planActive;
+    planActive = isSystemAdminAccount(session.role) || session.planActive;
   }
 
   return (

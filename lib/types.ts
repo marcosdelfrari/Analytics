@@ -1,6 +1,9 @@
 export type Platform = "google" | "meta";
 
-export type Role = "admin" | "client";
+import type { AccountRole, OrgMemberRole } from "@/lib/access-roles";
+
+export { AccountRole, OrgMemberRole, isSystemAdminAccount } from "@/lib/access-roles";
+export type { Role } from "@/lib/access-roles";
 
 export type CampaignStatus = "ativa" | "pausada" | "aprendizado";
 
@@ -62,25 +65,22 @@ export interface Account {
   id: string;
   name: string;
   email: string;
-  role: Role;
+  role: AccountRole;
   /** Plano pago liberado para ver dados reais publicados pela equipe. */
   planActive: boolean;
 }
 
 export interface SessionCookie {
   userId: string;
-  role: Role;
+  role: AccountRole;
   name: string;
   email: string;
 }
 
 export interface Session extends SessionCookie {
   planActive: boolean;
-  /**
-   * Cliente com nível de proprietário: owner da organização ou
-   * administrador de ao menos uma empresa.
-   */
-  isOrganizationOwner: boolean;
+  /** Proprietário da org ou gestor (proprietario) em ao menos uma empresa. */
+  isProprietario: boolean;
 }
 
 export interface PlatformSummary {

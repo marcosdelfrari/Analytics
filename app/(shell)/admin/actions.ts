@@ -1,4 +1,5 @@
 "use server";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
@@ -40,7 +41,7 @@ async function requireAdmin() {
   if (!authEnabled) return;
   const session = await getSession();
   if (!session) redirect("/login");
-  if (session.role !== "admin") redirect("/dashboard");
+  if (!isSystemAdminAccount(session.role)) redirect("/dashboard");
 }
 
 function parseNumber(value: FormDataEntryValue | null): number | null {
