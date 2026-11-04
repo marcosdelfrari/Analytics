@@ -44,6 +44,7 @@ function evolutionFromReports(reports: PublishedReport[]): EvolutionPoint[] {
 export async function loadClientAnalytics(
   clientId: string | undefined,
   planActive: boolean,
+  days?: number,
 ): Promise<ClientAnalytics> {
   if (!planActive) {
     const id = clientId ?? "demo";
@@ -81,7 +82,7 @@ export async function loadClientAnalytics(
 
   const [dashboard, siteTracking] = await Promise.all([
     getDashboard(clientId),
-    loadSiteTrackingAnalytics(clientId),
+    loadSiteTrackingAnalytics(clientId, days),
   ]);
 
   return {

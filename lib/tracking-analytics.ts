@@ -285,10 +285,17 @@ export async function loadSiteTrackingAnalytics(
     totalsBase.pageviews > 0 ? eventsTotal / totalsBase.pageviews : 0;
   const first = chronological[0]?.day;
   const last = chronological[chronological.length - 1]?.day;
+  const emptySuffix = rows.length === 0 ? " · aguardando visitas" : "";
+  const periodFallback =
+    days === 1
+      ? `Último dia${emptySuffix}`
+      : `Últimos ${days} dias${emptySuffix}`;
   const period =
     first && last
-      ? `${formatDayLabel(first)} – ${formatDayLabel(last)}`
-      : `Últimos ${days} dias${rows.length === 0 ? " · aguardando visitas" : ""}`;
+      ? first.getTime() === last.getTime()
+        ? formatDayLabel(first)
+        : `${formatDayLabel(first)} – ${formatDayLabel(last)}`
+      : periodFallback;
 
   return {
     ready: true,

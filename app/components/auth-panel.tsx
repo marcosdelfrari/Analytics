@@ -128,12 +128,8 @@ function AuthShell({
 }) {
   return (
     <main className="grid h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white lg:grid-cols-2">
-      <div className="hidden min-h-0 items-center justify-center border-r border-white/[0.06] px-6 py-8 sm:px-10 lg:flex xl:px-14 2xl:px-20">
-        <AuthHeroShowcase />
-      </div>
-
-      <div className="flex min-h-0 flex-col px-5 py-5 sm:px-10 sm:py-6 lg:px-10 xl:px-14 2xl:px-16">
-        <header className="flex shrink-0 justify-center pb-2 pt-1">
+      <div className="flex min-h-0 flex-col border-white/[0.06] px-5 py-5 sm:px-10 sm:py-6 lg:border-r lg:px-10 xl:px-14 2xl:px-16">
+        <header className="flex shrink-0 justify-start pb-2 pt-1">
           <BrandMark priority href="/" />
         </header>
 
@@ -179,6 +175,10 @@ function AuthShell({
         <footer className="shrink-0 pt-2 text-center text-[10.5px] text-white/30">
           Fractal — Analytics para mídia paga
         </footer>
+      </div>
+
+      <div className="hidden min-h-0 items-center justify-center px-6 py-8 sm:px-10 lg:flex xl:px-14 2xl:px-20">
+        <AuthHeroShowcase />
       </div>
     </main>
   );
@@ -499,12 +499,8 @@ export function RegisterPanel({ next }: { next: string }) {
 export function AuthRouteLoading({ title }: { title: string }) {
   return (
     <main className="grid h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white lg:grid-cols-2">
-      <div className="hidden min-h-0 items-center justify-center border-r border-white/[0.06] px-6 py-8 sm:px-10 lg:flex xl:px-14 2xl:px-20">
-        <div className="h-[min(72vh,28rem)] w-full max-w-[min(100%,32rem)] animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
-      </div>
-
-      <div className="flex min-h-0 flex-col px-5 py-5 sm:px-10 sm:py-6 lg:px-10 xl:px-14 2xl:px-16">
-        <header className="flex shrink-0 justify-center pb-2 pt-1">
+      <div className="flex min-h-0 flex-col border-white/[0.06] px-5 py-5 sm:px-10 sm:py-6 lg:border-r lg:px-10 xl:px-14 2xl:px-16">
+        <header className="flex shrink-0 justify-start pb-2 pt-1">
           <BrandMark priority href="/" />
         </header>
 
@@ -528,6 +524,10 @@ export function AuthRouteLoading({ title }: { title: string }) {
         <footer className="shrink-0 pt-2 text-center text-[10.5px] text-white/30">
           Fractal — Analytics para mídia paga
         </footer>
+      </div>
+
+      <div className="hidden min-h-0 items-center justify-center px-6 py-8 sm:px-10 lg:flex xl:px-14 2xl:px-20">
+        <div className="h-[min(72vh,28rem)] w-full max-w-[min(100%,32rem)] animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
       </div>
     </main>
   );

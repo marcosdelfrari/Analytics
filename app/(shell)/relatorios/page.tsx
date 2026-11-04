@@ -7,6 +7,7 @@ import {
 } from "@/app/components/event-analysis-panel";
 import { ReportsLoadingFallback } from "@/app/components/loading-fallbacks";
 import { PlatformTabs } from "@/app/components/platform-tabs";
+import { ReportPeriodSelect } from "@/app/components/report-period-select";
 import { ReportPlatformPanel } from "@/app/components/report-platform-panel";
 import { ReportsSectionTabs } from "@/app/components/reports-section-tabs";
 import { TrackingBreakdownTables } from "@/app/components/tracking-breakdown-tables";
@@ -18,20 +19,41 @@ import {
 } from "@/lib/analytics";
 import { clientSubtitle, getClientPageContext } from "@/lib/client-page";
 import { canRegisterResources } from "@/lib/organization-access";
+import {
+  parseReportPeriodDays,
+  reportExportHref,
+} from "@/lib/report-period";
 
-async function ReportsPageContent() {
+async function ReportsPageContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ dias?: string }>;
+}) {
+  const { dias } = await searchParams;
+  const days = parseReportPeriodDays(dias);
   const { planActive, clientId, title, session } = await getClientPageContext();
-  const analytics = await loadClientAnalytics(clientId, planActive);
+  const analytics = await loadClientAnalytics(clientId, planActive, days);
   const tracking = analytics.siteTracking;
   const showSetupLink = !session || canRegisterResources(session);
+  const periodLabel = tracking?.period ?? analytics.dashboard.period;
 
   return (
     <AppShellMain
       title={title}
-      subtitle={`Relatórios analíticos · ${clientSubtitle(planActive, analytics.dashboard.period)}`}
+      subtitle={`Relatórios analíticos · ${clientSubtitle(planActive, periodLabel)}`}
       planActive={planActive}
     >
       <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <ReportPeriodSelect days={days} />
+          <Link
+            href={reportExportHref(days)}
+            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-surface-elevated"
+          >
+            Exportar CSV
+          </Link>
+        </div>
+
         {tracking && (
           <TrackingSummaryBar
             tracking={tracking}
@@ -40,14 +62,6 @@ async function ReportsPageContent() {
         )}
 
         <ReportsSectionTabs
-          rightSlot={
-            <Link
-              href="/relatorios/exportar"
-              className="rounded-lg border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-surface-elevated"
-            >
-              Exportar CSV
-            </Link>
-          }
           events={
             tracking && tracking.ready ? (
               <EventAnalysisPanel tracking={tracking} />
@@ -118,10 +132,14 @@ async function ReportsPageContent() {
   );
 }
 
-export default function ReportsPage() {
+export default function ReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ dias?: string }>;
+}) {
   return (
     <Suspense fallback={<ReportsLoadingFallback />}>
-      <ReportsPageContent />
+      <ReportsPageContent searchParams={searchParams} />
     </Suspense>
   );
 }
