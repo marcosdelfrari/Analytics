@@ -7,6 +7,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
   pgPool: Pool | undefined;
   pgPoolConnectionString: string | undefined;
+  pgAdapter: PrismaPg | undefined;
 };
 
 function getOrCreatePool(connectionString: string) {
@@ -18,13 +19,32 @@ function getOrCreatePool(connectionString: string) {
   }
 
   void globalForPrisma.pgPool?.end().catch(() => undefined);
+  globalForPrisma.pgAdapter = undefined;
 
   const pool = new Pool({ connectionString });
   if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.pgPool = pool;
-    globalForPrisma.pgPoolConnectionString = connectionString;
+    // HMR recria o Prisma Client; cada adapter registra um listener "error" no pool.
+    pool.setMaxListeners(0);
   }
+  globalForPrisma.pgPool = pool;
+  globalForPrisma.pgPoolConnectionString = connectionString;
   return pool;
+}
+
+function getOrCreatePgAdapter(pool: Pool) {
+  if (globalForPrisma.pgAdapter && globalForPrisma.pgPool === pool) {
+    return globalForPrisma.pgAdapter;
+  }
+  const adapter = new PrismaPg(pool);
+  globalForPrisma.pgAdapter = adapter;
+  return adapter;
+}
+
+function disconnectCachedPrismaClient() {
+  const previous = globalForPrisma.prisma;
+  if (!previous) return;
+  globalForPrisma.prisma = undefined;
+  void previous.$disconnect().catch(() => undefined);
 }
 
 function createPrismaClient() {
@@ -36,7 +56,7 @@ function createPrismaClient() {
 
   const pool = getOrCreatePool(connectionString);
 
-  const adapter = new PrismaPg(pool);
+  const adapter = getOrCreatePgAdapter(pool);
   return new PrismaClient({ adapter });
 }
 
@@ -86,15 +106,17 @@ function getPrismaClient() {
   ) {
     return cached;
   }
+
+  disconnectCachedPrismaClient();
+
   const fresh = createPrismaClient();
   if (!clientMatchesCurrentSchema(fresh)) {
+    void fresh.$disconnect().catch(() => undefined);
     throw new Error(
       "Prisma Client desatualizado. Rode npm run db:generate e reinicie o next dev.",
     );
   }
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = fresh;
-  }
+  globalForPrisma.prisma = fresh;
   return fresh;
 }
 
