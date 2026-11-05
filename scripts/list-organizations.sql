@@ -1,1 +1,1 @@
-SELECT "name", "id" FROM "organizations" ORDER BY "name";
+SELECT "name", "id" FROM "dbo"."cad_organizacao" ORDER BY "name";

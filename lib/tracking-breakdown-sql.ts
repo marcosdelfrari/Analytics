@@ -22,7 +22,7 @@ export async function listEventBreakdownFromHits(siteId: string, days = 14) {
   const since = trackingSince(days);
   const rows = await prisma.$queryRaw<EventRow[]>`
     SELECT event_name AS name, SUM(count)::bigint AS count
-    FROM tracking_event_daily_metrics
+    FROM tracking.agr_evento_dia
     WHERE site_id = ${siteId}
       AND day >= ${since}::date
     GROUP BY event_name
@@ -44,7 +44,7 @@ function attributionQuery(siteId: string, since: Date, platform?: Platform) {
           campaign,
           SUM(pageviews)::bigint AS pageviews,
           SUM(events)::bigint AS events
-        FROM tracking_attribution_daily_metrics
+        FROM tracking.agr_atribuicao_dia
         WHERE site_id = $1
           AND day >= $2::date
           AND ${sqlSourceMatchesPlatform(platform)}
@@ -61,7 +61,7 @@ function attributionQuery(siteId: string, since: Date, platform?: Platform) {
           campaign,
           SUM(pageviews)::bigint AS pageviews,
           SUM(events)::bigint AS events
-        FROM tracking_attribution_daily_metrics
+        FROM tracking.agr_atribuicao_dia
         WHERE site_id = ${siteId}
           AND day >= ${since}::date
         GROUP BY source, medium, campaign
@@ -108,7 +108,7 @@ export async function listEventBreakdownForPlatform(
   const since = trackingSince(days);
   const rows = await prisma.$queryRaw<EventRow[]>`
     SELECT event_name AS name, SUM(count)::bigint AS count
-    FROM tracking_event_platform_daily_metrics
+    FROM tracking.agr_evento_plataforma_dia
     WHERE site_id = ${siteId}
       AND day >= ${since}::date
       AND platform = ${platform}
@@ -133,7 +133,7 @@ export async function listEventDailySeries(siteId: string, days = 14) {
   const since = trackingSince(days);
   const rows = await prisma.$queryRaw<EventDailyRow[]>`
     SELECT day, event_name AS name, SUM(count)::bigint AS count
-    FROM tracking_event_daily_metrics
+    FROM tracking.agr_evento_dia
     WHERE site_id = ${siteId}
       AND day >= ${since}::date
     GROUP BY day, event_name
@@ -150,7 +150,7 @@ export async function listEventPlatformBreakdown(siteId: string, days = 14) {
   const since = trackingSince(days);
   const rows = await prisma.$queryRaw<EventPlatformRow[]>`
     SELECT event_name AS name, platform, SUM(count)::bigint AS count
-    FROM tracking_event_platform_daily_metrics
+    FROM tracking.agr_evento_plataforma_dia
     WHERE site_id = ${siteId}
       AND day >= ${since}::date
     GROUP BY event_name, platform
@@ -178,7 +178,7 @@ export async function listPathBreakdown(siteId: string, days = 14) {
       SUM(pageviews)::bigint AS pageviews,
       SUM(events)::bigint AS events,
       SUM(landings)::bigint AS landings
-    FROM tracking_path_daily_metrics
+    FROM tracking.agr_pagina_dia
     WHERE site_id = ${siteId}
       AND day >= ${since}::date
     GROUP BY path
@@ -197,7 +197,7 @@ export async function listPathFlowBreakdown(siteId: string, days = 14) {
   const since = trackingSince(days);
   const rows = await prisma.$queryRaw<PathFlowRow[]>`
     SELECT from_path AS "fromPath", path, SUM(count)::bigint AS count
-    FROM tracking_path_flow_daily_metrics
+    FROM tracking.agr_fluxo_pagina_dia
     WHERE site_id = ${siteId}
       AND day >= ${since}::date
       AND NULLIF(TRIM(from_path), '') IS NOT NULL

@@ -6,7 +6,26 @@ import { pgConnectionString } from "@/lib/pg-connection";
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
   pgPool: Pool | undefined;
+  pgPoolConnectionString: string | undefined;
 };
+
+function getOrCreatePool(connectionString: string) {
+  if (
+    globalForPrisma.pgPool &&
+    globalForPrisma.pgPoolConnectionString === connectionString
+  ) {
+    return globalForPrisma.pgPool;
+  }
+
+  void globalForPrisma.pgPool?.end().catch(() => undefined);
+
+  const pool = new Pool({ connectionString });
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.pgPool = pool;
+    globalForPrisma.pgPoolConnectionString = connectionString;
+  }
+  return pool;
+}
 
 function createPrismaClient() {
   const raw = process.env.DATABASE_URL;
@@ -15,10 +34,7 @@ function createPrismaClient() {
   }
   const connectionString = pgConnectionString(raw);
 
-  const pool = globalForPrisma.pgPool ?? new Pool({ connectionString });
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.pgPool = pool;
-  }
+  const pool = getOrCreatePool(connectionString);
 
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
@@ -59,8 +75,15 @@ function clientMatchesCurrentSchema(client: PrismaClient) {
 }
 
 function getPrismaClient() {
+  const raw = process.env.DATABASE_URL;
+  const connectionString = raw ? pgConnectionString(raw) : "";
+
   const cached = globalForPrisma.prisma;
-  if (cached && clientMatchesCurrentSchema(cached)) {
+  if (
+    cached &&
+    clientMatchesCurrentSchema(cached) &&
+    globalForPrisma.pgPoolConnectionString === connectionString
+  ) {
     return cached;
   }
   const fresh = createPrismaClient();

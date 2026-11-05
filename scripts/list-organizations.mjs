@@ -22,9 +22,9 @@ const pool = new pg.Pool({ connectionString });
 
 const orgs = await pool.query(
   `SELECT o.name, o.id,
-          (SELECT COUNT(*)::int FROM companies c WHERE c.organization_id = o.id) AS companies,
-          (SELECT COUNT(*)::int FROM access_grants g WHERE g.organization_id = o.id) AS grants
-   FROM organizations o
+          (SELECT COUNT(*)::int FROM dbo.cad_empresa c WHERE c.organization_id = o.id) AS companies,
+          (SELECT COUNT(*)::int FROM dbo.cad_acesso g WHERE g.organization_id = o.id) AS grants
+   FROM dbo.cad_organizacao o
    ORDER BY o.name`,
 );
 
@@ -36,18 +36,18 @@ for (const row of orgs.rows) {
 }
 
 const orphanGrants = await pool.query(
-  `SELECT COUNT(*)::int AS n FROM access_grants g
-   WHERE NOT EXISTS (SELECT 1 FROM organizations o WHERE o.id = g.organization_id)`,
+  `SELECT COUNT(*)::int AS n FROM dbo.cad_acesso g
+   WHERE NOT EXISTS (SELECT 1 FROM dbo.cad_organizacao o WHERE o.id = g.organization_id)`,
 );
 
 const usersNoGrant = await pool.query(
-  `SELECT COUNT(*)::int AS n FROM users u
-   WHERE NOT EXISTS (SELECT 1 FROM access_grants g WHERE lower(g.email) = lower(u.email))`,
+  `SELECT COUNT(*)::int AS n FROM dbo.cad_usuario u
+   WHERE NOT EXISTS (SELECT 1 FROM dbo.cad_acesso g WHERE lower(g.email) = lower(u.email))`,
 );
 
 const orphanUsers = await pool.query(
-  `SELECT u.email, u.name FROM users u
-   WHERE NOT EXISTS (SELECT 1 FROM access_grants g WHERE lower(g.email) = lower(u.email))
+  `SELECT u.email, u.name FROM dbo.cad_usuario u
+   WHERE NOT EXISTS (SELECT 1 FROM dbo.cad_acesso g WHERE lower(g.email) = lower(u.email))
    ORDER BY u.email`,
 );
 

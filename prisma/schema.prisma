@@ -8,11 +8,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["dbo", "leads", "tracking", "marketing"]
 }
 
 enum Role {
   system_admin @map("admin")
   client
+
+  @@schema("dbo")
 }
 
 enum CompanyAccessRole {
@@ -20,6 +23,7 @@ enum CompanyAccessRole {
   analista @map("analyst")
 
   @@map("company_access_role")
+  @@schema("dbo")
 }
 
 model User {
@@ -33,14 +37,16 @@ model User {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  @@map("users")
+  @@map("cad_usuario")
+  @@schema("dbo")
 }
 
 model AppMeta {
   key   String @id
   value String
 
-  @@map("app_meta")
+  @@map("cfg_parametro")
+  @@schema("dbo")
 }
 
 model LoginOtp {
@@ -49,7 +55,8 @@ model LoginOtp {
   expiresAt    DateTime @map("expires_at")
   attemptCount Int      @default(0) @map("attempt_count")
 
-  @@map("login_otps")
+  @@map("aux_login_otp")
+  @@schema("dbo")
 }
 
 model Organization {
@@ -62,7 +69,8 @@ model Organization {
   leadForms       LeadForm[]
   leadSubmissions LeadSubmission[]
 
-  @@map("organizations")
+  @@map("cad_organizacao")
+  @@schema("dbo")
 }
 
 model Company {
@@ -81,13 +89,16 @@ model Company {
   publishedReports PublishedReport[]
 
   @@index([organizationId])
-  @@map("companies")
+  @@map("cad_empresa")
+  @@schema("dbo")
 }
 
 enum LeadFormKind {
   whatsapp_button
   popup
   exit_intent
+
+  @@schema("leads")
 }
 
 /// Formulário de captura de lead montado pelo proprietário da organização.
@@ -120,7 +131,8 @@ model LeadForm {
 
   @@index([organizationId])
   @@index([companyId])
-  @@map("lead_forms")
+  @@map("cad_formulario")
+  @@schema("leads")
 }
 
 model LeadSubmission {
@@ -143,7 +155,8 @@ model LeadSubmission {
 
   @@index([organizationId, createdAt])
   @@index([formId, createdAt])
-  @@map("lead_submissions")
+  @@map("mov_submissao")
+  @@schema("leads")
 }
 
 model AccessGrant {
@@ -158,7 +171,8 @@ model AccessGrant {
 
   @@unique([organizationId, email])
   @@index([email])
-  @@map("access_grants")
+  @@map("cad_acesso")
+  @@schema("dbo")
 }
 
 model AccessGrantCompany {
@@ -169,7 +183,8 @@ model AccessGrantCompany {
   company   Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@id([grantId, companyId])
-  @@map("access_grant_companies")
+  @@map("cad_acesso_empresa")
+  @@schema("dbo")
 }
 
 // Um site de coleta por empresa; a chave pública isola hits e métricas.
@@ -190,7 +205,8 @@ model TrackingSite {
   visitorDaily TrackingVisitorDaily[]
   allowedDomains TrackingAllowedDomain[]
 
-  @@map("tracking_sites")
+  @@map("cad_site")
+  @@schema("tracking")
 }
 
 model TrackingAllowedDomain {
@@ -202,7 +218,8 @@ model TrackingAllowedDomain {
 
   @@unique([siteId, host])
   @@index([siteId])
-  @@map("tracking_allowed_domains")
+  @@map("cad_dominio_permitido")
+  @@schema("tracking")
 }
 
 model TrackingHit {
@@ -225,7 +242,8 @@ model TrackingHit {
   @@index([siteId, createdAt])
   @@index([processedAt, createdAt])
   @@index([siteId, visitorId, createdAt])
-  @@map("tracking_hits")
+  @@map("mov_hit")
+  @@schema("tracking")
 }
 
 model TrackingDailyMetric {
@@ -237,7 +255,8 @@ model TrackingDailyMetric {
   site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@id([siteId, day])
-  @@map("tracking_daily_metrics")
+  @@map("agr_metrica_dia")
+  @@schema("tracking")
 }
 
 model TrackingVisitorDaily {
@@ -248,7 +267,8 @@ model TrackingVisitorDaily {
 
   @@id([siteId, day, visitorId])
   @@index([siteId, day])
-  @@map("tracking_visitor_daily")
+  @@map("agr_visitante_dia")
+  @@schema("tracking")
 }
 
 model TrackingEventDailyMetric {
@@ -259,7 +279,8 @@ model TrackingEventDailyMetric {
   site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@id([siteId, day, eventName])
-  @@map("tracking_event_daily_metrics")
+  @@map("agr_evento_dia")
+  @@schema("tracking")
 }
 
 model TrackingCampaignDailyMetric {
@@ -271,7 +292,8 @@ model TrackingCampaignDailyMetric {
   site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@id([siteId, day, campaign])
-  @@map("tracking_campaign_daily_metrics")
+  @@map("agr_campanha_dia")
+  @@schema("tracking")
 }
 
 model TrackingAttributionDailyMetric {
@@ -285,7 +307,8 @@ model TrackingAttributionDailyMetric {
   site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@id([siteId, day, source, medium, campaign])
-  @@map("tracking_attribution_daily_metrics")
+  @@map("agr_atribuicao_dia")
+  @@schema("tracking")
 }
 
 model TrackingEventPlatformDailyMetric {
@@ -297,7 +320,8 @@ model TrackingEventPlatformDailyMetric {
   site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@id([siteId, day, eventName, platform])
-  @@map("tracking_event_platform_daily_metrics")
+  @@map("agr_evento_plataforma_dia")
+  @@schema("tracking")
 }
 
 model TrackingPathDailyMetric {
@@ -310,7 +334,8 @@ model TrackingPathDailyMetric {
   site      TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@id([siteId, day, path])
-  @@map("tracking_path_daily_metrics")
+  @@map("agr_pagina_dia")
+  @@schema("tracking")
 }
 
 model TrackingPathFlowDailyMetric {
@@ -322,7 +347,8 @@ model TrackingPathFlowDailyMetric {
   site     TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@id([siteId, day, fromPath, path])
-  @@map("tracking_path_flow_daily_metrics")
+  @@map("agr_fluxo_pagina_dia")
+  @@schema("tracking")
 }
 
 model ShortLink {
@@ -336,7 +362,8 @@ model ShortLink {
   company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([companyId, createdAt])
-  @@map("short_links")
+  @@map("cad_link_curto")
+  @@schema("marketing")
 }
 
 model PublishedReport {
@@ -358,5 +385,6 @@ model PublishedReport {
   company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([companyId, publishedAt])
-  @@map("published_reports")
+  @@map("mov_relatorio_publicado")
+  @@schema("marketing")
 }

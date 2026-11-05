@@ -14,7 +14,7 @@ export const AccountRole = {
 
 export type AccountRole = (typeof AccountRole)[keyof typeof AccountRole];
 
-/** Papel por empresa (`access_grant_companies.role`). */
+/** Papel por empresa (`dbo.cad_acesso_empresa.role`). */
 export const OrgMemberRole = {
   proprietario: "proprietario",
   analista: "analista",
