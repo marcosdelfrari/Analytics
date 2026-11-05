@@ -1,7 +1,12 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 import { PlatformLogoLabel } from "@/app/components/platform-logo";
+import { ReportsTabPanelSkeleton } from "@/app/components/loading-fallbacks";
+import {
+  ReportsNavigationProvider,
+  useReportsNavigation,
+} from "@/app/components/reports-navigation-context";
 import type { TrackingMediaOrigin } from "@/lib/utm-platform";
 
 type SectionTab = "events" | "pages" | "platforms";
@@ -41,7 +46,7 @@ function mediaChipClass(origin: TrackingMediaOrigin, selected: boolean) {
   return `${base} bg-surface-elevated text-foreground ring-1 ring-border`;
 }
 
-export function ReportsSectionTabs({
+function ReportsSectionTabsInner({
   toolbarStart,
   toolbarEnd,
   trafficSummary,
@@ -62,8 +67,10 @@ export function ReportsSectionTabs({
   other: ReactNode;
   none: ReactNode;
 }) {
+  const { navigationPending } = useReportsNavigation();
   const [active, setActive] = useState<SectionTab>("events");
   const [platform, setPlatform] = useState<TrackingMediaOrigin>("google");
+  const [tabPending, startTabTransition] = useTransition();
 
   const mediaPanel =
     platform === "google"
@@ -77,9 +84,28 @@ export function ReportsSectionTabs({
   const showTrafficSummary =
     Boolean(trafficSummary) && (active === "events" || active === "pages");
 
+  const panelLoading = navigationPending || tabPending;
+
+  function selectSection(id: SectionTab) {
+    if (id === active) return;
+    startTabTransition(() => setActive(id));
+  }
+
+  function selectPlatform(id: TrackingMediaOrigin) {
+    if (id === platform) return;
+    startTabTransition(() => setPlatform(id));
+  }
+
+  const panelContent =
+    active === "events" ? events : active === "pages" ? pages : mediaPanel;
+
   return (
     <div className="space-y-3">
-      <section className="rounded-xl border border-border bg-surface">
+      <section
+        className={`rounded-xl border border-border bg-surface transition-opacity ${
+          navigationPending ? "opacity-80" : ""
+        }`}
+      >
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-2">
           <div className="flex min-w-0 flex-wrap items-center gap-2.5">
             {toolbarStart}
@@ -103,8 +129,9 @@ export function ReportsSectionTabs({
                   type="button"
                   role="tab"
                   aria-selected={isSelected}
-                  onClick={() => setActive(item.id)}
-                  className={tabClass(isSelected)}
+                  disabled={panelLoading}
+                  onClick={() => selectSection(item.id)}
+                  className={`${tabClass(isSelected)} disabled:cursor-wait disabled:opacity-70`}
                 >
                   {item.label}
                 </button>
@@ -126,8 +153,9 @@ export function ReportsSectionTabs({
                     type="button"
                     role="tab"
                     aria-selected={selected}
-                    onClick={() => setPlatform(item.id)}
-                    className={mediaChipClass(item.id, selected)}
+                    disabled={panelLoading}
+                    onClick={() => selectPlatform(item.id)}
+                    className={`${mediaChipClass(item.id, selected)} disabled:cursor-wait disabled:opacity-70`}
                   >
                     {item.id === "google" || item.id === "meta" ? (
                       <PlatformLogoLabel platform={item.id} size={14} />
@@ -142,13 +170,46 @@ export function ReportsSectionTabs({
         </div>
       </section>
 
-      {showTrafficSummary ? trafficSummary : null}
+      {showTrafficSummary && !panelLoading ? trafficSummary : null}
+      {showTrafficSummary && panelLoading ? (
+        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-xl border border-border bg-surface px-3.5 py-2.5"
+            >
+              <div className="h-2.5 w-20 animate-pulse rounded-sm bg-border" />
+              <div className="mt-2 h-5 w-24 animate-pulse rounded-sm bg-border" />
+            </div>
+          ))}
+        </div>
+      ) : null}
 
-      <div role="tabpanel">
-        {active === "events" && events}
-        {active === "pages" && pages}
-        {active === "platforms" && mediaPanel}
+      <div role="tabpanel" className="relative min-h-[12rem]">
+        {panelLoading ? (
+          <ReportsTabPanelSkeleton showTrafficSummary={false} />
+        ) : (
+          panelContent
+        )}
       </div>
     </div>
+  );
+}
+
+export function ReportsSectionTabs(props: {
+  toolbarStart: ReactNode;
+  toolbarEnd?: ReactNode;
+  trafficSummary?: ReactNode;
+  events: ReactNode;
+  pages: ReactNode;
+  google: ReactNode;
+  meta: ReactNode;
+  other: ReactNode;
+  none: ReactNode;
+}) {
+  return (
+    <ReportsNavigationProvider>
+      <ReportsSectionTabsInner {...props} />
+    </ReportsNavigationProvider>
   );
 }

@@ -46,20 +46,54 @@ export function ReportsLoadingFallback() {
             <Skeleton className="h-4 w-56 max-w-[40%] rounded-md" />
           </div>
         </div>
-        <div className="grid gap-3 lg:grid-cols-2">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <div key={index} className="rounded-xl border border-border bg-surface p-3.5">
-              <Skeleton className="h-3.5 w-28" />
-              <Skeleton className="mt-3 h-20 w-full" />
+        <ReportsTabPanelSkeleton />
+      </div>
+    </AppShellMain>
+  );
+}
+
+/** Skeleton do painel principal (troca de aba ou período). */
+export function ReportsTabPanelSkeleton({
+  showTrafficSummary = false,
+}: {
+  showTrafficSummary?: boolean;
+}) {
+  return (
+    <div
+      className="space-y-3"
+      aria-busy="true"
+      aria-live="polite"
+    >
+      <SkeletonScreenReader label="Carregando dados do relatório" />
+      {showTrafficSummary ? (
+        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-xl border border-border bg-surface px-3.5 py-2.5"
+            >
+              <Skeleton className="h-2.5 w-20" />
+              <Skeleton className="mt-2 h-5 w-24" />
             </div>
           ))}
         </div>
-        <div className="rounded-xl border border-border bg-surface p-3.5">
-          <Skeleton className="h-3.5 w-36" />
-          <Skeleton className="mt-4 h-36 w-full" />
-        </div>
+      ) : null}
+      <div className="grid gap-3 lg:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div
+            key={index}
+            className="rounded-xl border border-border bg-surface p-3.5"
+          >
+            <Skeleton className="h-3.5 w-28" />
+            <Skeleton className="mt-3 h-20 w-full" />
+          </div>
+        ))}
       </div>
-    </AppShellMain>
+      <div className="rounded-xl border border-border bg-surface p-3.5">
+        <Skeleton className="h-3.5 w-36" />
+        <Skeleton className="mt-4 h-36 w-full" />
+      </div>
+    </div>
   );
 }
 

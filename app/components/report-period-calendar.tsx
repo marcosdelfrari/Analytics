@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useReportsNavigation } from "@/app/components/reports-navigation-context";
 import {
   addDaysToKey,
   daysInRange,
@@ -61,6 +62,8 @@ export function ReportPeriodCalendar({
   to: DateKey;
 }) {
   const router = useRouter();
+  const { beginNavigation } = useReportsNavigation();
+  const [, startNavigate] = useTransition();
   const titleId = useId();
   const today = localDateKey();
   const [open, setOpen] = useState(false);
@@ -127,7 +130,10 @@ export function ReportPeriodCalendar({
   function applyRange(nextFrom: DateKey, nextTo: DateKey) {
     setOpen(false);
     if (nextFrom === from && nextTo === to) return;
-    router.push(reportPeriodHref({ kind: "range", from: nextFrom, to: nextTo }));
+    beginNavigation();
+    startNavigate(() => {
+      router.push(reportPeriodHref({ kind: "range", from: nextFrom, to: nextTo }));
+    });
   }
 
   function onDayClick(dateKey: DateKey) {

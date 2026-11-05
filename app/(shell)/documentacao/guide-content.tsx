@@ -69,10 +69,12 @@ export function GuideContent() {
           Como usar o Fractal
         </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          O analista consulta e exporta os dados das empresas liberadas para a
-          conta. O proprietário vê os mesmos números e é quem cadastra empresas,
-          acessos, script, links e formulários. Use o menu à esquerda (ou
-          &quot;Menu&quot; no celular) para ir direto a cada área.
+          O analista consulta, exporta e opera captura de leads nas empresas
+          liberadas para o e-mail dele — incluindo criar e instalar formulários
+          nesse escopo. O proprietário vê a organização inteira e cadastra
+          empresas, acessos, script, parâmetros e encurtador. Use o menu à
+          esquerda; no celular, a barra inferior traz Início e Relatórios, e o
+          restante fica em &quot;Menu&quot;.
         </p>
       </header>
 
@@ -146,9 +148,18 @@ export function GuideContent() {
           No menu, o usuário comum aparece como analista.
         </p>
         <p>
-          <strong className="font-medium text-foreground">Analista</strong> abre
-          só leitura e exportação, nas empresas que o proprietário marcou para
-          o e-mail dele:
+          No menu, o analista enxerga as seções{" "}
+          <strong className="font-medium text-foreground">Análise</strong>,{" "}
+          <strong className="font-medium text-foreground">Dados</strong> e{" "}
+          <strong className="font-medium text-foreground">Referência</strong>.
+          O proprietário soma{" "}
+          <strong className="font-medium text-foreground">Rastreamento</strong> e{" "}
+          <strong className="font-medium text-foreground">Organização</strong>{" "}
+          (com Empresas e acessos no topo).
+        </p>
+        <p>
+          <strong className="font-medium text-foreground">Analista</strong>{" "}
+          opera nas empresas que o proprietário marcou para o e-mail dele:
         </p>
         <ul className="list-disc space-y-1.5 pl-4">
           <li>
@@ -159,18 +170,31 @@ export function GuideContent() {
           <li>
             <InternalLink href="/organizacao/leads">
               Leads capturados
+            </InternalLink>
+            ,{" "}
+            <InternalLink href="/organizacao/formularios">
+              Criar formulário
             </InternalLink>{" "}
-            dessas empresas
+            e{" "}
+            <InternalLink href="/organizacao/formularios/instalar">
+              Instalar formulário
+            </InternalLink>{" "}
+            (formulários e envios das empresas liberadas; ao vincular uma
+            empresa no formulário, só aparecem as permitidas)
           </li>
           <li>
-            Exportar CSV do relatório e dos leads, e baixar o arquivo publicado
-            de mídia quando existir
+            <InternalLink href="/parametros">Parâmetros UTM</InternalLink> como
+            referência para montar links de campanha
+          </li>
+          <li>
+            Exportar CSV de relatórios e leads, e baixar o arquivo publicado de
+            mídia quando existir
           </li>
         </ul>
         <p>
           <strong className="font-medium text-foreground">Proprietário</strong>{" "}
-          vê tudo isso em todas as empresas da organização e cadastra o que a
-          conta usa:
+          vê todas as empresas da organização, convida pessoas e cadastra o que
+          a conta usa:
         </p>
         <ul className="list-disc space-y-1.5 pl-4">
           <li>
@@ -182,15 +206,16 @@ export function GuideContent() {
             <InternalLink href="/encurtador">Encurtador</InternalLink>
           </li>
           <li>
-            <InternalLink href="/organizacao/formularios">
-              Criar formulário
-            </InternalLink>{" "}
-            e{" "}
-            <InternalLink href="/organizacao/formularios/instalar">
-              Instalar formulário
-            </InternalLink>
+            Formulários e leads em toda a organização (mesmas telas do
+            analista, sem filtro de empresa)
           </li>
         </ul>
+        <Tip>
+          Quem é proprietário só de algumas empresas (não de toda a organização)
+          gerencia usuários e empresas dentro desse recorte — o menu de
+          proprietário aparece, mas a lista de empresas segue o que ele
+          administra.
+        </Tip>
       </DocSection>
 
       <DocSection
@@ -258,7 +283,8 @@ export function GuideContent() {
         <p>
           Em <InternalLink href="/relatorios">Relatórios</InternalLink>, a
           análise de eventos vem primeiro: mix por nome, origem Google/Meta e
-          tendência diária.           Em seguida aparecem as páginas (entradas e visitas por URL),
+          tendência diária. Em seguida aparecem as páginas (entradas e visitas
+          por URL),
           a navegação entre URLs quando o script registra a página anterior,
           o tráfego por UTM e as abas de Google Ads e Meta Ads.
         </p>
@@ -278,10 +304,16 @@ export function GuideContent() {
       >
         <p>
           A lista mostra quando o envio chegou, o formulário, a empresa, os
-          campos e a página de origem. O analista vê os leads das empresas
-          liberadas. O proprietário vê os leads de todas as empresas da
-          organização e, no topo da página, volta para os formulários para
-          ajustar o cadastro.
+          campos e a página de origem. Filtre por formulário e empresa e use{" "}
+          <strong className="font-medium text-foreground">Exportar CSV</strong>{" "}
+          no topo. O analista vê envios e formulários das empresas liberadas; o
+          proprietário vê toda a organização. No topo da página, o atalho{" "}
+          <strong className="font-medium text-foreground">Formulários</strong>{" "}
+          leva a{" "}
+          <InternalLink href="/organizacao/formularios">
+            Criar formulário
+          </InternalLink>
+          .
         </p>
       </DocSection>
 
@@ -370,7 +402,7 @@ export function GuideContent() {
         id="formularios"
         step="08"
         title="Formulários e encurtador"
-        audience="proprietário"
+        audience="analista e proprietário"
       >
         <p>
           Em{" "}
@@ -378,10 +410,12 @@ export function GuideContent() {
             Criar formulário
           </InternalLink>
           , o assistente pede nome e formato (botão de WhatsApp, popup, saída
-          da página ou corpo em seção), textos, campos, personalização opcional e ativação. Os
-          campos podem ser texto, e-mail, telefone, texto longo, seleção,
-          checkbox ou número. Dá para ligar o formulário a uma empresa e enviar
-          um e-mail de confirmação.
+          da página ou corpo em seção), textos, campos, personalização opcional
+          e ativação. Os campos podem ser texto, e-mail, telefone, texto longo,
+          seleção, checkbox ou número. Dá para ligar o formulário a uma empresa e
+          enviar um e-mail de confirmação. Analistas editam só formulários das
+          empresas liberadas (ou sem empresa fixa, quando a organização usa um
+          modelo compartilhado).
         </p>
         <p>
           Em{" "}
@@ -389,13 +423,16 @@ export function GuideContent() {
             Instalar formulário
           </InternalLink>
           , escolha o formulário ativo e copie o script para o site. Formulário
-          ativo é o que gera o snippet.
+          ativo é o que gera o snippet. A instalação no HTML do site continua
+          sendo responsabilidade de quem publica o site — o painel entrega o
+          código pronto.
         </p>
         <p>
-          <InternalLink href="/encurtador">Encurtador</InternalLink> cria
-          atalhos da empresa ativa para bio, QR code ou material offline.
-          Informe o destino já com UTMs, um nome e, se quiser, um código curto.
-          A lista mostra cliques e permite copiar ou remover o atalho.
+          <InternalLink href="/encurtador">Encurtador</InternalLink>{" "}
+          <span className="text-muted">(proprietário)</span> cria atalhos da
+          empresa ativa para bio, QR code ou material offline. Informe o destino
+          já com UTMs, um nome e, se quiser, um código curto. A lista mostra
+          cliques e permite copiar ou remover o atalho.
         </p>
       </DocSection>
 
@@ -422,7 +459,16 @@ export function GuideContent() {
               Acesso a outra empresa:
             </strong>{" "}
             o analista pede ao proprietário para marcar a empresa em Empresas e
-            acessos. A partir daí ele consulta e exporta os dados dela.
+            acessos. A partir daí ele consulta, exporta, vê leads e pode criar
+            formulários ligados a essa empresa.
+          </li>
+          <li>
+            <strong className="font-medium text-foreground">
+              Formulário antes do script:
+            </strong>{" "}
+            ative o modelo em Criar formulário e copie o snippet em Instalar
+            formulário; sem o script de rastreamento no site, os leads entram na
+            lista, mas UTMs e página de origem podem ficar incompletos.
           </li>
         </ul>
       </DocSection>

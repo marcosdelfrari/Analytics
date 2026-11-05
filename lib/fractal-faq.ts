@@ -33,6 +33,6 @@ export const fractalLandingFaqs = [
   {
     question: "Posso liberar acesso apenas de leitura para minha equipe ou cliente?",
     answer:
-      "Sim. O Proprietário gerencia empresas, script e formulários, e pode convidar Analistas liberando apenas as empresas que cada pessoa deve consultar. O Analista visualiza dashboards, relatórios, campanhas e leads e pode exportar os dados em CSV com segurança.",
+      "Sim. O Proprietário gerencia empresas, acessos, script, encurtador e o restante do cadastro. Pode convidar Analistas liberando só as empresas que cada um deve ver. O Analista consulta dashboard, relatórios e campanhas, exporta CSV, acompanha leads e pode criar, editar e instalar formulários dentro das empresas liberadas — sem abrir Empresas e acessos, Script ou Encurtador.",
   },
 ] as const;

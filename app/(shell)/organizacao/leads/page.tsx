@@ -85,15 +85,13 @@ async function LeadsPageContent({
                 );
               })}
             </div>
-            {canRegister ? (
-              <Link
-                href={`/organizacao/formularios?org=${activeOrgId ?? ""}`}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background/60 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:border-muted-foreground/40 hover:bg-surface-elevated hover:text-foreground"
-              >
-                <span aria-hidden>←</span>
-                <span>Formulários</span>
-              </Link>
-            ) : null}
+            <Link
+              href={`/organizacao/formularios?org=${activeOrgId ?? ""}`}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background/60 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:border-muted-foreground/40 hover:bg-surface-elevated hover:text-foreground"
+            >
+              <span aria-hidden>←</span>
+              <span>Formulários</span>
+            </Link>
           </div>
 
           {view && activeOrgId ? (

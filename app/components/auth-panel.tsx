@@ -71,7 +71,7 @@ function GoogleButton({ next }: { next: string }) {
 
 function Divider() {
   return (
-    <div className="flex items-center gap-3 py-1">
+    <div className="flex items-center gap-3 py-2.5">
       <span className="h-px flex-1 bg-white/10" />
       <span className="text-[11px] uppercase tracking-[0.16em] text-white/35">
         ou
@@ -127,13 +127,13 @@ function AuthShell({
   compact?: boolean;
 }) {
   return (
-    <main className="relative h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white">
+    <main className="relative flex h-dvh max-h-dvh flex-col overflow-hidden bg-[#0e0e0d] text-white">
       <header className="absolute left-5 top-5 z-10 sm:left-8 sm:top-6 lg:left-10">
         <BrandMark priority href="/" />
       </header>
 
-      <div className="flex h-full min-h-0 items-center justify-center overflow-y-auto px-5 py-16 [scrollbar-width:thin] sm:px-8 lg:px-10">
-        <div className="grid w-full max-w-[960px] items-center gap-8 lg:grid-cols-[minmax(0,22.5rem)_minmax(0,1fr)] lg:gap-12 xl:max-w-[1020px] xl:gap-14">
+      <div className="flex min-h-0 flex-1 overflow-y-auto px-5 py-16 [scrollbar-width:thin] sm:px-8 lg:px-10">
+        <div className="m-auto grid w-full max-w-[960px] items-center gap-8 lg:grid-cols-[minmax(0,22.5rem)_minmax(0,1fr)] lg:gap-12 xl:max-w-[1020px] xl:gap-14">
           <div
             className={`mx-auto w-full lg:mx-0 ${compact ? "max-w-[340px]" : "max-w-[360px]"}`}
           >
@@ -148,7 +148,7 @@ function AuthShell({
                 {title}
               </h1>
               <p
-                className={`mt-1.5 max-w-[32ch] text-white/60 ${
+                className={`mt-3 max-w-[32ch] text-white/60 ${
                   compact
                     ? "mx-auto text-[12px] leading-5 lg:mx-0"
                     : "mx-auto text-[12.5px] leading-5 lg:mx-0"
@@ -160,7 +160,7 @@ function AuthShell({
 
             <div
               className={`rounded-2xl border border-white/10 bg-[#151513] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.75)] ${
-                compact ? "mt-4 p-4" : "mt-5 p-4 sm:p-5"
+                compact ? "mt-5 p-4" : "mt-7 p-5 sm:p-6"
               }`}
             >
               {children}
@@ -168,7 +168,7 @@ function AuthShell({
 
             {footer ? (
               <div
-                className={`text-center lg:text-left ${compact ? "mt-3.5" : "mt-4"}`}
+                className={`text-center lg:text-left ${compact ? "mt-4" : "mt-6"}`}
               >
                 {footer}
               </div>
@@ -181,7 +181,7 @@ function AuthShell({
         </div>
       </div>
 
-      <footer className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-[10.5px] text-white/30">
+      <footer className="shrink-0 px-5 pb-4 pt-1 text-center text-[10.5px] text-white/30">
         Fractal — Analytics para mídia paga
       </footer>
     </main>
@@ -251,7 +251,7 @@ export function LoginPanel({
         </p>
       ) : null}
 
-      <div className="space-y-2.5">
+      <div className="space-y-5">
         <GoogleButton next={next} />
         <Divider />
 
@@ -277,7 +277,7 @@ export function LoginPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.22, ease: motionEase }}
-              className="space-y-2.5 pt-0.5"
+              className="space-y-3.5 pt-1"
             >
               <label className="block text-[11.5px] text-white/70">
                 E-mail
@@ -309,7 +309,7 @@ export function LoginPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.22, ease: motionEase }}
-              className="space-y-2.5 pt-0.5"
+              className="space-y-3.5 pt-1"
             >
               <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-[12px] text-white/85">
                 {verifiedEmail}
@@ -347,7 +347,7 @@ export function LoginPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.22, ease: motionEase }}
-              className="space-y-2.5 pt-0.5"
+              className="space-y-3.5 pt-1"
             >
               <input type="hidden" name="next" value={next} />
               <input type="hidden" name="email" value={verifiedEmail} />

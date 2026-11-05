@@ -325,6 +325,22 @@ export async function canManageOrganization(email: string, organizationId: strin
   return grant.companies.some((link) => isOrgProprietarioMemberRole(link.role));
 }
 
+/** Grant na organização (proprietário ou analista) — telas de formulário. */
+export async function canAccessOrganizationForLeadForms(
+  email: string,
+  organizationId: string,
+) {
+  const normalized = normalizeEmail(email);
+  if (isSystemAdminAccount(roleForEmail(normalized))) return true;
+  const grant = await prisma.accessGrant.findFirst({
+    where: {
+      organizationId,
+      email: { equals: normalized, mode: "insensitive" },
+    },
+  });
+  return grant != null;
+}
+
 export async function listCompanies(): Promise<CompanyAccount[]> {
   const companies = await prisma.company.findMany({
     orderBy: [{ organization: { name: "asc" } }, { name: "asc" }],

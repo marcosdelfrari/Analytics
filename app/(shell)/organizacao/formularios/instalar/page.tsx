@@ -9,12 +9,12 @@ import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { fetchLeadFormSnippet } from "@/lib/lead-form-embed";
-import { listLeadFormsForOrganization } from "@/lib/lead-forms-store";
-import { canAccessOrganizationWorkspace } from "@/lib/organization-access";
+import { loadLeadFormsWorkspace } from "@/lib/lead-forms-view";
 import {
-  ensureAdminLotusOrganization,
-  listOrganizationsForOwner,
-} from "@/lib/organizations-store";
+  canAccessLeadForms,
+  canRegisterResources,
+} from "@/lib/organization-access";
+import { ensureAdminLotusOrganization } from "@/lib/organizations-store";
 import { coletaOrigin } from "@/lib/fractal-origin";
 
 async function InstalarFormulariosContent({
@@ -26,7 +26,7 @@ async function InstalarFormulariosContent({
   const session = await getSession();
   if (authEnabled) {
     if (!session) redirect("/login");
-    if (!canAccessOrganizationWorkspace(session)) {
+    if (!canAccessLeadForms(session)) {
       redirect("/dashboard");
     }
     if (isSystemAdminAccount(session.role)) {
@@ -35,18 +35,18 @@ async function InstalarFormulariosContent({
   }
 
   const { org, form } = await searchParams;
-  const organizations = session
-    ? await listOrganizationsForOwner(session.email)
-    : [];
-  const selectedOrgId = org ?? organizations[0]?.id ?? null;
-  const activeOrg =
-    organizations.find((item) => item.id === selectedOrgId) ??
-    organizations[0] ??
-    null;
+  const canRegister = !session || canRegisterResources(session);
+  const workspace = session
+    ? await loadLeadFormsWorkspace({
+        email: session.email,
+        canRegister,
+        orgId: org,
+      })
+    : null;
 
-  const forms = activeOrg
-    ? await listLeadFormsForOrganization(activeOrg.id)
-    : [];
+  const organizations = workspace?.organizations ?? [];
+  const activeOrgId = workspace?.activeOrganizationId ?? null;
+  const forms = workspace?.forms ?? [];
   const selectedFormId =
     (form && forms.some((item) => item.id === form) ? form : null) ??
     forms[0]?.id ??
@@ -74,10 +74,12 @@ async function InstalarFormulariosContent({
       {organizations.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface px-6 py-10 shadow-sm">
           <h2 className="text-lg font-medium tracking-tight">
-            Nenhuma organização sob sua gestão
+            Nenhuma organização disponível
           </h2>
           <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
-            Só proprietários podem instalar formulários de lead.
+            {canRegister
+              ? "Crie e ative formulários na organização para gerar o script de instalação."
+              : "Os formulários das empresas liberadas para você aparecem aqui quando existirem."}
           </p>
         </section>
       ) : (
@@ -88,7 +90,7 @@ async function InstalarFormulariosContent({
                 Organização
               </span>
               {organizations.map((organization) => {
-                const active = organization.id === activeOrg?.id;
+                const active = organization.id === activeOrgId;
                 return (
                   <Link
                     key={organization.id}
@@ -105,7 +107,7 @@ async function InstalarFormulariosContent({
               })}
             </div>
             <Link
-              href={`/organizacao/formularios?org=${activeOrg?.id ?? ""}`}
+              href={`/organizacao/formularios?org=${activeOrgId ?? ""}`}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background/60 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:border-muted-foreground/40 hover:bg-surface-elevated hover:text-foreground"
             >
               <span>Criar formulário</span>
@@ -113,9 +115,9 @@ async function InstalarFormulariosContent({
             </Link>
           </div>
 
-          {activeOrg ? (
+          {activeOrgId ? (
             <InstallFormsPanel
-              organizationId={activeOrg.id}
+              organizationId={activeOrgId}
               forms={forms}
               selectedFormId={selectedFormId}
               snippetHtml={snippetHtml}

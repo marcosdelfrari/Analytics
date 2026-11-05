@@ -163,6 +163,18 @@ export function navSectionsForMode(
           icon: "leads",
           exact: true,
         },
+        {
+          href: "/organizacao/formularios",
+          label: "Criar formulário",
+          icon: "form-create",
+          exact: true,
+        },
+        {
+          href: "/organizacao/formularios/instalar",
+          label: "Instalar formulário",
+          icon: "form-install",
+          exact: true,
+        },
       ],
     });
     sections.push(analystReferenceSection());
@@ -252,6 +264,13 @@ export function mobileMenuItems(
   } else {
     items.push(
       mobileMenuItem("/organizacao/leads", "Leads", "leads", true),
+      mobileMenuItem("/organizacao/formularios", "Formulários", "form-create", true),
+      mobileMenuItem(
+        "/organizacao/formularios/instalar",
+        "Instalar formulário",
+        "form-install",
+        true,
+      ),
       mobileMenuItem("/parametros", "Parâmetros UTM", "params"),
     );
   }

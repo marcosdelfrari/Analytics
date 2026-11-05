@@ -14,31 +14,62 @@ import {
 } from "@/lib/lead-form-types";
 import {
   deleteLeadForm,
+  findLeadFormById,
   saveLeadForm,
 } from "@/lib/lead-forms-store";
-import { canManageOrganization } from "@/lib/organizations-store";
+import {
+  canAccessCompany,
+  canAccessOrganizationForLeadForms,
+} from "@/lib/organizations-store";
 
 export type LeadFormActionState =
   | { ok: true; formId: string }
   | { error: string }
   | null;
 
-async function requireOrganizationOwner(organizationId: string) {
-  if (!authEnabled) return;
+async function requireLeadFormsAccess(organizationId: string) {
+  if (!authEnabled) return null;
   const session = await getSession();
   if (!session) {
     redirect("/login");
   }
   if (isSystemAdminAccount(session.role)) {
-    return;
+    return session;
   }
-  if (!session.isProprietario) {
+  const canAccess = await canAccessOrganizationForLeadForms(
+    session.email,
+    organizationId,
+  );
+  if (!canAccess) {
     redirect("/dashboard");
   }
-  const canManage = await canManageOrganization(session.email, organizationId);
-  if (!canManage) {
-    redirect("/dashboard");
+  return session;
+}
+
+async function assertLeadFormCompanyAccess(
+  session: NonNullable<Awaited<ReturnType<typeof getSession>>> | null,
+  organizationId: string,
+  companyId: string | null,
+  formId?: string,
+) {
+  if (!session || isSystemAdminAccount(session.role) || session.isProprietario) {
+    return null;
   }
+  if (formId) {
+    const existing = await findLeadFormById(formId);
+    if (
+      existing &&
+      existing.organizationId === organizationId &&
+      existing.companyId &&
+      !(await canAccessCompany(session.email, existing.companyId))
+    ) {
+      return { error: "Sem permissão para editar este formulário." } as const;
+    }
+  }
+  if (companyId && !(await canAccessCompany(session.email, companyId))) {
+    return { error: "Sem permissão para vincular esta empresa." } as const;
+  }
+  return null;
 }
 
 function parseFields(raw: unknown): LeadFormFieldDef[] {
@@ -123,7 +154,14 @@ export async function upsertLeadFormAction(
   const draft = parseDraft(payload);
   if ("error" in draft) return { error: draft.error };
 
-  await requireOrganizationOwner(draft.organizationId);
+  const session = await requireLeadFormsAccess(draft.organizationId);
+  const companyError = await assertLeadFormCompanyAccess(
+    session,
+    draft.organizationId,
+    draft.companyId,
+    draft.id,
+  );
+  if (companyError) return companyError;
 
   const result = await saveLeadForm(draft);
   if ("error" in result) {
@@ -139,7 +177,15 @@ export async function removeLeadFormAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const organizationId = String(formData.get("organizationId") ?? "");
   if (!id || !organizationId) return;
-  await requireOrganizationOwner(organizationId);
+  const session = await requireLeadFormsAccess(organizationId);
+  const companyError = await assertLeadFormCompanyAccess(
+    session,
+    organizationId,
+    null,
+    id,
+  );
+  if (companyError) return;
+
   await deleteLeadForm(id, organizationId);
   revalidatePath("/organizacao/formularios");
   revalidatePath("/organizacao/formularios/instalar");

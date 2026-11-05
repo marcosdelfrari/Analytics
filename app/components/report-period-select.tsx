@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import {
   REPORT_PERIOD_OPTIONS,
   reportPeriodHref,
   type ReportPeriod,
 } from "@/lib/report-period";
+import { useReportsNavigation } from "@/app/components/reports-navigation-context";
 
 export function ReportPeriodSelect({
   period,
@@ -12,6 +15,8 @@ export function ReportPeriodSelect({
   period: ReportPeriod;
   plain?: boolean;
 }) {
+  const { beginNavigation } = useReportsNavigation();
+
   return (
     <div
       className={
@@ -29,6 +34,9 @@ export function ReportPeriodSelect({
             key={option.days}
             href={reportPeriodHref(option.days)}
             aria-current={selected ? "true" : undefined}
+            onClick={() => {
+              if (!selected) beginNavigation();
+            }}
             className={`rounded-md px-3 py-1 text-[11px] font-medium transition ${
               selected
                 ? "bg-surface-elevated text-foreground shadow-sm ring-1 ring-border"

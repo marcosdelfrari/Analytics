@@ -24,7 +24,7 @@ async function DocumentacaoPageContent() {
   return (
     <AppShellMain
       title="Guia"
-      subtitle="Analista consulta e exporta; proprietário cadastra"
+      subtitle="Papéis, menu e fluxos do painel Fractal"
       planActive={planActive}
     >
       <GuideContent />

@@ -8,12 +8,12 @@ import { AppShellMain } from "@/app/components/app-shell";
 import { AdminLoadingFallback } from "@/app/components/loading-fallbacks";
 import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
-import { listLeadFormsForOrganization } from "@/lib/lead-forms-store";
-import { canAccessOrganizationWorkspace } from "@/lib/organization-access";
+import { loadLeadFormsWorkspace } from "@/lib/lead-forms-view";
 import {
-  ensureAdminLotusOrganization,
-  listOrganizationsForOwner,
-} from "@/lib/organizations-store";
+  canAccessLeadForms,
+  canRegisterResources,
+} from "@/lib/organization-access";
+import { ensureAdminLotusOrganization } from "@/lib/organizations-store";
 
 async function FormulariosPageContent({
   searchParams,
@@ -24,7 +24,7 @@ async function FormulariosPageContent({
   const session = await getSession();
   if (authEnabled) {
     if (!session) redirect("/login");
-    if (!canAccessOrganizationWorkspace(session)) {
+    if (!canAccessLeadForms(session)) {
       redirect("/dashboard");
     }
     if (isSystemAdminAccount(session.role)) {
@@ -33,18 +33,17 @@ async function FormulariosPageContent({
   }
 
   const { org, form } = await searchParams;
-  const organizations = session
-    ? await listOrganizationsForOwner(session.email)
-    : [];
-  const selectedOrgId = org ?? organizations[0]?.id ?? null;
-  const activeOrg =
-    organizations.find((item) => item.id === selectedOrgId) ??
-    organizations[0] ??
-    null;
+  const canRegister = !session || canRegisterResources(session);
+  const workspace = session
+    ? await loadLeadFormsWorkspace({
+        email: session.email,
+        canRegister,
+        orgId: org,
+      })
+    : null;
 
-  const forms = activeOrg
-    ? await listLeadFormsForOrganization(activeOrg.id)
-    : [];
+  const organizations = workspace?.organizations ?? [];
+  const activeOrgId = workspace?.activeOrganizationId ?? null;
 
   return (
     <AppShellMain
@@ -54,10 +53,12 @@ async function FormulariosPageContent({
       {organizations.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface px-6 py-10 shadow-sm">
           <h2 className="text-lg font-medium tracking-tight">
-            Nenhuma organização sob sua gestão
+            Nenhuma organização disponível
           </h2>
           <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
-            Só proprietários podem criar formulários de lead para a organização.
+            {canRegister
+              ? "Cadastre empresas na organização para começar a criar formulários de lead."
+              : "Peça ao proprietário para liberar empresas na sua conta ou aguarde formulários nas empresas já liberadas."}
           </p>
         </section>
       ) : (
@@ -68,7 +69,7 @@ async function FormulariosPageContent({
                 Organização
               </span>
               {organizations.map((organization) => {
-                const active = organization.id === activeOrg?.id;
+                const active = organization.id === activeOrgId;
                 return (
                   <Link
                     key={organization.id}
@@ -84,23 +85,30 @@ async function FormulariosPageContent({
                 );
               })}
             </div>
-            <Link
-              href={`/organizacao?org=${activeOrg?.id ?? ""}`}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background/60 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:border-muted-foreground/40 hover:bg-surface-elevated hover:text-foreground"
-            >
-              <span aria-hidden>←</span>
-              <span>Voltar à organização</span>
-            </Link>
+            {canRegister ? (
+              <Link
+                href={`/organizacao?org=${activeOrgId ?? ""}`}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background/60 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:border-muted-foreground/40 hover:bg-surface-elevated hover:text-foreground"
+              >
+                <span aria-hidden>←</span>
+                <span>Voltar à organização</span>
+              </Link>
+            ) : (
+              <Link
+                href={`/organizacao/leads?org=${activeOrgId ?? ""}`}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background/60 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:border-muted-foreground/40 hover:bg-surface-elevated hover:text-foreground"
+              >
+                <span aria-hidden>←</span>
+                <span>Leads capturados</span>
+              </Link>
+            )}
           </div>
 
-          {activeOrg ? (
+          {workspace && activeOrgId ? (
             <LeadFormBuilder
-              organizationId={activeOrg.id}
-              companies={activeOrg.companies.map((company) => ({
-                id: company.id,
-                name: company.name,
-              }))}
-              forms={forms}
+              organizationId={activeOrgId}
+              companies={workspace.companies}
+              forms={workspace.forms}
               initialFormId={form ?? null}
             />
           ) : null}
