@@ -1,11 +1,15 @@
-import type { SiteTrafficPoint } from "@/lib/tracking-analytics";
+import {
+  shortChartAxisLabel,
+  shouldShowChartAxisLabel,
+} from "@/lib/chart-axis";
 import { formatNumber } from "@/lib/format";
+import type { SiteTrafficPoint } from "@/lib/tracking-analytics-shared";
 
 const WIDTH = 1000;
 const HEIGHT = 170;
 const PAD_X = 36;
 const PAD_TOP = 18;
-const LABEL_AREA = 24;
+const LABEL_AREA = 22;
 
 function plotHeight() {
   return HEIGHT - PAD_TOP - LABEL_AREA;
@@ -122,18 +126,22 @@ export function SiteTrafficChart({
             strokeDasharray="6 4"
             vectorEffect="non-scaling-stroke"
           />
-          {points.map((point, index) => (
-            <text
-              key={`${point.label}-${index}`}
-              x={xAt(index, points.length)}
-              y={HEIGHT - 6}
-              textAnchor="middle"
-              fill="currentColor"
-              fontSize={10}
-            >
-              {point.label}
-            </text>
-          ))}
+          {points.map((point, index) => {
+            if (!shouldShowChartAxisLabel(index, points.length)) return null;
+            return (
+              <text
+                key={`${point.label}-${index}`}
+                x={xAt(index, points.length)}
+                y={HEIGHT - 5}
+                textAnchor="middle"
+                fill="currentColor"
+                fontSize={7.5}
+                fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
+              >
+                {shortChartAxisLabel(point.label)}
+              </text>
+            );
+          })}
         </svg>
       </div>
     </section>

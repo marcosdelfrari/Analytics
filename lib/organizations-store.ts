@@ -26,6 +26,12 @@ export type OrganizationSummary = {
   name: string;
   companies: CompanyAccount[];
   grants: AccessGrantSummary[];
+  /**
+   * Quem está visualizando é proprietário da organização inteira
+   * (ou admin). Se false, a lista já vem limitada às empresas que
+   * esse usuário gerencia.
+   */
+  viewerIsOrgProprietario?: boolean;
 };
 
 export type AccessGrantSummary = {
@@ -162,18 +168,130 @@ async function accessGrantsForEmail(email: string) {
   });
 }
 
+function managedCompanyIdsForGrant(grant: AccessGrantSummary): string[] {
+  return Object.entries(grant.companyRoles)
+    .filter(([, role]) => isOrgProprietarioMemberRole(role))
+    .map(([companyId]) => companyId);
+}
+
+function grantTouchesCompanies(
+  grant: AccessGrantSummary,
+  companyIds: Set<string>,
+) {
+  if (grant.isOrgProprietario || grant.allCompanies) return true;
+  return grant.companyIds.some((id) => companyIds.has(id));
+}
+
+function projectGrantToManagedCompanies(
+  grant: AccessGrantSummary,
+  managedCompanyIds: Set<string>,
+): AccessGrantSummary {
+  if (grant.isOrgProprietario || grant.allCompanies) {
+    const companyIds = [...managedCompanyIds];
+    return {
+      ...grant,
+      // Escopo org-wide permanece no banco; na UI limitada o usuário
+      // aparece apenas nas empresas que o visualizador gerencia.
+      companyIds,
+      companyRoles: Object.fromEntries(
+        companyIds.map((id) => [
+          id,
+          (grant.companyRoles[id] as OrgMemberRoleType) ??
+            OrgMemberRole.analista,
+        ]),
+      ),
+    };
+  }
+
+  const companyIds = grant.companyIds.filter((id) => managedCompanyIds.has(id));
+  return {
+    ...grant,
+    companyIds,
+    companyRoles: Object.fromEntries(
+      companyIds.map((id) => [
+        id,
+        (grant.companyRoles[id] as OrgMemberRoleType) ?? OrgMemberRole.analista,
+      ]),
+    ),
+  };
+}
+
+/**
+ * Organizações sob gestão do e-mail. Proprietário da org vê tudo;
+ * proprietário só de empresa(s) vê apenas essas empresas e os usuários
+ * ligados a elas (sem vazar outras empresas da mesma organização).
+ */
 export async function listOrganizationsForOwner(
   email: string,
 ): Promise<OrganizationSummary[]> {
   const normalized = normalizeEmail(email);
   const all = await listOrganizations();
-  return all.filter((org) =>
-    org.grants.some(
-      (grant) =>
-        normalizeEmail(grant.email) === normalized &&
-        hasProprietarioAccess(grant),
-    ),
-  );
+  const scoped: OrganizationSummary[] = [];
+
+  for (const org of all) {
+    const viewerGrant = org.grants.find(
+      (grant) => normalizeEmail(grant.email) === normalized,
+    );
+    if (!viewerGrant || !hasProprietarioAccess(viewerGrant)) continue;
+
+    if (viewerGrant.isOrgProprietario) {
+      scoped.push({ ...org, viewerIsOrgProprietario: true });
+      continue;
+    }
+
+    const managedIds = new Set(managedCompanyIdsForGrant(viewerGrant));
+    if (managedIds.size === 0) continue;
+
+    const companies = org.companies.filter((company) =>
+      managedIds.has(company.id),
+    );
+    const grants = org.grants
+      .filter((grant) => grantTouchesCompanies(grant, managedIds))
+      .map((grant) => projectGrantToManagedCompanies(grant, managedIds));
+
+    scoped.push({
+      ...org,
+      companies,
+      grants,
+      viewerIsOrgProprietario: false,
+    });
+  }
+
+  return scoped;
+}
+
+/** Escopo de gestão do e-mail em uma organização (null = sem gestão). */
+export async function getOrganizationManagementScope(
+  email: string,
+  organizationId: string,
+): Promise<{
+  isOrgWide: boolean;
+  managedCompanyIds: string[] | null;
+} | null> {
+  const normalized = normalizeEmail(email);
+  if (isSystemAdminAccount(roleForEmail(normalized))) {
+    return { isOrgWide: true, managedCompanyIds: null };
+  }
+
+  const grant = await prisma.accessGrant.findFirst({
+    where: {
+      organizationId,
+      email: { equals: normalized, mode: "insensitive" },
+    },
+    include: { companies: true },
+  });
+  if (!grant) return null;
+
+  if (grant.isOrgProprietario) {
+    return { isOrgWide: true, managedCompanyIds: null };
+  }
+
+  const managedCompanyIds = grant.companies
+    .filter((link) => isOrgProprietarioMemberRole(link.role))
+    .map((link) => link.companyId);
+  if (managedCompanyIds.length === 0) return null;
+
+  return { isOrgWide: false, managedCompanyIds };
 }
 
 /**
@@ -722,6 +840,8 @@ export async function updateOrganizationUserConfiguration(input: {
   companyRoles?: Record<string, OrgMemberRoleType>;
   newPassword?: string;
   allowOwnerChange?: boolean;
+  /** Quando informado, só altera vínculos nessas empresas (preserva o resto). */
+  actorManagedCompanyIds?: string[] | null;
 }) {
   const grant = await prisma.accessGrant.findUnique({
     where: { id: input.grantId },
@@ -746,33 +866,64 @@ export async function updateOrganizationUserConfiguration(input: {
   const role: Role = roleForEmail(email);
   const cleanName = (input.name ?? "").trim();
   const passwordHash = rawPassword ? await hashPassword(rawPassword) : undefined;
+  const limitedScope = Array.isArray(input.actorManagedCompanyIds);
+  const actorManaged = new Set(input.actorManagedCompanyIds ?? []);
+
+  if (limitedScope) {
+    if (grant.isOrgProprietario || grant.allCompanies) {
+      return {
+        error:
+          "Você não pode alterar o escopo de usuários com acesso a toda a organização.",
+      } as const;
+    }
+    if (input.isOrgProprietario === true || input.allCompanies === true) {
+      return {
+        error:
+          "Proprietários de empresa não podem conceder acesso a toda a organização.",
+      } as const;
+    }
+  }
 
   const isPlatformAdminSelfOwner =
     email === normalizeEmail(adminEmail) && grant.isOrgProprietario;
 
-  const nextIsOwner = isPlatformAdminSelfOwner
-    ? true
-    : input.allowOwnerChange && typeof input.isOrgProprietario === "boolean"
-      ? input.isOrgProprietario
-      : grant.isOrgProprietario;
+  const nextIsOwner = limitedScope
+    ? grant.isOrgProprietario
+    : isPlatformAdminSelfOwner
+      ? true
+      : input.allowOwnerChange && typeof input.isOrgProprietario === "boolean"
+        ? input.isOrgProprietario
+        : grant.isOrgProprietario;
 
-  const nextAllCompanies = nextIsOwner
-    ? true
-    : typeof input.allCompanies === "boolean"
-      ? input.allCompanies
-      : grant.allCompanies;
+  const nextAllCompanies = limitedScope
+    ? grant.allCompanies
+    : nextIsOwner
+      ? true
+      : typeof input.allCompanies === "boolean"
+        ? input.allCompanies
+        : grant.allCompanies;
 
   const orgCompanyIds = new Set(grant.organization.companies.map((c) => c.id));
+  const existingCompanyIds = grant.companies.map((c) => c.companyId);
+  const requestedIds = [
+    ...new Set(input.companyIds ?? existingCompanyIds),
+  ].filter((id) => orgCompanyIds.has(id));
+
   const selectedCompanyIds = nextAllCompanies
     ? []
-    : [...new Set(input.companyIds ?? grant.companies.map((c) => c.companyId))].filter(
-        (id) => orgCompanyIds.has(id),
-      );
+    : limitedScope
+      ? [
+          ...existingCompanyIds.filter((id) => !actorManaged.has(id)),
+          ...requestedIds.filter((id) => actorManaged.has(id)),
+        ]
+      : requestedIds;
 
   const roleForCompany = (companyId: string): OrgMemberRoleType => {
-    const provided = input.companyRoles?.[companyId];
-    if (provided !== undefined) {
-      return parseOrgMemberRole(provided);
+    if (!limitedScope || actorManaged.has(companyId)) {
+      const provided = input.companyRoles?.[companyId];
+      if (provided !== undefined) {
+        return parseOrgMemberRole(provided);
+      }
     }
     const existing = grant.companies.find((c) => c.companyId === companyId);
     return (existing?.role as OrgMemberRoleType) ?? OrgMemberRole.analista;

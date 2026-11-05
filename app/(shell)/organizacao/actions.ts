@@ -9,10 +9,10 @@ import { parseOrgMemberRole } from "@/lib/company-access-role";
 import {
   addCompaniesToAccessGrant,
   associateFlowCompanyAndGrant,
-  canManageOrganization,
   createAccessGrant,
   createCompany,
   deleteAccessGrant,
+  getOrganizationManagementScope,
   resetOrganizationUserPassword,
   setAccessGrantAllCompanies,
   setAccessGrantCompanyRole,
@@ -23,23 +23,74 @@ import { prisma } from "@/lib/prisma";
 
 export type FormState = { error: string } | null;
 
-async function requireOrganizationOwnerOrAdmin(organizationId: string) {
-  if (!authEnabled) return { isAdmin: true };
+type OrgManagerContext = {
+  isAdmin: boolean;
+  isOrgWide: boolean;
+  managedCompanyIds: string[] | null;
+  email: string | null;
+};
+
+function assertCanManageCompany(
+  ctx: OrgManagerContext,
+  companyId: string,
+): string | null {
+  if (ctx.isOrgWide || !ctx.managedCompanyIds) return null;
+  if (!ctx.managedCompanyIds.includes(companyId)) {
+    return "Você só pode gerenciar empresas das quais é proprietário.";
+  }
+  return null;
+}
+
+function assertCanManageCompanies(
+  ctx: OrgManagerContext,
+  companyIds: string[],
+): string | null {
+  for (const companyId of companyIds) {
+    const error = assertCanManageCompany(ctx, companyId);
+    if (error) return error;
+  }
+  return null;
+}
+
+async function requireOrganizationOwnerOrAdmin(
+  organizationId: string,
+): Promise<OrgManagerContext> {
+  if (!authEnabled) {
+    return {
+      isAdmin: true,
+      isOrgWide: true,
+      managedCompanyIds: null,
+      email: null,
+    };
+  }
   const session = await getSession();
   if (!session) {
     redirect("/login");
   }
   if (isSystemAdminAccount(session.role)) {
-    return { isAdmin: true };
+    return {
+      isAdmin: true,
+      isOrgWide: true,
+      managedCompanyIds: null,
+      email: session.email,
+    };
   }
   if (!session.isProprietario) {
     redirect("/dashboard");
   }
-  const canManage = await canManageOrganization(session.email, organizationId);
-  if (!canManage) {
+  const scope = await getOrganizationManagementScope(
+    session.email,
+    organizationId,
+  );
+  if (!scope) {
     redirect("/dashboard");
   }
-  return { isAdmin: false };
+  return {
+    isAdmin: false,
+    isOrgWide: scope.isOrgWide,
+    managedCompanyIds: scope.managedCompanyIds,
+    email: session.email,
+  };
 }
 
 export async function addCompanyToOrganization(
@@ -48,7 +99,13 @@ export async function addCompanyToOrganization(
 ): Promise<FormState> {
   const organizationId = String(formData.get("organizationId") ?? "");
   const basePath = String(formData.get("basePath") ?? "") || "/organizacao";
-  await requireOrganizationOwnerOrAdmin(organizationId);
+  const ctx = await requireOrganizationOwnerOrAdmin(organizationId);
+  if (!ctx.isOrgWide) {
+    return {
+      error:
+        "Apenas proprietários da organização podem incluir novas empresas.",
+    };
+  }
   const name = String(formData.get("name") ?? "").trim();
   const result = await createCompany({ organizationId, name });
   if ("error" in result) {
@@ -66,23 +123,37 @@ export async function addOrganizationAccess(
 ): Promise<FormState> {
   const organizationId = String(formData.get("organizationId") ?? "");
   const basePath = String(formData.get("basePath") ?? "") || "/organizacao";
-  await requireOrganizationOwnerOrAdmin(organizationId);
+  const ctx = await requireOrganizationOwnerOrAdmin(organizationId);
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
-  const isOrgProprietario = String(formData.get("isOwner") ?? "") === "true";
-  const companyIds = formData
-    .getAll("companyIds")
-    .map((value) => String(value));
+  let isOrgProprietario = String(formData.get("isOwner") ?? "") === "true";
+  let companyIds = formData.getAll("companyIds").map((value) => String(value));
   const companyRoles: Record<string, OrgMemberRole> = {};
   for (const companyId of companyIds) {
     companyRoles[companyId] = parseOrgMemberRole(
       formData.get(`companyRole_${companyId}`),
     );
   }
-  const allCompanies =
+  let allCompanies =
     isOrgProprietario ||
     String(formData.get("allCompanies") ?? "") === "true";
+
+  if (!ctx.isOrgWide) {
+    isOrgProprietario = false;
+    allCompanies = false;
+    companyIds = companyIds.filter((id) =>
+      (ctx.managedCompanyIds ?? []).includes(id),
+    );
+    if (companyIds.length === 0) {
+      return {
+        error: "Selecione ao menos uma empresa da qual você é proprietário.",
+      };
+    }
+  }
+
+  const companyScopeError = assertCanManageCompanies(ctx, companyIds);
+  if (companyScopeError) return { error: companyScopeError };
 
   const result = await createAccessGrant({
     organizationId,
@@ -111,7 +182,8 @@ export async function toggleUserCompanyAccess(formData: FormData) {
   const grantId = String(formData.get("grantId") ?? "");
   const companyId = String(formData.get("companyId") ?? "");
   if (!organizationId || !grantId || !companyId) return;
-  await requireOrganizationOwnerOrAdmin(organizationId);
+  const ctx = await requireOrganizationOwnerOrAdmin(organizationId);
+  if (assertCanManageCompany(ctx, companyId)) return;
 
   await toggleAccessGrantCompany({
     grantId,
@@ -133,7 +205,9 @@ export async function associateCompanyWithUserInFlow(input: {
   if (!organizationId || !companyId || !grantId) {
     return { ok: false, error: "Dados incompletos para associação." };
   }
-  await requireOrganizationOwnerOrAdmin(organizationId);
+  const ctx = await requireOrganizationOwnerOrAdmin(organizationId);
+  const scopeError = assertCanManageCompany(ctx, companyId);
+  if (scopeError) return { ok: false, error: scopeError };
 
   const result = await associateFlowCompanyAndGrant({
     organizationId,
@@ -156,7 +230,8 @@ export async function toggleUserAllCompaniesAccess(formData: FormData) {
   const grantId = String(formData.get("grantId") ?? "");
   const allCompanies = String(formData.get("allCompanies") ?? "") === "true";
   if (!organizationId || !grantId) return;
-  await requireOrganizationOwnerOrAdmin(organizationId);
+  const ctx = await requireOrganizationOwnerOrAdmin(organizationId);
+  if (!ctx.isOrgWide) return;
 
   await setAccessGrantAllCompanies({
     grantId,
@@ -177,7 +252,7 @@ export async function addCompaniesToUserGrant(
   const basePath = String(formData.get("basePath") ?? "") || "/organizacao";
   const grantId = String(formData.get("grantId") ?? "");
   const empresa = String(formData.get("empresa") ?? "");
-  await requireOrganizationOwnerOrAdmin(organizationId);
+  const ctx = await requireOrganizationOwnerOrAdmin(organizationId);
 
   const companyIds = formData.getAll("companyIds").map((value) => String(value));
   const singleCompanyId = String(formData.get("companyId") ?? "");
@@ -187,6 +262,9 @@ export async function addCompaniesToUserGrant(
       : singleCompanyId
         ? [singleCompanyId]
         : [];
+
+  const scopeError = assertCanManageCompanies(ctx, mergedIds);
+  if (scopeError) return { error: scopeError };
 
   const result = await addCompaniesToAccessGrant({
     grantId,
@@ -212,7 +290,8 @@ export async function updateUserCompanyAccessRole(formData: FormData) {
   const companyId = String(formData.get("companyId") ?? "");
   const role = parseOrgMemberRole(formData.get("role"));
   if (!organizationId || !grantId || !companyId) return;
-  await requireOrganizationOwnerOrAdmin(organizationId);
+  const ctx = await requireOrganizationOwnerOrAdmin(organizationId);
+  if (assertCanManageCompany(ctx, companyId)) return;
 
   await setAccessGrantCompanyRole({
     grantId,
@@ -232,11 +311,21 @@ export async function removeAccessGrant(formData: FormData) {
   const basePath = String(formData.get("basePath") ?? "") || "/organizacao";
   const empresa = String(formData.get("empresa") ?? "");
   if (!grantId || !org) return;
-  const { isAdmin } = await requireOrganizationOwnerOrAdmin(org);
+  const ctx = await requireOrganizationOwnerOrAdmin(org);
 
-  const grant = await prisma.accessGrant.findUnique({ where: { id: grantId } });
-  if (!grant || grant.organizationId !== org || (!isAdmin && grant.isOrgProprietario)) {
+  const grant = await prisma.accessGrant.findUnique({
+    where: { id: grantId },
+    include: { companies: true },
+  });
+  if (!grant || grant.organizationId !== org || (!ctx.isAdmin && grant.isOrgProprietario)) {
     return;
+  }
+
+  if (!ctx.isOrgWide) {
+    if (grant.allCompanies) return;
+    const managed = new Set(ctx.managedCompanyIds ?? []);
+    const outside = grant.companies.some((link) => !managed.has(link.companyId));
+    if (outside) return;
   }
 
   await deleteAccessGrant(grantId);
@@ -262,9 +351,7 @@ export async function saveUserFlowConfigAction(input: {
   if (!input.organizationId || !input.grantId) {
     return { ok: false, error: "Dados incompletos para atualizar o usuário." };
   }
-  const { isAdmin } = await requireOrganizationOwnerOrAdmin(
-    input.organizationId,
-  );
+  const ctx = await requireOrganizationOwnerOrAdmin(input.organizationId);
 
   const rawPassword = (input.newPassword ?? "").trim();
   const rawConfirm = (input.confirmPassword ?? "").trim();
@@ -289,7 +376,8 @@ export async function saveUserFlowConfigAction(input: {
     companyIds: input.companyIds,
     companyRoles: input.companyRoles,
     newPassword: rawPassword || undefined,
-    allowOwnerChange: isAdmin,
+    allowOwnerChange: ctx.isAdmin,
+    actorManagedCompanyIds: ctx.isOrgWide ? null : ctx.managedCompanyIds,
   });
 
   if ("error" in result) {
@@ -349,21 +437,39 @@ export async function removeUserFromOrgFlowAction(input: {
   if (!input.organizationId || !input.grantId) {
     return { ok: false, error: "Dados incompletos para remoção." };
   }
-  const { isAdmin } = await requireOrganizationOwnerOrAdmin(
-    input.organizationId,
-  );
+  const ctx = await requireOrganizationOwnerOrAdmin(input.organizationId);
 
   const grant = await prisma.accessGrant.findUnique({
     where: { id: input.grantId },
+    include: { companies: true },
   });
   if (!grant || grant.organizationId !== input.organizationId) {
     return { ok: false, error: "Acesso não encontrado nesta organização." };
   }
-  if (!isAdmin && grant.isOrgProprietario) {
+  if (!ctx.isAdmin && grant.isOrgProprietario) {
     return {
       ok: false,
       error: "Apenas o administrador da plataforma pode remover um proprietário.",
     };
+  }
+
+  if (!ctx.isOrgWide) {
+    if (grant.allCompanies) {
+      return {
+        ok: false,
+        error:
+          "Você não pode remover usuários com acesso a toda a organização.",
+      };
+    }
+    const managed = new Set(ctx.managedCompanyIds ?? []);
+    const outside = grant.companies.some((link) => !managed.has(link.companyId));
+    if (outside) {
+      return {
+        ok: false,
+        error:
+          "Este usuário também pertence a outras empresas. Remova apenas o vínculo da sua empresa.",
+      };
+    }
   }
 
   await deleteAccessGrant(grant.id);
@@ -372,4 +478,3 @@ export async function removeUserFromOrgFlowAction(input: {
   revalidatePath("/admin/usuarios");
   return { ok: true };
 }
-

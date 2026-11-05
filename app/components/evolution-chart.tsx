@@ -1,5 +1,9 @@
-import type { EvolutionPoint } from "@/lib/types";
+import {
+  shortChartAxisLabel,
+  shouldShowChartAxisLabel,
+} from "@/lib/chart-axis";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import type { EvolutionPoint } from "@/lib/types";
 
 const WIDTH = 1000;
 const HEIGHT = 170;
@@ -110,18 +114,22 @@ export function EvolutionChart({
             strokeDasharray="6 4"
             vectorEffect="non-scaling-stroke"
           />
-          {points.map((point, index) => (
-            <text
-              key={point.label}
-              x={xAt(index, points.length)}
-              y={HEIGHT - 6}
-              textAnchor="middle"
-              fill="currentColor"
-              fontSize={10}
-            >
-              {point.label}
-            </text>
-          ))}
+          {points.map((point, index) => {
+            if (!shouldShowChartAxisLabel(index, points.length)) return null;
+            return (
+              <text
+                key={point.label}
+                x={xAt(index, points.length)}
+                y={HEIGHT - 5}
+                textAnchor="middle"
+                fill="currentColor"
+                fontSize={7.5}
+                fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
+              >
+                {shortChartAxisLabel(point.label)}
+              </text>
+            );
+          })}
         </svg>
       </div>
     </section>

@@ -206,13 +206,23 @@ export function LeadFormPreview({ draft }: { draft: LeadFormDraft }) {
               ? "Ao mover o cursor para sair da página"
               : draft.kind === "whatsapp_button"
                 ? "Widget flutuante no canto do site"
-                : "Modal centralizado sobre a página"}
+                : draft.kind === "section"
+                  ? "Fixo em <section> no corpo da página"
+                  : "Modal centralizado sobre a página"}
           </span>
         </div>
 
-        <div className="my-auto flex items-center justify-center py-2">
+        <div
+          className={`my-auto flex py-2 ${
+            draft.kind === "section" ? "items-stretch" : "items-center justify-center"
+          }`}
+        >
           <div
-            className="w-full max-w-sm overflow-hidden rounded-2xl border shadow-[0_24px_70px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all"
+            className={`w-full overflow-hidden rounded-2xl border backdrop-blur-md transition-all ${
+              draft.kind === "section"
+                ? "max-w-xl shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
+                : "max-w-sm shadow-[0_24px_70px_rgba(0,0,0,0.35)]"
+            }`}
             style={{
               backgroundColor: surface.modalBg,
               color: surface.modalText,
@@ -275,15 +285,17 @@ export function LeadFormPreview({ draft }: { draft: LeadFormDraft }) {
                     </p>
                   ) : null}
                 </div>
-                <span
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px]"
-                  style={{
-                    borderColor: surface.fieldBorder,
-                    color: surface.modalMuted,
-                  }}
-                >
-                  ×
-                </span>
+                {draft.kind !== "section" ? (
+                  <span
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px]"
+                    style={{
+                      borderColor: surface.fieldBorder,
+                      color: surface.modalMuted,
+                    }}
+                  >
+                    ×
+                  </span>
+                ) : null}
               </div>
             </div>
 

@@ -127,15 +127,17 @@ function AuthShell({
   compact?: boolean;
 }) {
   return (
-    <main className="grid h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white lg:grid-cols-2">
-      <div className="flex min-h-0 flex-col border-white/[0.06] px-5 py-5 sm:px-10 sm:py-6 lg:border-r lg:px-10 xl:px-14 2xl:px-16">
-        <header className="flex shrink-0 justify-start pb-2 pt-1">
-          <BrandMark priority href="/" />
-        </header>
+    <main className="relative h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white">
+      <header className="absolute left-5 top-5 z-10 sm:left-8 sm:top-6 lg:left-10">
+        <BrandMark priority href="/" />
+      </header>
 
-        <div className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto py-3 [scrollbar-width:thin] sm:py-4">
-          <div className={`mx-auto w-full ${compact ? "max-w-[340px]" : "max-w-[360px]"}`}>
-            <div className="text-center">
+      <div className="flex h-full min-h-0 items-center justify-center overflow-y-auto px-5 py-16 [scrollbar-width:thin] sm:px-8 lg:px-10">
+        <div className="grid w-full max-w-[960px] items-center gap-8 lg:grid-cols-[minmax(0,22.5rem)_minmax(0,1fr)] lg:gap-12 xl:max-w-[1020px] xl:gap-14">
+          <div
+            className={`mx-auto w-full lg:mx-0 ${compact ? "max-w-[340px]" : "max-w-[360px]"}`}
+          >
+            <div className="text-center lg:text-left">
               <h1
                 className={`font-semibold leading-tight tracking-tight text-white ${
                   compact
@@ -146,10 +148,10 @@ function AuthShell({
                 {title}
               </h1>
               <p
-                className={`mx-auto mt-1.5 max-w-[32ch] text-white/60 ${
+                className={`mt-1.5 max-w-[32ch] text-white/60 ${
                   compact
-                    ? "text-[12px] leading-5"
-                    : "text-[12.5px] leading-5"
+                    ? "mx-auto text-[12px] leading-5 lg:mx-0"
+                    : "mx-auto text-[12.5px] leading-5 lg:mx-0"
                 }`}
               >
                 {description}
@@ -165,21 +167,23 @@ function AuthShell({
             </div>
 
             {footer ? (
-              <div className={`text-center ${compact ? "mt-3.5" : "mt-4"}`}>
+              <div
+                className={`text-center lg:text-left ${compact ? "mt-3.5" : "mt-4"}`}
+              >
                 {footer}
               </div>
             ) : null}
           </div>
+
+          <div className="hidden min-w-0 justify-center lg:flex lg:justify-start">
+            <AuthHeroShowcase />
+          </div>
         </div>
-
-        <footer className="shrink-0 pt-2 text-center text-[10.5px] text-white/30">
-          Fractal — Analytics para mídia paga
-        </footer>
       </div>
 
-      <div className="hidden min-h-0 items-center justify-center px-6 py-8 sm:px-10 lg:flex xl:px-14 2xl:px-20">
-        <AuthHeroShowcase />
-      </div>
+      <footer className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-[10.5px] text-white/30">
+        Fractal — Analytics para mídia paga
+      </footer>
     </main>
   );
 }
@@ -498,37 +502,37 @@ export function RegisterPanel({ next }: { next: string }) {
 
 export function AuthRouteLoading({ title }: { title: string }) {
   return (
-    <main className="grid h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white lg:grid-cols-2">
-      <div className="flex min-h-0 flex-col border-white/[0.06] px-5 py-5 sm:px-10 sm:py-6 lg:border-r lg:px-10 xl:px-14 2xl:px-16">
-        <header className="flex shrink-0 justify-start pb-2 pt-1">
-          <BrandMark priority href="/" />
-        </header>
+    <main className="relative h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white">
+      <header className="absolute left-5 top-5 z-10 sm:left-8 sm:top-6 lg:left-10">
+        <BrandMark priority href="/" />
+      </header>
 
-        <div className="flex min-h-0 flex-1 flex-col justify-center py-4">
-          <div className="mx-auto w-full max-w-[360px]">
-            <div className="text-center">
+      <div className="flex h-full min-h-0 items-center justify-center px-5 py-16 sm:px-8 lg:px-10">
+        <div className="grid w-full max-w-[960px] items-center gap-8 lg:grid-cols-[minmax(0,22.5rem)_minmax(0,1fr)] lg:gap-12 xl:max-w-[1020px] xl:gap-14">
+          <div className="mx-auto w-full max-w-[360px] lg:mx-0">
+            <div className="text-center lg:text-left">
               <h1 className="text-[1.55rem] font-semibold leading-tight tracking-tight text-white sm:text-[1.75rem]">
                 {title}
               </h1>
-              <div className="mx-auto mt-2 h-3.5 w-52 animate-pulse rounded bg-white/10" />
+              <div className="mx-auto mt-2 h-3.5 w-52 animate-pulse rounded bg-white/10 lg:mx-0" />
             </div>
 
             <div className="mt-5 space-y-2.5 rounded-2xl border border-white/10 bg-[#151513] p-4 sm:p-5">
               <div className="h-10 w-full animate-pulse rounded-lg bg-white/10" />
-              <div className="mx-auto h-2.5 w-16 animate-pulse rounded bg-white/5" />
+              <div className="mx-auto h-2.5 w-16 animate-pulse rounded bg-white/5 lg:mx-0" />
               <div className="h-9 w-full animate-pulse rounded-lg bg-white/5" />
             </div>
           </div>
+
+          <div className="hidden min-w-0 justify-center lg:flex lg:justify-start">
+            <div className="h-[min(72vh,28rem)] w-full max-w-[min(100%,32rem)] animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
+          </div>
         </div>
-
-        <footer className="shrink-0 pt-2 text-center text-[10.5px] text-white/30">
-          Fractal — Analytics para mídia paga
-        </footer>
       </div>
 
-      <div className="hidden min-h-0 items-center justify-center px-6 py-8 sm:px-10 lg:flex xl:px-14 2xl:px-20">
-        <div className="h-[min(72vh,28rem)] w-full max-w-[min(100%,32rem)] animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
-      </div>
+      <footer className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-[10.5px] text-white/30">
+        Fractal — Analytics para mídia paga
+      </footer>
     </main>
   );
 }

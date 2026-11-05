@@ -4,7 +4,7 @@ import { MetricCard } from "@/app/components/metric-card";
 import { PlatformCard } from "@/app/components/platform-card";
 import { TrackingReportPanel } from "@/app/components/tracking-report-panel";
 import type { DashboardData } from "@/lib/analytics";
-import type { SiteTrackingAnalytics } from "@/lib/tracking-analytics";
+import type { SiteTrackingAnalytics } from "@/lib/tracking-analytics-shared";
 import type { EvolutionPoint } from "@/lib/types";
 import {
   formatCurrency,
@@ -52,35 +52,43 @@ export function DashboardHome({
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-          <MetricCard
-            label="Investimento"
-            value={formatCurrency(dashboard.totals.spend)}
-          />
-          <MetricCard
-            label="Conversões"
-            value={formatNumber(dashboard.totals.conversions)}
-            tone="positive"
-          />
-          <MetricCard
-            label="CTR médio"
-            value={formatPercent(dashboard.totals.ctr, 2)}
-          />
-          <MetricCard
-            label="Custo / conv."
-            value={formatCurrencyDetailed(dashboard.totals.costPerConversion)}
-          />
-        </div>
-
-        {hasPublishedMedia && (
-          <div className="space-y-3 pt-1">
-            <div className="grid gap-2.5 lg:grid-cols-2">
-              {dashboard.summaries.map((summary) => (
-                <PlatformCard key={summary.platform} summary={summary} />
-              ))}
+        {hasPublishedMedia ? (
+          <>
+            <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+              <MetricCard
+                label="Investimento"
+                value={formatCurrency(dashboard.totals.spend)}
+              />
+              <MetricCard
+                label="Conversões (ads)"
+                value={formatNumber(dashboard.totals.conversions)}
+                tone="positive"
+              />
+              <MetricCard
+                label="CTR médio"
+                value={formatPercent(dashboard.totals.ctr, 2)}
+              />
+              <MetricCard
+                label="Custo / conv."
+                value={formatCurrencyDetailed(dashboard.totals.costPerConversion)}
+              />
             </div>
-            <EvolutionChart points={evolution} />
-          </div>
+
+            <div className="space-y-3 pt-1">
+              <div className="grid gap-2.5 lg:grid-cols-2">
+                {dashboard.summaries.map((summary) => (
+                  <PlatformCard key={summary.platform} summary={summary} />
+                ))}
+              </div>
+              <EvolutionChart points={evolution} />
+            </div>
+          </>
+        ) : (
+          <p className="rounded-xl border border-border bg-surface px-3.5 py-3 text-[12px] text-muted-foreground">
+            Investimento e CPA aparecem aqui quando houver relatório de Google ou
+            Meta publicado no painel. Enquanto isso, acompanhe visitas e conversões
+            do site abaixo.
+          </p>
         )}
       </section>
 

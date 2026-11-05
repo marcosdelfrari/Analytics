@@ -20,6 +20,25 @@ import {
 
 type CompanyOption = { id: string; name: string };
 
+function EditGlyph() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      className="h-3.5 w-3.5"
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"
+      />
+    </svg>
+  );
+}
+
 function FormPickerBar({
   forms,
   selectedId,
@@ -36,78 +55,96 @@ function FormPickerBar({
   const showDraft = selectedId === "new";
 
   return (
-    <div className="rounded-2xl border border-border bg-surface px-3 py-3 shadow-sm sm:px-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex shrink-0 items-center gap-2">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 px-4 py-3">
+        <div className="flex items-center gap-2">
           <span className="text-[12px] font-medium text-foreground">
-            Formulários
+            Formulários criados
           </span>
           <span className="rounded-full bg-surface-elevated px-2 py-0.5 font-mono text-[10.5px] text-muted-foreground">
             {forms.length}
           </span>
         </div>
-
-        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-0.5 [scrollbar-width:thin]">
-          {showDraft ? (
-            <button
-              type="button"
-              onClick={() => onSelect("new")}
-              className="inline-flex max-w-[220px] shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-surface-elevated px-3 py-2 text-left shadow-sm"
-            >
-              <span className="truncate text-[12px] font-medium">
-                {draft.name.trim() || "Novo formulário"}
-              </span>
-              <span className="shrink-0 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-medium text-amber-300">
-                Rascunho
-              </span>
-            </button>
-          ) : null}
-
-          {forms.length === 0 && !showDraft ? (
-            <span className="text-[12px] text-muted">
-              Nenhum formulário salvo ainda.
-            </span>
-          ) : (
-            forms.map((form) => {
-              const active = selectedId === form.id;
-              return (
-                <button
-                  key={form.id}
-                  type="button"
-                  onClick={() => onSelect(form.id)}
-                  title={form.name}
-                  className={`inline-flex max-w-[240px] shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-left transition ${
-                    active
-                      ? "border-white/15 bg-surface-elevated shadow-sm"
-                      : "border-transparent bg-background/50 hover:border-border hover:bg-surface-elevated/70"
-                  }`}
-                >
-                  <span
-                    className={`h-2 w-2 shrink-0 rounded-full ${
-                      form.active ? "bg-positive" : "bg-muted/50"
-                    }`}
-                    aria-hidden
-                  />
-                  <span className="min-w-0 truncate text-[12px] font-medium">
-                    {form.name}
-                  </span>
-                  <span className="hidden shrink-0 text-[10px] text-muted sm:inline">
-                    {LEAD_FORM_KIND_LABELS[form.kind]}
-                  </span>
-                </button>
-              );
-            })
-          )}
-        </div>
-
         <button
           type="button"
           onClick={onNew}
           className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-foreground px-3 py-2 text-[12px] font-medium text-background transition hover:opacity-90"
         >
           <span aria-hidden>+</span>
-          <span>Novo</span>
+          <span>Novo formulário</span>
         </button>
+      </div>
+
+      <div className="divide-y divide-border-subtle">
+        {showDraft ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-amber-400/[0.04] px-4 py-3">
+            <div className="min-w-0">
+              <p className="truncate text-[12.5px] font-medium text-foreground">
+                {draft.name.trim() || "Novo formulário"}
+              </p>
+              <p className="mt-0.5 text-[11px] text-muted">
+                Rascunho · ainda não salvo
+              </p>
+            </div>
+            <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[10.5px] font-medium text-amber-300">
+              Editando rascunho
+            </span>
+          </div>
+        ) : null}
+
+        {forms.length === 0 && !showDraft ? (
+          <p className="px-4 py-5 text-[12.5px] text-muted">
+            Nenhum formulário salvo ainda. Crie o primeiro com o botão acima.
+          </p>
+        ) : (
+          forms.map((form) => {
+            const active = selectedId === form.id;
+            return (
+              <div
+                key={form.id}
+                className={`flex flex-wrap items-center justify-between gap-3 px-4 py-3 transition ${
+                  active ? "bg-surface-elevated/70" : "hover:bg-surface-elevated/40"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => onSelect(form.id)}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <span className="flex items-center gap-2">
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full ${
+                        form.active ? "bg-positive" : "bg-muted/50"
+                      }`}
+                      aria-hidden
+                    />
+                    <span className="truncate text-[12.5px] font-medium text-foreground">
+                      {form.name}
+                    </span>
+                  </span>
+                  <span className="mt-0.5 block pl-4 text-[11px] text-muted">
+                    {LEAD_FORM_KIND_LABELS[form.kind]}
+                    {form.companyName ? ` · ${form.companyName}` : " · organização"}
+                    {form.active ? "" : " · pausado"}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onSelect(form.id)}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[12px] font-medium transition ${
+                    active
+                      ? "border-white/20 bg-foreground text-background"
+                      : "border-border bg-background/60 text-muted-foreground hover:border-white/20 hover:bg-surface-elevated hover:text-foreground"
+                  }`}
+                >
+                  <EditGlyph />
+                  {active ? "Editando" : "Editar"}
+                </button>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
@@ -149,9 +186,12 @@ export function LeadFormBuilder({
     if (state && "ok" in state && state.ok) {
       setSelectedId(state.formId);
       setDraft((current) => ({ ...current, id: state.formId }));
+      router.replace(
+        `/organizacao/formularios?org=${organizationId}&form=${state.formId}`,
+      );
       router.refresh();
     }
-  }, [state, router]);
+  }, [state, router, organizationId]);
 
   const payload = useMemo(() => JSON.stringify(draft), [draft]);
 
@@ -159,10 +199,16 @@ export function LeadFormBuilder({
     setSelectedId(id);
     if (id === "new") {
       setDraft(defaultLeadFormDraft(organizationId, companies[0]?.id ?? null));
+      router.replace(`/organizacao/formularios?org=${organizationId}`);
       return;
     }
     const found = forms.find((item) => item.id === id);
-    if (found) setDraft({ ...found });
+    if (found) {
+      setDraft({ ...found });
+      router.replace(
+        `/organizacao/formularios?org=${organizationId}&form=${id}`,
+      );
+    }
   }
 
   const isNew = selectedId === "new" && !draft.id;
@@ -233,7 +279,8 @@ export function LeadFormBuilder({
             ) : null}
             {state && "ok" in state && state.ok ? (
               <div className="mx-6 mt-4 rounded-xl border border-positive/30 bg-positive/10 px-4 py-2.5 text-[12px] text-positive">
-                Formulário salvo com sucesso!
+                Formulário salvo. Você pode continuar editando ou instalar no
+                site.
               </div>
             ) : null}
 

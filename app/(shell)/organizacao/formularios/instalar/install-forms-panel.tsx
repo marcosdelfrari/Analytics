@@ -127,9 +127,17 @@ export function InstallFormsPanel({
                 <div>
                   <h2 className="text-sm font-medium">Como instalar</h2>
                   <p className="text-[12px] text-muted">
-                    Cole o script antes de{" "}
-                    <code className="font-mono text-[11px]">&lt;/body&gt;</code>{" "}
-                    no site. O arquivo é servido pela Fractal API (
+                    {selected.kind === "section"
+                      ? "Cole a seção e o script no ponto da página onde o formulário deve aparecer. "
+                      : "Cole o script antes de "}
+                    {selected.kind === "section" ? null : (
+                      <>
+                        <code className="font-mono text-[11px]">
+                          &lt;/body&gt;
+                        </code>{" "}
+                      </>
+                    )}
+                    O arquivo é servido pela Fractal API (
                     <code className="font-mono text-[11px]">{apiOrigin}</code>
                     ).
                   </p>
@@ -173,15 +181,39 @@ export function InstallFormsPanel({
                 <li>Ative o formulário na tela Criar (status verde).</li>
                 <li>Copie o script gerado pela Fractal API acima.</li>
                 <li>
-                  Cole no HTML do site do cliente, preferencialmente antes de{" "}
-                  <code className="font-mono text-[11px] text-foreground">
-                    &lt;/body&gt;
-                  </code>
-                  .
+                  {selected.kind === "section" ? (
+                    <>
+                      Cole a{" "}
+                      <code className="font-mono text-[11px] text-foreground">
+                        &lt;section id=&quot;fractal-lead-form&quot;&gt;
+                      </code>{" "}
+                      no corpo da página (onde o formulário deve ficar fixo) e o{" "}
+                      <code className="font-mono text-[11px] text-foreground">
+                        &lt;script&gt;
+                      </code>{" "}
+                      em seguida.
+                    </>
+                  ) : (
+                    <>
+                      Cole no HTML do site do cliente, preferencialmente antes de{" "}
+                      <code className="font-mono text-[11px] text-foreground">
+                        &lt;/body&gt;
+                      </code>
+                      .
+                    </>
+                  )}
                 </li>
                 <li>
-                  Opcional: no mesmo site, instale também o tracker Fractal
-                  (menu Script) para atribuir a campanha ao envio do formulário.
+                  Instale também o tracker Fractal (menu Script) no mesmo site
+                  para disparar{" "}
+                  <code className="font-mono text-[11px] text-foreground">
+                    lead_form_submit
+                  </code>{" "}
+                  e a conversão{" "}
+                  <code className="font-mono text-[11px] text-foreground">
+                    contato
+                  </code>{" "}
+                  com atribuição de campanha.
                 </li>
               </ol>
             </section>

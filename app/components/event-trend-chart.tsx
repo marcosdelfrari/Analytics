@@ -1,5 +1,9 @@
-import type { EventTrendData } from "@/lib/tracking-analytics";
+import {
+  shortChartAxisLabel,
+  shouldShowChartAxisLabel,
+} from "@/lib/chart-axis";
 import { formatNumber } from "@/lib/format";
+import type { EventTrendData } from "@/lib/tracking-analytics-shared";
 
 const WIDTH = 1000;
 const HEIGHT = 170;
@@ -132,18 +136,24 @@ export function EventTrendChart({
               vectorEffect="non-scaling-stroke"
             />
           ))}
-          {trend.points.map((point, index) => (
-            <text
-              key={`${point.label}-${index}`}
-              x={xAt(index, trend.points.length)}
-              y={HEIGHT - 6}
-              textAnchor="middle"
-              fill="currentColor"
-              fontSize={10}
-            >
-              {point.label}
-            </text>
-          ))}
+          {trend.points.map((point, index) => {
+            if (!shouldShowChartAxisLabel(index, trend.points.length)) {
+              return null;
+            }
+            return (
+              <text
+                key={`${point.label}-${index}`}
+                x={xAt(index, trend.points.length)}
+                y={HEIGHT - 5}
+                textAnchor="middle"
+                fill="currentColor"
+                fontSize={7.5}
+                fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
+              >
+                {shortChartAxisLabel(point.label)}
+              </text>
+            );
+          })}
         </svg>
       </div>
     </section>

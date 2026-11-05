@@ -60,8 +60,8 @@ const benefits = [
     index: "03",
     title: "Formulários de captura de leads",
     description:
-      "Crie formulários no formato botão flutuante de WhatsApp, popup ou intenção de saída. Cada lead capturado já chega com a campanha, anúncio e UTM de origem.",
-    points: ["Botão WhatsApp", "Popup e saída", "Atribuição UTM"],
+      "Crie formulários no formato botão flutuante de WhatsApp, popup, intenção de saída ou corpo em seção. Cada lead capturado já chega com a campanha, anúncio e UTM de origem.",
+    points: ["Botão WhatsApp", "Popup, saída e corpo", "Atribuição UTM"],
   },
   {
     index: "04",

@@ -1,7 +1,16 @@
-import type { Platform } from "@/lib/types";
+import {
+  dateKeyToUtc,
+  eachDateKey,
+  formatRangeLabel,
+  trackingWindowFor,
+  windowFromDays,
+  type ReportPeriod,
+  type TrackingWindow,
+} from "@/lib/report-period";
 import {
   listAttributionBreakdownFromHits,
   listAttributionForPlatform,
+  listClientBreakdown,
   listDailyMetrics,
   listEventBreakdownForPlatform,
   listEventBreakdownFromHits,
@@ -11,94 +20,37 @@ import {
   listPathFlowBreakdown,
   trackingSiteForCompany,
 } from "@/lib/tracking";
+import {
+  toEventShareRows,
+  type EventBreakdownRow,
+  type EventPlatformMixRow,
+  type EventTrendData,
+  type SiteTrackingAnalytics,
+} from "@/lib/tracking-analytics-shared";
+import { totalConversionsFromEvents } from "@/lib/tracking-events";
+
+export type {
+  AttributionBreakdownRow,
+  ClientBreakdownRow,
+  EventBreakdownRow,
+  EventPlatformMixRow,
+  EventShareRow,
+  EventTrendData,
+  EventTrendPoint,
+  PathBreakdownRow,
+  PathFlowRow,
+  SiteTrackingAnalytics,
+  SiteTrafficPoint,
+} from "@/lib/tracking-analytics-shared";
+export { toEventShareRows } from "@/lib/tracking-analytics-shared";
 
 const TOP_EVENT_SERIES = 5;
-
-export type SiteTrafficPoint = {
-  label: string;
-  pageviews: number;
-  events: number;
-  visitors: number;
-};
-
-export type EventBreakdownRow = {
-  name: string;
-  count: number;
-};
-
-export type EventShareRow = EventBreakdownRow & {
-  share: number;
-};
-
-export type EventPlatformMixRow = EventShareRow & {
-  google: number;
-  meta: number;
-  other: number;
-};
-
-export type EventTrendPoint = {
-  label: string;
-  values: number[];
-};
-
-export type EventTrendData = {
-  names: string[];
-  points: EventTrendPoint[];
-};
-
-export type AttributionBreakdownRow = {
-  source: string;
-  medium: string;
-  campaign: string;
-  pageviews: number;
-  events: number;
-};
-
-export type PathBreakdownRow = {
-  path: string;
-  pageviews: number;
-  events: number;
-  landings: number;
-};
-
-export type PathFlowRow = {
-  fromPath: string;
-  path: string;
-  count: number;
-};
-
-export type SiteTrackingAnalytics = {
-  ready: boolean;
-  period: string;
-  totals: {
-    pageviews: number;
-    events: number;
-    visitors: number;
-    eventRate: number;
-    eventsPerVisit: number;
-  };
-  topEvent: EventShareRow | null;
-  points: SiteTrafficPoint[];
-  eventsByName: EventBreakdownRow[];
-  eventShare: EventShareRow[];
-  eventPlatformMix: EventPlatformMixRow[];
-  eventTrend: EventTrendData;
-  byPath: PathBreakdownRow[];
-  byPathFlow: PathFlowRow[];
-  byAttribution: AttributionBreakdownRow[];
-  byPlatform: Record<
-    Platform,
-    {
-      attribution: AttributionBreakdownRow[];
-      eventsByName: EventBreakdownRow[];
-    }
-  >;
-};
 
 function formatDayLabel(value: Date) {
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "short",
+    timeZone: "UTC",
   }).format(value);
 }
 
@@ -106,12 +58,8 @@ function utcDayKey(value: Date) {
   return value.toISOString().slice(0, 10);
 }
 
-export function toEventShareRows(rows: EventBreakdownRow[]): EventShareRow[] {
-  const total = rows.reduce((sum, row) => sum + row.count, 0);
-  return rows.map((row) => ({
-    ...row,
-    share: total > 0 ? (row.count / total) * 100 : 0,
-  }));
+function resolvePeriod(period: ReportPeriod | number): ReportPeriod {
+  return typeof period === "number" ? { kind: "days", days: period } : period;
 }
 
 function mixEventPlatforms(
@@ -153,9 +101,8 @@ function mixEventPlatforms(
   });
 }
 
-function uniqueDays(rows: { day: Date }[]) {
-  const keys = [...new Set(rows.map((row) => utcDayKey(row.day)))].sort();
-  return keys.map((key) => new Date(`${key}T00:00:00.000Z`));
+function axisDaysFor(window: TrackingWindow) {
+  return eachDateKey(window.from, window.to).map((key) => dateKeyToUtc(key));
 }
 
 function buildEventTrend(
@@ -187,10 +134,13 @@ function emptyAnalytics(): SiteTrackingAnalytics {
   return {
     ready: false,
     period: "Script de rastreamento",
+    range: windowFromDays(14),
     totals: {
       pageviews: 0,
       events: 0,
       visitors: 0,
+      conversions: 0,
+      conversionRate: 0,
       eventRate: 0,
       eventsPerVisit: 0,
     },
@@ -202,71 +152,90 @@ function emptyAnalytics(): SiteTrackingAnalytics {
     eventTrend: { names: [], points: [] },
     byPath: [],
     byPathFlow: [],
+    byDevice: [],
+    byBrowser: [],
     byAttribution: [],
     byPlatform: {
       google: { attribution: [], eventsByName: [] },
       meta: { attribution: [], eventsByName: [] },
+      other: { attribution: [], eventsByName: [] },
+      none: { attribution: [], eventsByName: [] },
     },
   };
 }
 
 export async function loadSiteTrackingAnalytics(
   companyId: string,
-  days = 14,
+  period: ReportPeriod | number = 14,
 ): Promise<SiteTrackingAnalytics> {
   const empty = emptyAnalytics();
   const site = await trackingSiteForCompany(companyId);
   if (!site) return empty;
 
+  const window = trackingWindowFor(resolvePeriod(period));
   const [
     rows,
     eventsByName,
     byAttribution,
     googleAttribution,
     metaAttribution,
+    otherAttribution,
+    noneAttribution,
     googleEvents,
     metaEvents,
+    otherEvents,
+    noneEvents,
     eventDaily,
     eventPlatform,
     byPath,
     byPathFlow,
+    byDevice,
+    byBrowser,
   ] = await Promise.all([
-    listDailyMetrics(site.id, days),
-    listEventBreakdownFromHits(site.id, days),
-    listAttributionBreakdownFromHits(site.id, days),
-    listAttributionForPlatform(site.id, "google", days),
-    listAttributionForPlatform(site.id, "meta", days),
-    listEventBreakdownForPlatform(site.id, "google", days),
-    listEventBreakdownForPlatform(site.id, "meta", days),
-    listEventDailySeries(site.id, days),
-    listEventPlatformBreakdown(site.id, days),
-    listPathBreakdown(site.id, days),
-    listPathFlowBreakdown(site.id, days),
+    listDailyMetrics(site.id, window),
+    listEventBreakdownFromHits(site.id, window),
+    listAttributionBreakdownFromHits(site.id, window),
+    listAttributionForPlatform(site.id, "google", window),
+    listAttributionForPlatform(site.id, "meta", window),
+    listAttributionForPlatform(site.id, "other", window),
+    listAttributionForPlatform(site.id, "none", window),
+    listEventBreakdownForPlatform(site.id, "google", window),
+    listEventBreakdownForPlatform(site.id, "meta", window),
+    listEventBreakdownForPlatform(site.id, "other", window),
+    listEventBreakdownForPlatform(site.id, "none", window),
+    listEventDailySeries(site.id, window),
+    listEventPlatformBreakdown(site.id, window),
+    listPathBreakdown(site.id, window),
+    listPathFlowBreakdown(site.id, window),
+    listClientBreakdown(site.id, window, "device"),
+    listClientBreakdown(site.id, window, "browser"),
   ]);
 
   const byPlatform: SiteTrackingAnalytics["byPlatform"] = {
     google: { attribution: googleAttribution, eventsByName: googleEvents },
     meta: { attribution: metaAttribution, eventsByName: metaEvents },
+    other: { attribution: otherAttribution, eventsByName: otherEvents },
+    none: { attribution: noneAttribution, eventsByName: noneEvents },
   };
 
   const eventShare = toEventShareRows(eventsByName);
   const eventPlatformMix = mixEventPlatforms(eventsByName, eventPlatform);
-  const chronological = [...rows].reverse();
-  const axisDays =
-    chronological.length > 0
-      ? chronological.map((row) => row.day)
-      : uniqueDays(eventDaily);
+  const axisDays = axisDaysFor(window);
   const eventTrend = buildEventTrend(
     eventShare.slice(0, TOP_EVENT_SERIES).map((row) => row.name),
     axisDays,
     eventDaily,
   );
-  const points = chronological.map((row) => ({
-    label: formatDayLabel(row.day),
-    pageviews: row.pageviews,
-    events: row.events,
-    visitors: row.visitors,
-  }));
+  const byDay = new Map(rows.map((row) => [utcDayKey(row.day), row]));
+  const points = axisDays.map((day) => {
+    const row = byDay.get(utcDayKey(day));
+    return {
+      label: formatDayLabel(day),
+      pageviews: row?.pageviews ?? 0,
+      events: row?.events ?? 0,
+      visitors: row?.visitors ?? 0,
+    };
+  });
   const totalsBase = points.reduce(
     (acc, point) => ({
       pageviews: acc.pageviews + point.pageviews,
@@ -279,31 +248,28 @@ export async function loadSiteTrackingAnalytics(
     totalsBase.events > 0
       ? totalsBase.events
       : eventShare.reduce((sum, row) => sum + row.count, 0);
+  const conversions = totalConversionsFromEvents(eventsByName);
+  const conversionRate =
+    totalsBase.pageviews > 0
+      ? (conversions / totalsBase.pageviews) * 100
+      : 0;
   const eventRate =
     totalsBase.pageviews > 0 ? (eventsTotal / totalsBase.pageviews) * 100 : 0;
   const eventsPerVisit =
     totalsBase.pageviews > 0 ? eventsTotal / totalsBase.pageviews : 0;
-  const first = chronological[0]?.day;
-  const last = chronological[chronological.length - 1]?.day;
   const emptySuffix = rows.length === 0 ? " · aguardando visitas" : "";
-  const periodFallback =
-    days === 1
-      ? `Último dia${emptySuffix}`
-      : `Últimos ${days} dias${emptySuffix}`;
-  const period =
-    first && last
-      ? first.getTime() === last.getTime()
-        ? formatDayLabel(first)
-        : `${formatDayLabel(first)} – ${formatDayLabel(last)}`
-      : periodFallback;
+  const periodLabel = `${formatRangeLabel(window.from, window.to)}${emptySuffix}`;
 
   return {
     ready: true,
-    period,
+    period: periodLabel,
+    range: window,
     totals: {
       pageviews: totalsBase.pageviews,
       events: eventsTotal,
       visitors: totalsBase.visitors,
+      conversions,
+      conversionRate,
       eventRate,
       eventsPerVisit,
     },
@@ -315,6 +281,8 @@ export async function loadSiteTrackingAnalytics(
     eventTrend,
     byPath,
     byPathFlow,
+    byDevice,
+    byBrowser,
     byAttribution,
     byPlatform,
   };

@@ -35,13 +35,16 @@ export function ReportsLoadingFallback() {
   return (
     <AppShellMain title="" subtitle="" headerSkeleton>
       <SkeletonScreenReader label="Carregando relatórios" />
-      <div className="pointer-events-none space-y-4" aria-hidden>
-        <div className="rounded-xl border border-border bg-surface px-3.5 py-2.5">
-          <Skeleton className="h-3.5 w-full max-w-xl" />
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <Skeleton className="h-8 w-80 max-w-full rounded-xl" />
-          <Skeleton className="h-7 w-24 rounded-lg" />
+      <div className="pointer-events-none space-y-3" aria-hidden>
+        <div className="rounded-xl border border-border bg-surface">
+          <div className="flex items-center justify-between gap-2 px-2.5 py-2">
+            <Skeleton className="h-6 w-64 max-w-full rounded-md" />
+            <Skeleton className="h-6 w-12 rounded-md" />
+          </div>
+          <div className="flex items-center justify-between gap-2 border-t border-border px-2.5 py-2">
+            <Skeleton className="h-6 w-48 max-w-full rounded-md" />
+            <Skeleton className="h-4 w-56 max-w-[40%] rounded-md" />
+          </div>
         </div>
         <div className="grid gap-3 lg:grid-cols-2">
           {Array.from({ length: 2 }).map((_, index) => (

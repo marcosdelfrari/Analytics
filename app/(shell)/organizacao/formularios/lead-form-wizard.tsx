@@ -62,11 +62,26 @@ function KindIcon({ kind }: { kind: LeadFormKind }) {
       </svg>
     );
   }
+  if (kind === "section") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <path strokeLinecap="round" d="M3 9h18M9 9v12" />
+      </svg>
+    );
+  }
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-4 w-4">
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
     </svg>
   );
+}
+
+function kindDescription(kind: LeadFormKind) {
+  if (kind === "whatsapp_button") return "Botão flutuante com captura";
+  if (kind === "popup") return "Modal centralizado";
+  if (kind === "exit_intent") return "Dispara ao sair da página";
+  return "Fixo no corpo da página";
 }
 
 function ToggleSwitch({
@@ -400,7 +415,7 @@ export function LeadFormWizard({
                   Formato de exibição
                 </p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {LEAD_FORM_KINDS.map((kind) => {
                   const active = draft.kind === kind;
                   const isWa = kind === "whatsapp_button";
@@ -454,11 +469,7 @@ export function LeadFormWizard({
                           {LEAD_FORM_KIND_LABELS[kind as LeadFormKind]}
                         </span>
                         <span className="mt-0.5 block text-[11.5px] leading-4 text-muted">
-                          {kind === "whatsapp_button"
-                            ? "Botão flutuante com captura"
-                            : kind === "popup"
-                              ? "Modal centralizado"
-                              : "Dispara ao sair da página"}
+                          {kindDescription(kind as LeadFormKind)}
                         </span>
                       </div>
                     </button>
@@ -1023,7 +1034,11 @@ export function LeadFormWizard({
             }}
             className="rounded-xl bg-foreground px-5 py-2.5 text-[12.5px] font-medium text-background shadow-sm transition hover:opacity-90 disabled:opacity-60"
           >
-            {pending ? "Salvando..." : "Salvar formulário"}
+            {pending
+              ? "Salvando..."
+              : isNew
+                ? "Salvar formulário"
+                : "Salvar alterações"}
           </button>
         )}
       </div>

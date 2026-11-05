@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MetricCard } from "@/app/components/metric-card";
 import { SiteTrafficChart } from "@/app/components/site-traffic-chart";
 import { TrackingBreakdownTables } from "@/app/components/tracking-breakdown-tables";
-import type { SiteTrackingAnalytics } from "@/lib/tracking-analytics";
+import type { SiteTrackingAnalytics } from "@/lib/tracking-analytics-shared";
 import { formatNumber, formatPercent } from "@/lib/format";
 
 export function TrackingReportPanel({
@@ -66,29 +66,42 @@ export function TrackingReportPanel({
         </div>
       </header>
 
-      <section className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+      <section
+        className={`grid grid-cols-2 gap-2.5 ${
+          variant === "overview"
+            ? "sm:grid-cols-3 lg:grid-cols-5"
+            : "sm:grid-cols-3 lg:grid-cols-6"
+        }`}
+      >
         <MetricCard
           label="Visitantes"
           value={formatNumber(tracking.totals.visitors)}
         />
         <MetricCard
-          label="Pageviews"
+          label="Navegações"
           value={formatNumber(tracking.totals.pageviews)}
         />
         <MetricCard
           label="Eventos"
           value={formatNumber(tracking.totals.events)}
+        />
+        <MetricCard
+          label="Conversões"
+          value={formatNumber(tracking.totals.conversions)}
           tone="positive"
         />
         <MetricCard
-          label="Taxa de evento"
-          value={formatPercent(tracking.totals.eventRate, 1)}
+          label="Taxa de conversão"
+          value={formatPercent(tracking.totals.conversionRate, 1)}
+          tone="positive"
         />
-        <MetricCard
-          label="Evento líder"
-          value={tracking.topEvent?.name ?? "—"}
-          hint={leaderHint}
-        />
+        {variant === "full" ? (
+          <MetricCard
+            label="Evento líder"
+            value={tracking.topEvent?.name ?? "—"}
+            hint={leaderHint}
+          />
+        ) : null}
       </section>
 
       <SiteTrafficChart points={tracking.points} />
@@ -99,6 +112,9 @@ export function TrackingReportPanel({
           byAttribution={tracking.byAttribution}
           byPath={tracking.byPath}
           byPathFlow={tracking.byPathFlow}
+          byDevice={tracking.byDevice}
+          byBrowser={tracking.byBrowser}
+          range={tracking.range}
         />
       )}
     </div>

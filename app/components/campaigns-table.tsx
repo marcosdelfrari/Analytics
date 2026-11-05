@@ -1,9 +1,17 @@
+"use client";
+
+import { useMemo } from "react";
+import {
+  SortableThCampaign,
+  useColumnSort,
+} from "@/app/components/sortable-table";
 import type { Campaign, CampaignStatus } from "@/lib/types";
 import {
   formatCurrencyDetailed,
   formatNumber,
   formatPercent,
 } from "@/lib/format";
+import { sortByAccessor } from "@/lib/sort-table";
 
 const statusStyles: Record<CampaignStatus, string> = {
   ativa: "text-positive border-positive/30",
@@ -17,7 +25,50 @@ const statusLabel: Record<CampaignStatus, string> = {
   aprendizado: "Aprendizado",
 };
 
+type CampaignSortKey =
+  | "name"
+  | "platform"
+  | "type"
+  | "status"
+  | "spend"
+  | "conversions"
+  | "ctr"
+  | "cpc";
+
+function campaignSortValue(row: Campaign, key: CampaignSortKey) {
+  switch (key) {
+    case "name":
+      return row.name;
+    case "platform":
+      return row.platform;
+    case "type":
+      return row.type;
+    case "status":
+      return row.status;
+    case "spend":
+      return row.spend;
+    case "conversions":
+      return row.conversions;
+    case "ctr":
+      return row.ctr;
+    case "cpc":
+      return row.cpc;
+  }
+}
+
 export function CampaignsTable({ campaigns }: { campaigns: Campaign[] }) {
+  const sort = useColumnSort<CampaignSortKey>("spend", "desc");
+
+  const sorted = useMemo(
+    () =>
+      sortByAccessor(
+        campaigns,
+        (row) => campaignSortValue(row, sort.sortKey),
+        sort.direction,
+      ),
+    [campaigns, sort.sortKey, sort.direction],
+  );
+
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface">
       <div className="border-b border-border px-4 py-3.5">
@@ -29,23 +80,75 @@ export function CampaignsTable({ campaigns }: { campaigns: Campaign[] }) {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-[12px]">
           <thead>
-            <tr className="border-b border-border text-[11px] uppercase tracking-wider text-muted">
-              <th className="px-4 py-2.5 font-medium">Campanha</th>
-              <th className="px-4 py-2.5 font-medium">Plataforma</th>
-              <th className="px-4 py-2.5 font-medium">Tipo</th>
-              <th className="px-4 py-2.5 font-medium">Status</th>
-              <th className="px-4 py-2.5 font-medium text-right">Gasto</th>
-              <th className="px-4 py-2.5 font-medium text-right">Conv.</th>
-              <th className="px-4 py-2.5 font-medium text-right">CTR</th>
-              <th className="px-4 py-2.5 font-medium text-right">CPC</th>
+            <tr className="border-b border-border text-muted">
+              <SortableThCampaign
+                label="Campanha"
+                columnKey="name"
+                sortKey={sort.sortKey}
+                direction={sort.direction}
+                onSort={sort.toggleSort}
+              />
+              <SortableThCampaign
+                label="Plataforma"
+                columnKey="platform"
+                sortKey={sort.sortKey}
+                direction={sort.direction}
+                onSort={sort.toggleSort}
+              />
+              <SortableThCampaign
+                label="Tipo"
+                columnKey="type"
+                sortKey={sort.sortKey}
+                direction={sort.direction}
+                onSort={sort.toggleSort}
+              />
+              <SortableThCampaign
+                label="Status"
+                columnKey="status"
+                sortKey={sort.sortKey}
+                direction={sort.direction}
+                onSort={sort.toggleSort}
+              />
+              <SortableThCampaign
+                label="Gasto"
+                columnKey="spend"
+                sortKey={sort.sortKey}
+                direction={sort.direction}
+                onSort={sort.toggleSort}
+                align="right"
+              />
+              <SortableThCampaign
+                label="Conv."
+                columnKey="conversions"
+                sortKey={sort.sortKey}
+                direction={sort.direction}
+                onSort={sort.toggleSort}
+                align="right"
+              />
+              <SortableThCampaign
+                label="CTR"
+                columnKey="ctr"
+                sortKey={sort.sortKey}
+                direction={sort.direction}
+                onSort={sort.toggleSort}
+                align="right"
+              />
+              <SortableThCampaign
+                label="CPC"
+                columnKey="cpc"
+                sortKey={sort.sortKey}
+                direction={sort.direction}
+                onSort={sort.toggleSort}
+                align="right"
+              />
             </tr>
           </thead>
           <tbody>
-            {campaigns.map((row, i) => (
+            {sorted.map((row, i) => (
               <tr
                 key={row.id}
                 className={`border-b border-border-subtle transition-colors hover:bg-surface-elevated ${
-                  i === campaigns.length - 1 ? "border-b-0" : ""
+                  i === sorted.length - 1 ? "border-b-0" : ""
                 }`}
               >
                 <td className="px-4 py-3 font-medium text-foreground">

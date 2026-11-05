@@ -11,7 +11,7 @@ const steps = [
   {
     step: "02",
     title: "Instale o script e os formulários",
-    text: "Cole o snippet no site, valide a tag no testador ao vivo e ative formulários de captura (botão WhatsApp, popup ou intenção de saída).",
+    text: "Cole o snippet no site, valide a tag no testador ao vivo e ative formulários de captura (botão WhatsApp, popup, intenção de saída ou corpo em seção).",
   },
   {
     step: "03",

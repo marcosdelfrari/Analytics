@@ -116,8 +116,19 @@ export function UserConfigModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPending, onClose]);
 
+  const canManageAllCompanies =
+    allowOwnerRole || organization.viewerIsOrgProprietario !== false;
   const canChangeOwner = allowOwnerRole;
-  const canRemoveUser = allowOwnerRole || !grant.isOrgProprietario;
+  const canRemoveUser =
+    (allowOwnerRole || !grant.isOrgProprietario) &&
+    (canManageAllCompanies ||
+      (!grant.allCompanies &&
+        grant.companyIds.every((id) =>
+          organization.companies.some((company) => company.id === id),
+        )));
+  const orgWideGrantLocked =
+    !canManageAllCompanies &&
+    (grant.isOrgProprietario || grant.allCompanies);
 
   const toggleCompany = (companyId: string) => {
     setSelectedCompanyIds((prev) =>
@@ -188,17 +199,34 @@ export function UserConfigModal({
     setSuccessMessage(null);
 
     startTransition(async () => {
-      const result = await saveUserFlowConfigAction({
-        organizationId: organization.id,
-        grantId: grant.id,
-        name: name.trim(),
-        isOrgProprietario: scopeMode === "owner",
-        allCompanies: scopeMode === "owner" || scopeMode === "all_companies",
-        companyIds: scopeMode === "by_company" ? selectedCompanyIds : [],
-        companyRoles,
-        newPassword: newPassword.trim() || undefined,
-        confirmPassword: confirmPassword.trim() || undefined,
-      });
+      const result = await saveUserFlowConfigAction(
+        orgWideGrantLocked
+          ? {
+              organizationId: organization.id,
+              grantId: grant.id,
+              name: name.trim(),
+              newPassword: newPassword.trim() || undefined,
+              confirmPassword: confirmPassword.trim() || undefined,
+            }
+          : {
+              organizationId: organization.id,
+              grantId: grant.id,
+              name: name.trim(),
+              isOrgProprietario: canManageAllCompanies
+                ? scopeMode === "owner"
+                : false,
+              allCompanies: canManageAllCompanies
+                ? scopeMode === "owner" || scopeMode === "all_companies"
+                : false,
+              companyIds:
+                !canManageAllCompanies || scopeMode === "by_company"
+                  ? selectedCompanyIds
+                  : [],
+              companyRoles,
+              newPassword: newPassword.trim() || undefined,
+              confirmPassword: confirmPassword.trim() || undefined,
+            },
+      );
 
       if (!result.ok) {
         setErrorMessage(
@@ -376,65 +404,81 @@ export function UserConfigModal({
                   </span>
                 </div>
 
-                <div className="grid gap-2.5 sm:grid-cols-3">
-                  <button
-                    type="button"
-                    disabled={grant.isOrgProprietario && !canChangeOwner}
-                    onClick={() => setScopeMode("by_company")}
-                    className={`flex cursor-pointer flex-col items-start rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
-                      scopeMode === "by_company"
-                        ? "border-foreground/50 bg-surface-elevated ring-1 ring-white/15"
-                        : "border-border bg-background/50 hover:border-white/20"
+                {orgWideGrantLocked ? (
+                  <p className="rounded-xl border border-border bg-background/50 px-3.5 py-3 text-[12px] leading-5 text-muted-foreground">
+                    Este usuário tem acesso ampliado à organização. Você vê
+                    apenas o vínculo com as empresas que gerencia e não pode
+                    alterar o escopo completo.
+                  </p>
+                ) : (
+                  <div
+                    className={`grid gap-2.5 ${
+                      canManageAllCompanies ? "sm:grid-cols-3" : "sm:grid-cols-1"
                     }`}
                   >
-                    <span className="text-[12.5px] font-semibold text-foreground">
-                      Por empresa
-                    </span>
-                    <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                      Escolha quais empresas acessa e o papel em cada uma.
-                    </span>
-                  </button>
+                    <button
+                      type="button"
+                      disabled={grant.isOrgProprietario && !canChangeOwner}
+                      onClick={() => setScopeMode("by_company")}
+                      className={`flex cursor-pointer flex-col items-start rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                        scopeMode === "by_company"
+                          ? "border-foreground/50 bg-surface-elevated ring-1 ring-white/15"
+                          : "border-border bg-background/50 hover:border-white/20"
+                      }`}
+                    >
+                      <span className="text-[12.5px] font-semibold text-foreground">
+                        Por empresa
+                      </span>
+                      <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                        Escolha quais empresas acessa e o papel em cada uma.
+                      </span>
+                    </button>
 
-                  <button
-                    type="button"
-                    disabled={grant.isOrgProprietario && !canChangeOwner}
-                    onClick={() => setScopeMode("all_companies")}
-                    className={`flex cursor-pointer flex-col items-start rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
-                      scopeMode === "all_companies"
-                        ? "border-foreground/50 bg-surface-elevated ring-1 ring-white/15"
-                        : "border-border bg-background/50 hover:border-white/20"
-                    }`}
-                  >
-                    <span className="text-[12.5px] font-semibold text-foreground">
-                      Todas as empresas
-                    </span>
-                    <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                      Acesso automático a todas as empresas de{" "}
-                      {organization.name}.
-                    </span>
-                  </button>
+                    {canManageAllCompanies && (
+                      <button
+                        type="button"
+                        disabled={grant.isOrgProprietario && !canChangeOwner}
+                        onClick={() => setScopeMode("all_companies")}
+                        className={`flex cursor-pointer flex-col items-start rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                          scopeMode === "all_companies"
+                            ? "border-foreground/50 bg-surface-elevated ring-1 ring-white/15"
+                            : "border-border bg-background/50 hover:border-white/20"
+                        }`}
+                      >
+                        <span className="text-[12.5px] font-semibold text-foreground">
+                          Todas as empresas
+                        </span>
+                        <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                          Acesso automático a todas as empresas de{" "}
+                          {organization.name}.
+                        </span>
+                      </button>
+                    )}
 
-                  <button
-                    type="button"
-                    disabled={!canChangeOwner && !grant.isOrgProprietario}
-                    onClick={() => {
-                      if (canChangeOwner) setScopeMode("owner");
-                    }}
-                    className={`flex cursor-pointer flex-col items-start rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
-                      scopeMode === "owner"
-                        ? "border-positive/50 bg-positive/10 ring-1 ring-positive/30"
-                        : "border-border bg-background/50 hover:border-white/20"
-                    }`}
-                  >
-                    <span className="text-[12.5px] font-semibold text-positive">
-                      {ORG_OWNER_SCOPE_LABEL}
-                    </span>
-                    <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                      Gestão total de empresas, usuários e acessos da
-                      organização.
-                    </span>
-                  </button>
-                </div>
+                    {canManageAllCompanies && (
+                      <button
+                        type="button"
+                        disabled={!canChangeOwner && !grant.isOrgProprietario}
+                        onClick={() => {
+                          if (canChangeOwner) setScopeMode("owner");
+                        }}
+                        className={`flex cursor-pointer flex-col items-start rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                          scopeMode === "owner"
+                            ? "border-positive/50 bg-positive/10 ring-1 ring-positive/30"
+                            : "border-border bg-background/50 hover:border-white/20"
+                        }`}
+                      >
+                        <span className="text-[12.5px] font-semibold text-positive">
+                          {ORG_OWNER_SCOPE_LABEL}
+                        </span>
+                        <span className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                          Gestão total de empresas, usuários e acessos da
+                          organização.
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Lista de empresas e papel por empresa */}
@@ -507,7 +551,9 @@ export function UserConfigModal({
                             <input
                               type="checkbox"
                               checked={isLinked}
-                              disabled={scopeMode !== "by_company"}
+                              disabled={
+                                orgWideGrantLocked || scopeMode !== "by_company"
+                              }
                               onChange={() => toggleCompany(company.id)}
                               className="h-4 w-4 rounded border-border accent-emerald-400"
                             />

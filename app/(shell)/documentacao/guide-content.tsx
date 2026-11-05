@@ -377,8 +377,8 @@ export function GuideContent() {
           <InternalLink href="/organizacao/formularios">
             Criar formulário
           </InternalLink>
-          , o assistente pede nome e formato (botão de WhatsApp, popup ou saída
-          da página), textos, campos, personalização opcional e ativação. Os
+          , o assistente pede nome e formato (botão de WhatsApp, popup, saída
+          da página ou corpo em seção), textos, campos, personalização opcional e ativação. Os
           campos podem ser texto, e-mail, telefone, texto longo, seleção,
           checkbox ou número. Dá para ligar o formulário a uma empresa e enviar
           um e-mail de confirmação.

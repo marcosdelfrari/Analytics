@@ -56,13 +56,17 @@ export function IncludeUserInlineForm({
   organization,
   basePath = "/organizacao",
   allowOwnerRole = false,
+  allowAllCompanies = true,
 }: {
   organization: OrganizationSummary;
   basePath?: "/organizacao" | "/admin";
   allowOwnerRole?: boolean;
+  allowAllCompanies?: boolean;
 }) {
   const [scope, setScope] = useState<"by_company" | "all_companies" | "owner">(
-    organization.companies.length === 0 ? "all_companies" : "by_company",
+    organization.companies.length === 0 && allowAllCompanies
+      ? "all_companies"
+      : "by_company",
   );
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>(() =>
     organization.companies.length === 1 && organization.companies[0]
@@ -159,17 +163,19 @@ export function IncludeUserInlineForm({
           >
             Por empresa
           </button>
-          <button
-            type="button"
-            onClick={() => setScope("all_companies")}
-            className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11.5px] font-medium transition ${
-              scope === "all_companies"
-                ? "bg-surface-elevated text-foreground ring-1 ring-white/15"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Todas as empresas
-          </button>
+          {allowAllCompanies && (
+            <button
+              type="button"
+              onClick={() => setScope("all_companies")}
+              className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11.5px] font-medium transition ${
+                scope === "all_companies"
+                  ? "bg-surface-elevated text-foreground ring-1 ring-white/15"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Todas as empresas
+            </button>
+          )}
           {allowOwnerRole && (
             <button
               type="button"
@@ -316,10 +322,12 @@ export function AddAccessGrantForm({
   organization,
   basePath = "/organizacao",
   allowOwnerRole = false,
+  allowAllCompanies = true,
 }: {
   organization: OrganizationSummary;
   basePath?: "/organizacao" | "/admin";
   allowOwnerRole?: boolean;
+  allowAllCompanies?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<FormState, FormData>(
@@ -372,10 +380,12 @@ export function AddAccessGrantForm({
             Definir como {ORG_OWNER_SCOPE_LABEL.toLowerCase()}
           </label>
         )}
-        <label className="flex items-center gap-2 text-[12px]">
-          <input type="checkbox" name="allCompanies" value="true" />
-          Acesso a todas as empresas da organização
-        </label>
+        {allowAllCompanies && (
+          <label className="flex items-center gap-2 text-[12px]">
+            <input type="checkbox" name="allCompanies" value="true" />
+            Acesso a todas as empresas da organização
+          </label>
+        )}
         {organization.companies.length > 0 && (
           <fieldset className="text-[12px] text-muted-foreground">
             <legend className="mb-2">

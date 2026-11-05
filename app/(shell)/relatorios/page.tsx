@@ -1,12 +1,10 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { connection } from "next/server";
 import { AppShellMain } from "@/app/components/app-shell";
-import {
-  EventAnalysisPanel,
-  TrackingSummaryBar,
-} from "@/app/components/event-analysis-panel";
+import { EventAnalysisPanel } from "@/app/components/event-analysis-panel";
 import { ReportsLoadingFallback } from "@/app/components/loading-fallbacks";
-import { PlatformTabs } from "@/app/components/platform-tabs";
+import { ReportPeriodCalendar } from "@/app/components/report-period-calendar";
 import { ReportPeriodSelect } from "@/app/components/report-period-select";
 import { ReportPlatformPanel } from "@/app/components/report-platform-panel";
 import { ReportsSectionTabs } from "@/app/components/reports-section-tabs";
@@ -20,114 +18,156 @@ import {
 import { clientSubtitle, getClientPageContext } from "@/lib/client-page";
 import { canRegisterResources } from "@/lib/organization-access";
 import {
-  parseReportPeriodDays,
+  formatRangeLabel,
+  localDateKey,
+  parseReportPeriod,
   reportExportHref,
 } from "@/lib/report-period";
 
 async function ReportsPageContent({
   searchParams,
 }: {
-  searchParams: Promise<{ dias?: string }>;
+  searchParams: Promise<{ dias?: string; de?: string; ate?: string }>;
 }) {
-  const { dias } = await searchParams;
-  const days = parseReportPeriodDays(dias);
+  await connection();
+  const { dias, de, ate } = await searchParams;
+  const period = parseReportPeriod({ dias, de, ate }, localDateKey());
   const { planActive, clientId, title, session } = await getClientPageContext();
-  const analytics = await loadClientAnalytics(clientId, planActive, days);
+  const analytics = await loadClientAnalytics(clientId, planActive, period);
   const tracking = analytics.siteTracking;
   const showSetupLink = !session || canRegisterResources(session);
-  const periodLabel = tracking?.period ?? analytics.dashboard.period;
 
   return (
     <AppShellMain
       title={title}
-      subtitle={`Relatórios analíticos · ${clientSubtitle(planActive, periodLabel)}`}
+      subtitle={clientSubtitle(planActive, "Relatórios analíticos")}
       planActive={planActive}
     >
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <ReportPeriodSelect days={days} />
-          <Link
-            href={reportExportHref(days)}
-            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-surface-elevated"
-          >
-            Exportar CSV
-          </Link>
-        </div>
-
-        {tracking && (
-          <TrackingSummaryBar
-            tracking={tracking}
-            showSetupLink={showSetupLink}
-          />
-        )}
-
-        <ReportsSectionTabs
-          events={
-            tracking && tracking.ready ? (
-              <EventAnalysisPanel tracking={tracking} />
-            ) : (
-              <p className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
-                Sem eventos coletados no período.
-              </p>
-            )
-          }
-          pages={
-            tracking && tracking.ready ? (
-              <TrackingBreakdownTables
-                eventsByName={tracking.eventsByName}
-                byAttribution={tracking.byAttribution}
-                byPath={tracking.byPath}
-                byPathFlow={tracking.byPathFlow}
-                showEvents={false}
+      <ReportsSectionTabs
+        toolbarStart={
+          <>
+            <ReportPeriodSelect period={period} plain />
+            {tracking?.ready ? (
+              <ReportPeriodCalendar
+                label={formatRangeLabel(tracking.range.from, tracking.range.to)}
+                from={tracking.range.from}
+                to={tracking.range.to}
               />
-            ) : (
-              <p className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
-                Sem páginas ou UTMs coletados no período.
-              </p>
-            )
-          }
-          platforms={
-            <PlatformTabs
-              google={
-                <div className="space-y-3">
-                  {tracking && (
-                    <TrackingPlatformPanel
-                      platform="google"
-                      attribution={tracking.byPlatform.google.attribution}
-                      eventsByName={tracking.byPlatform.google.eventsByName}
-                    />
-                  )}
-                  <ReportPlatformPanel
-                    summary={summaryForPlatform(analytics, "google")}
-                    reports={filterReportsByPlatform(
-                      analytics.dashboard.reports,
-                      "google",
-                    )}
-                  />
-                </div>
-              }
-              meta={
-                <div className="space-y-3">
-                  {tracking && (
-                    <TrackingPlatformPanel
-                      platform="meta"
-                      attribution={tracking.byPlatform.meta.attribution}
-                      eventsByName={tracking.byPlatform.meta.eventsByName}
-                    />
-                  )}
-                  <ReportPlatformPanel
-                    summary={summaryForPlatform(analytics, "meta")}
-                    reports={filterReportsByPlatform(
-                      analytics.dashboard.reports,
-                      "meta",
-                    )}
-                  />
-                </div>
-              }
+            ) : null}
+          </>
+        }
+        toolbarEnd={
+          <>
+            {showSetupLink ? (
+              <Link
+                href="/rastreamento"
+                className="text-[11px] text-muted-foreground transition hover:text-foreground"
+              >
+                Script e testes →
+              </Link>
+            ) : null}
+            <Link
+              href={reportExportHref(period)}
+              className="rounded-lg border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-foreground transition hover:bg-surface-elevated"
+            >
+              Exportar CSV
+            </Link>
+          </>
+        }
+        events={
+          tracking && tracking.ready ? (
+            <EventAnalysisPanel tracking={tracking} />
+          ) : (
+            <p className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
+              Sem eventos coletados no período.
+            </p>
+          )
+        }
+        pages={
+          tracking && tracking.ready ? (
+            <TrackingBreakdownTables
+              eventsByName={tracking.eventsByName}
+              byAttribution={tracking.byAttribution}
+              byPath={tracking.byPath}
+              byPathFlow={tracking.byPathFlow}
+              byDevice={tracking.byDevice}
+              byBrowser={tracking.byBrowser}
+              showEvents={false}
+              range={tracking.range}
             />
-          }
-        />
-      </div>
+          ) : (
+            <p className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
+              Sem páginas ou UTMs coletados no período.
+            </p>
+          )
+        }
+        google={
+          <div className="space-y-3">
+            {tracking && (
+              <TrackingPlatformPanel
+                origin="google"
+                attribution={tracking.byPlatform.google.attribution}
+                eventsByName={tracking.byPlatform.google.eventsByName}
+                range={tracking.range}
+              />
+            )}
+            <ReportPlatformPanel
+              summary={summaryForPlatform(analytics, "google")}
+              reports={filterReportsByPlatform(
+                analytics.dashboard.reports,
+                "google",
+              )}
+            />
+          </div>
+        }
+        meta={
+          <div className="space-y-3">
+            {tracking && (
+              <TrackingPlatformPanel
+                origin="meta"
+                attribution={tracking.byPlatform.meta.attribution}
+                eventsByName={tracking.byPlatform.meta.eventsByName}
+                range={tracking.range}
+              />
+            )}
+            <ReportPlatformPanel
+              summary={summaryForPlatform(analytics, "meta")}
+              reports={filterReportsByPlatform(
+                analytics.dashboard.reports,
+                "meta",
+              )}
+            />
+          </div>
+        }
+        other={
+          tracking ? (
+            <TrackingPlatformPanel
+              origin="other"
+              attribution={tracking.byPlatform.other.attribution}
+              eventsByName={tracking.byPlatform.other.eventsByName}
+              range={tracking.range}
+            />
+          ) : (
+            <p className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
+              Sem coleta do site no período.
+            </p>
+          )
+        }
+        none={
+          tracking ? (
+            <TrackingPlatformPanel
+              origin="none"
+              attribution={tracking.byPlatform.none.attribution}
+              eventsByName={tracking.byPlatform.none.eventsByName}
+              range={tracking.range}
+            />
+          ) : (
+            <p className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
+              Sem coleta do site no período.
+            </p>
+          )
+        }
+      />
     </AppShellMain>
   );
 }
@@ -135,7 +175,7 @@ async function ReportsPageContent({
 export default function ReportsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ dias?: string }>;
+  searchParams: Promise<{ dias?: string; de?: string; ate?: string }>;
 }) {
   return (
     <Suspense fallback={<ReportsLoadingFallback />}>

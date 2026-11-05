@@ -78,6 +78,8 @@ export function OrganizationAccordions({
   organization: OrganizationSummary;
   isAdmin: boolean;
 }) {
+  const canManageAllCompanies =
+    isAdmin || organization.viewerIsOrgProprietario !== false;
   const [userSearch, setUserSearch] = useState("");
   const [editingGrantId, setEditingGrantId] = useState<string | null>(null);
   const [editingGrantInitialTab, setEditingGrantInitialTab] = useState<
@@ -152,12 +154,14 @@ export function OrganizationAccordions({
           </div>
         </summary>
 
-        <div className="border-b border-border bg-background/35 px-6 py-3.5">
-          <IncludeCompanyInlineForm
-            organizationId={organization.id}
-            basePath="/organizacao"
-          />
-        </div>
+        {canManageAllCompanies && (
+          <div className="border-b border-border bg-background/35 px-6 py-3.5">
+            <IncludeCompanyInlineForm
+              organizationId={organization.id}
+              basePath="/organizacao"
+            />
+          </div>
+        )}
 
         {organization.companies.length === 0 ? (
           <p className="px-6 py-8 text-[13px] text-muted">
@@ -308,6 +312,7 @@ export function OrganizationAccordions({
           organization={organization}
           basePath="/organizacao"
           allowOwnerRole={isAdmin}
+          allowAllCompanies={canManageAllCompanies}
         />
 
         {organization.grants.length > 0 && (

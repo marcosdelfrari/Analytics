@@ -97,6 +97,7 @@ enum LeadFormKind {
   whatsapp_button
   popup
   exit_intent
+  section
 
   @@schema("leads")
 }
@@ -202,6 +203,7 @@ model TrackingSite {
   eventPlatformDailyMetrics TrackingEventPlatformDailyMetric[]
   pathDailyMetrics TrackingPathDailyMetric[]
   pathFlowDailyMetrics TrackingPathFlowDailyMetric[]
+  deviceDailyMetrics TrackingDeviceDailyMetric[]
   visitorDaily TrackingVisitorDaily[]
   allowedDomains TrackingAllowedDomain[]
 
@@ -234,6 +236,9 @@ model TrackingHit {
   referrer      String    @default("")
   params        Json
   properties    Json
+  browser       String    @default("")
+  os            String    @default("")
+  deviceType    String    @default("") @map("device_type")
   processedAt   DateTime? @map("processed_at")
   createdAt     DateTime  @default(now()) @map("created_at")
   site          TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
@@ -348,6 +353,21 @@ model TrackingPathFlowDailyMetric {
 
   @@id([siteId, day, fromPath, path])
   @@map("agr_fluxo_pagina_dia")
+  @@schema("tracking")
+}
+
+model TrackingDeviceDailyMetric {
+  siteId     String   @map("site_id")
+  day        DateTime @db.Date
+  deviceType String   @map("device_type")
+  browser    String
+  os         String
+  pageviews  Int      @default(0)
+  events     Int      @default(0)
+  site       TrackingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([siteId, day, deviceType, browser, os])
+  @@map("agr_dispositivo_dia")
   @@schema("tracking")
 }
 

@@ -5,12 +5,17 @@ export function leadFormScriptUrl(formId: string) {
 }
 
 /** Bloco local (fallback) para colar no site do cliente. */
-export function leadFormEmbedSnippet(formId: string) {
-  return `<script async src="${leadFormScriptUrl(formId)}"></script>`;
+export function leadFormEmbedSnippet(formId: string, kind?: string) {
+  const script = `<script async src="${leadFormScriptUrl(formId)}"></script>`;
+  if (kind === "section") {
+    return `<section id="fractal-lead-form" data-fractal-form></section>\n${script}`;
+  }
+  return script;
 }
 
 export type LeadFormSnippetPayload = {
   formId: string;
+  kind?: string;
   scriptUrl: string;
   html: string;
 };

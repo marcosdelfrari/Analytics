@@ -2,6 +2,7 @@ export const LEAD_FORM_KINDS = [
   "whatsapp_button",
   "popup",
   "exit_intent",
+  "section",
 ] as const;
 
 export type LeadFormKind = (typeof LEAD_FORM_KINDS)[number];
@@ -68,6 +69,7 @@ export const LEAD_FORM_KIND_LABELS: Record<LeadFormKind, string> = {
   whatsapp_button: "Botão WhatsApp",
   popup: "Popup",
   exit_intent: "Sair (exit intent)",
+  section: "Corpo (seção)",
 };
 
 export const LEAD_FIELD_TYPE_LABELS: Record<LeadFieldType, string> = {

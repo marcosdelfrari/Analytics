@@ -6,7 +6,7 @@ import { getSession } from "@/lib/auth";
 import { authEnabled } from "@/lib/auth-config";
 import { csvAttachment } from "@/lib/csv";
 import { getClientPageContext } from "@/lib/client-page";
-import { parseReportPeriodDays } from "@/lib/report-period";
+import { localDateKey, parseReportPeriod } from "@/lib/report-period";
 
 export async function GET(request: Request) {
   await connection();
@@ -18,11 +18,17 @@ export async function GET(request: Request) {
     }
   }
 
-  const days = parseReportPeriodDays(
-    new URL(request.url).searchParams.get("dias") ?? undefined,
+  const params = new URL(request.url).searchParams;
+  const period = parseReportPeriod(
+    {
+      dias: params.get("dias") ?? undefined,
+      de: params.get("de") ?? undefined,
+      ate: params.get("ate") ?? undefined,
+    },
+    localDateKey(),
   );
   const { planActive, clientId, title } = await getClientPageContext();
-  const analytics = await loadClientAnalytics(clientId, planActive, days);
+  const analytics = await loadClientAnalytics(clientId, planActive, period);
   const slug = title
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")

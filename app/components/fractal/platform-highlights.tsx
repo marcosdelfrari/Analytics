@@ -25,7 +25,7 @@ export function FractalPlatformHighlights() {
               Formulários que já nascem com a campanha do lead
             </h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Monte formulários em formato de botão flutuante de WhatsApp, popup
+              Monte formulários em formato de botão flutuante de WhatsApp, popup, corpo em seção
               ou intenção de saída. Cada envio registra automaticamente a UTM, a
               página e a empresa de origem.
             </p>
@@ -41,6 +41,9 @@ export function FractalPlatformHighlights() {
               </span>
               <span className="rounded-md border border-border-subtle bg-surface px-2 py-1 text-[11px] text-muted-foreground">
                 Intenção de saída
+              </span>
+              <span className="rounded-md border border-border-subtle bg-surface px-2 py-1 text-[11px] text-muted-foreground">
+                Corpo (seção)
               </span>
             </div>
 
