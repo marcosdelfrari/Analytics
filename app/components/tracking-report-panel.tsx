@@ -9,10 +9,12 @@ export function TrackingReportPanel({
   tracking,
   variant = "full",
   showSetupLink = true,
+  showReportLink = true,
 }: {
   tracking: SiteTrackingAnalytics;
-  variant?: "full" | "overview";
+  variant?: "full" | "overview" | "metrics";
   showSetupLink?: boolean;
+  showReportLink?: boolean;
 }) {
   if (!tracking.ready) {
     return (
@@ -33,6 +35,8 @@ export function TrackingReportPanel({
   }
 
   const showBreakdown = variant === "full";
+  const showChart = variant !== "metrics";
+  const compactMetrics = variant === "overview" || variant === "metrics";
   const leaderHint = tracking.topEvent
     ? `${formatNumber(tracking.topEvent.count)} (${formatPercent(tracking.topEvent.share, 0)})`
     : undefined;
@@ -42,33 +46,37 @@ export function TrackingReportPanel({
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <h3 className="text-sm font-medium text-foreground">
-            {variant === "overview" ? "Tráfego do site" : "Coleta do site"}
+            {variant === "full" ? "Coleta do site" : "Tráfego do site"}
           </h3>
           <span className="font-mono text-[11px] text-muted">
             {tracking.period}
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          {showSetupLink ? (
-            <Link
-              href="/rastreamento"
-              className="text-[11px] text-muted-foreground transition hover:text-foreground"
-            >
-              Script e pixel
-            </Link>
-          ) : null}
-          <Link
-            href="/relatorios"
-            className="text-[11px] text-muted-foreground transition hover:text-foreground"
-          >
-            Ver UTMs e páginas →
-          </Link>
-        </div>
+        {(showSetupLink || showReportLink) && (
+          <div className="flex flex-wrap items-center gap-3">
+            {showSetupLink ? (
+              <Link
+                href="/rastreamento"
+                className="text-[11px] text-muted-foreground transition hover:text-foreground"
+              >
+                Script e pixel
+              </Link>
+            ) : null}
+            {showReportLink ? (
+              <Link
+                href="/relatorios"
+                className="text-[11px] text-muted-foreground transition hover:text-foreground"
+              >
+                Ver UTMs e páginas →
+              </Link>
+            ) : null}
+          </div>
+        )}
       </header>
 
       <section
         className={`grid grid-cols-2 gap-2.5 ${
-          variant === "overview"
+          compactMetrics
             ? "sm:grid-cols-3 lg:grid-cols-5"
             : "sm:grid-cols-3 lg:grid-cols-6"
         }`}
@@ -104,7 +112,7 @@ export function TrackingReportPanel({
         ) : null}
       </section>
 
-      <SiteTrafficChart points={tracking.points} />
+      {showChart ? <SiteTrafficChart points={tracking.points} /> : null}
 
       {showBreakdown && (
         <TrackingBreakdownTables

@@ -32,11 +32,11 @@ type AttributionRow = {
   source: string;
   medium: string;
   campaign: string;
-  term: string;
-  content: string;
+  term?: string;
+  content?: string;
   pageviews: bigint;
   events: bigint;
-  conversions: bigint;
+  conversions?: bigint;
 };
 
 type AttributionPathRow = AttributionRow & { path: string };
@@ -186,13 +186,12 @@ export async function listAttributionBreakdownFromHits(
   const createdFrom = dateKeyToUtc(from);
   const createdToExclusive = dateKeyToUtc(addDaysToKey(to, 1));
 
+  // Agrupa só por source/medium/campaign — a tabela de Páginas não mostra term/content.
   const rows = await prisma.$queryRawUnsafe<AttributionRow[]>(
     `SELECT
       ${SQL_HIT_UTM_SOURCE} AS source,
       ${SQL_HIT_UTM_MEDIUM} AS medium,
       ${SQL_HIT_UTM_CAMPAIGN} AS campaign,
-      ${SQL_HIT_UTM_TERM} AS term,
-      ${SQL_HIT_UTM_CONTENT} AS content,
       COUNT(*) FILTER (WHERE kind = 'pageview')::bigint AS pageviews,
       COUNT(*) FILTER (WHERE kind = 'event')::bigint AS events,
       COUNT(*) FILTER (WHERE ${SQL_HIT_CONVERSION})::bigint AS conversions
@@ -200,7 +199,7 @@ export async function listAttributionBreakdownFromHits(
     WHERE site_id = $1
       AND created_at >= $2
       AND created_at < $3
-    GROUP BY 1, 2, 3, 4, 5
+    GROUP BY 1, 2, 3
     ORDER BY (
       COUNT(*) FILTER (WHERE kind = 'pageview')
       + COUNT(*) FILTER (WHERE ${SQL_HIT_CONVERSION})

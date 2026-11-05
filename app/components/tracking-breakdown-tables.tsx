@@ -16,6 +16,7 @@ import type {
   PathFlowRow,
 } from "@/lib/tracking-analytics-shared";
 import { formatNumber, formatPercent } from "@/lib/format";
+import { mediaAttributionRowKey } from "@/lib/media-utm-display";
 import type { TrackingWindow } from "@/lib/report-period";
 import { sortByAccessor } from "@/lib/sort-table";
 import { conversionRatePercent } from "@/lib/tracking-events";
@@ -545,7 +546,7 @@ export function TrackingBreakdownTables({
             <tbody>
               {sortedAttribution.map((row) => (
                 <tr
-                  key={`${row.source}-${row.medium}-${row.campaign}`}
+                  key={mediaAttributionRowKey(row)}
                   className="border-b border-border-subtle last:border-b-0"
                 >
                   <td className="px-3.5 py-2 font-mono">{row.source}</td>

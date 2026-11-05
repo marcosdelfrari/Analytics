@@ -9,6 +9,7 @@ import {
   useColumnSort,
 } from "@/app/components/sortable-table";
 import { formatNumber } from "@/lib/format";
+import { mediaAttributionRowKey } from "@/lib/media-utm-display";
 import type { TrackingWindow } from "@/lib/report-period";
 import { sortByAccessor } from "@/lib/sort-table";
 import type {
@@ -260,10 +261,9 @@ export function TrackingPlatformPanel({
             </thead>
             <tbody>
               {sortedAttribution.map((row) => {
-                const rowKey = `${row.source}-${row.medium}-${row.campaign}-${row.term ?? ""}-${row.content ?? ""}`;
                 return (
                   <tr
-                    key={rowKey}
+                    key={mediaAttributionRowKey(row)}
                     className="border-b border-border-subtle last:border-b-0"
                   >
                     {utmCell(row.source)}

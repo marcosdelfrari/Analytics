@@ -44,6 +44,7 @@ function mediaChipClass(origin: TrackingMediaOrigin, selected: boolean) {
 export function ReportsSectionTabs({
   toolbarStart,
   toolbarEnd,
+  trafficSummary,
   events,
   pages,
   google,
@@ -53,6 +54,7 @@ export function ReportsSectionTabs({
 }: {
   toolbarStart: ReactNode;
   toolbarEnd?: ReactNode;
+  trafficSummary?: ReactNode;
   events: ReactNode;
   pages: ReactNode;
   google: ReactNode;
@@ -71,6 +73,9 @@ export function ReportsSectionTabs({
         : platform === "other"
           ? other
           : none;
+
+  const showTrafficSummary =
+    Boolean(trafficSummary) && (active === "events" || active === "pages");
 
   return (
     <div className="space-y-3">
@@ -136,6 +141,8 @@ export function ReportsSectionTabs({
           ) : null}
         </div>
       </section>
+
+      {showTrafficSummary ? trafficSummary : null}
 
       <div role="tabpanel">
         {active === "events" && events}

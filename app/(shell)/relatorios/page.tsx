@@ -10,6 +10,7 @@ import { ReportPlatformPanel } from "@/app/components/report-platform-panel";
 import { ReportsSectionTabs } from "@/app/components/reports-section-tabs";
 import { TrackingBreakdownTables } from "@/app/components/tracking-breakdown-tables";
 import { TrackingPlatformPanel } from "@/app/components/tracking-platform-panel";
+import { TrackingReportPanel } from "@/app/components/tracking-report-panel";
 import {
   filterReportsByPlatform,
   loadClientAnalytics,
@@ -73,6 +74,16 @@ async function ReportsPageContent({
               Exportar CSV
             </Link>
           </>
+        }
+        trafficSummary={
+          tracking && tracking.ready ? (
+            <TrackingReportPanel
+              tracking={tracking}
+              variant="metrics"
+              showSetupLink={false}
+              showReportLink={false}
+            />
+          ) : null
         }
         events={
           tracking && tracking.ready ? (
