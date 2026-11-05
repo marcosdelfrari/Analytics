@@ -14,6 +14,7 @@ import { authEnabled } from "@/lib/auth-config";
 import { resolveClientCompanyContext } from "@/lib/company-context";
 import { sessionRoleLabel } from "@/lib/access-labels";
 import { AccountRole, isSystemAdminAccount } from "@/lib/access-roles";
+import { userHasLotusPartnerAccess } from "@/lib/lotus-proposal";
 import { shellModeFromRole } from "@/lib/shell-mode";
 
 function ShellLayoutFallback() {
@@ -49,12 +50,18 @@ async function ShellLayoutWithSession({
 
   const sessionMode =
     authEnabled && session ? shellModeFromRole(session.role) : undefined;
+  const lotusPartner =
+    authEnabled && session
+      ? isSystemAdminAccount(session.role) ||
+        (await userHasLotusPartnerAccess(session.userId, session.email))
+      : !authEnabled;
   const navContext =
     authEnabled && session
       ? {
           platformAdmin: isSystemAdminAccount(session.role),
           organizationOwner:
             !isSystemAdminAccount(session.role) && session.isProprietario,
+          lotusPartner,
         }
       : undefined;
 

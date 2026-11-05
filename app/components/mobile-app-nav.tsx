@@ -21,10 +21,12 @@ export function MobileAppNav({
   mode,
   navContext,
   user,
+  showLotusPartner = false,
 }: {
   mode: ShellMode;
   navContext?: NavContext;
   user?: SidebarUserInfo;
+  showLotusPartner?: boolean;
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -120,7 +122,7 @@ export function MobileAppNav({
           />
           <div className="absolute inset-x-0 bottom-0 flex max-h-[min(85dvh,640px)] flex-col overflow-hidden rounded-t-2xl border border-border bg-background pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-2xl">
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
-              <BrandMark fractalOnly />
+              <BrandMark fractalOnly={!showLotusPartner} />
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}

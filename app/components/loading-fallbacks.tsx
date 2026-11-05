@@ -52,6 +52,26 @@ export function ReportsLoadingFallback() {
   );
 }
 
+/** Skeleton só do conteúdo (cabeçalho da página permanece). */
+export function ReportsContentLoadingFallback() {
+  return (
+    <div className="pointer-events-none space-y-3" aria-hidden>
+      <SkeletonScreenReader label="Carregando relatórios" />
+      <div className="rounded-xl border border-border bg-surface">
+        <div className="flex items-center justify-between gap-2 px-2.5 py-2">
+          <Skeleton className="h-6 w-64 max-w-full rounded-md" />
+          <Skeleton className="h-6 w-12 rounded-md" />
+        </div>
+        <div className="flex items-center justify-between gap-2 border-t border-border px-2.5 py-2">
+          <Skeleton className="h-6 w-48 max-w-full rounded-md" />
+          <Skeleton className="h-4 w-56 max-w-[40%] rounded-md" />
+        </div>
+      </div>
+      <ReportsTabPanelSkeleton />
+    </div>
+  );
+}
+
 /** Skeleton do painel principal (troca de aba ou período). */
 export function ReportsTabPanelSkeleton({
   showTrafficSummary = false,

@@ -64,6 +64,7 @@ type CachedPrismaClient = PrismaClient & {
   trackingEventDailyMetric?: { groupBy?: unknown };
   trackingCampaignDailyMetric?: { groupBy?: unknown };
   leadForm?: { findMany?: unknown };
+  trafficProposal?: { findFirst?: unknown };
   _runtimeDataModel?: {
     models?: {
       AccessGrant?: { fields?: Array<{ name: string }> };
@@ -90,8 +91,16 @@ function clientMatchesCurrentSchema(client: PrismaClient) {
       (field) => field.name === "role",
     ) === true;
   const hasLeadForm = typeof extended.leadForm?.findMany === "function";
+  const hasTrafficProposal =
+    typeof extended.trafficProposal?.findFirst === "function";
 
-  return hasTracking && hasOrgProprietario && hasCompanyAccessRole && hasLeadForm;
+  return (
+    hasTracking &&
+    hasOrgProprietario &&
+    hasCompanyAccessRole &&
+    hasLeadForm &&
+    hasTrafficProposal
+  );
 }
 
 function getPrismaClient() {

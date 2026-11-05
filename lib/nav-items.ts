@@ -37,6 +37,11 @@ export type NavContext = {
   platformAdmin?: boolean;
   /** Proprietário de organização (cliente). */
   organizationOwner?: boolean;
+  /**
+   * Usuário com acesso a organização parceira Lótus (proposta aceita na org/equipe).
+   * Libera Campanhas na sidebar e o branding Fractal + Lótus.
+   */
+  lotusPartner?: boolean;
 };
 
 const organizationSection = (): NavSection => ({
@@ -98,15 +103,21 @@ const analystReferenceSection = (): NavSection => ({
   items: [utmGuideItem()],
 });
 
-const analyticsSection = (): NavSection => ({
+const analyticsSection = (includeCampaigns: boolean): NavSection => ({
   id: "analytics",
   label: "Análise",
   items: [
     { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { href: "/relatorios", label: "Relatórios", icon: "reports" },
-    { href: "/campanhas", label: "Campanhas", icon: "campaigns" },
+    ...(includeCampaigns
+      ? [{ href: "/campanhas", label: "Campanhas", icon: "campaigns" as const }]
+      : []),
   ],
 });
+
+function canSeeLotusCampaigns(context: NavContext): boolean {
+  return Boolean(context.lotusPartner || context.platformAdmin);
+}
 
 const platformAdminSection = (): NavSection => ({
   id: "platform",
@@ -132,9 +143,11 @@ export function navSectionsForMode(
   mode: ShellMode,
   context: NavContext = {},
 ): NavSection[] {
+  const includeCampaigns = !authEnabled || canSeeLotusCampaigns(context);
+
   if (!authEnabled) {
     return [
-      analyticsSection(),
+      analyticsSection(true),
       organizationSection(),
       trackingSection(),
       supportSection(),
@@ -147,7 +160,7 @@ export function navSectionsForMode(
     sections.push(platformAdminSection());
   }
 
-  sections.push(analyticsSection());
+  sections.push(analyticsSection(includeCampaigns));
 
   if (context.organizationOwner || context.platformAdmin) {
     sections.push(trackingSection());
@@ -232,17 +245,22 @@ export function mobileMenuItems(
 ): NavItem[] {
   const items: NavItem[] = [];
 
+  const includeCampaigns = !authEnabled || canSeeLotusCampaigns(context);
+
   if (mode === "agency") {
+    items.push(mobileDashboardItem(), mobileReportsItem());
+    if (includeCampaigns) {
+      items.push(mobileMenuItem("/campanhas", "Campanhas", "campaigns"));
+    }
     items.push(
-      mobileDashboardItem(),
-      mobileReportsItem(),
-      mobileMenuItem("/campanhas", "Campanhas", "campaigns"),
       mobileMenuItem("/admin/usuarios", "Usuários", "users"),
       mobileMenuItem("/admin/relatorios", "Relatórios publicados", "reports"),
       mobileMenuItem("/admin/planos", "Planos", "plans"),
     );
   } else {
-    items.push(mobileMenuItem("/campanhas", "Campanhas", "campaigns"));
+    if (includeCampaigns) {
+      items.push(mobileMenuItem("/campanhas", "Campanhas", "campaigns"));
+    }
     if (context.platformAdmin) {
       items.push(
         mobileMenuItem("/admin/usuarios", "Usuários", "users"),

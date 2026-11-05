@@ -14,22 +14,72 @@ const fieldClass =
   "mt-1.5 w-full rounded-xl border border-white/10 bg-background/80 px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-white/25 focus:bg-background";
 
 const utmFields = [
-  { key: "utm_source", label: "Origem", placeholder: "google" },
-  { key: "utm_medium", label: "Mídia", placeholder: "cpc" },
-  { key: "utm_campaign", label: "Campanha", placeholder: "marca-marco" },
-  { key: "utm_content", label: "Conteúdo", placeholder: "criativo-a" },
-  { key: "utm_term", label: "Termo", placeholder: "nome do anúncio" },
+  {
+    key: "utm_source",
+    label: "Origem",
+    placeholder: "google",
+    hint: "De onde veio o tráfego (google, meta, instagram).",
+  },
+  {
+    key: "utm_medium",
+    label: "Mídia",
+    placeholder: "cpc",
+    hint: "Tipo de tráfego ou compra (cpc, paid, social).",
+  },
+  {
+    key: "utm_campaign",
+    label: "Campanha",
+    placeholder: "marca-marco",
+    hint: "Nome da campanha para agrupar nos relatórios.",
+  },
+  {
+    key: "utm_content",
+    label: "Conteúdo",
+    placeholder: "criativo-a",
+    hint: "Diferencia o anúncio, vídeo ou posicionamento.",
+  },
+  {
+    key: "utm_term",
+    label: "Termo",
+    placeholder: "nome do anúncio",
+    hint: "Palavra-chave buscada ou conjunto/público.",
+  },
 ] as const;
 
 const googleAdsFields = [
-  { key: "gclid", label: "Clique Google", placeholder: "(auto no anúncio)" },
-  { key: "gbraid", label: "gbraid", placeholder: "(auto no anúncio)" },
-  { key: "gad_source", label: "gad_source", placeholder: "1" },
-  { key: "gad_campaignid", label: "gad_campaignid", placeholder: "24150989666" },
+  {
+    key: "gclid",
+    label: "Clique Google",
+    placeholder: "(auto no anúncio)",
+    hint: "Gerado sozinho pelo Google em cada clique.",
+  },
+  {
+    key: "gbraid",
+    label: "gbraid",
+    placeholder: "(auto no anúncio)",
+    hint: "Identificador automático para tráfego em iOS.",
+  },
+  {
+    key: "gad_source",
+    label: "gad_source",
+    placeholder: "1",
+    hint: "Indica a rede do anúncio no Google Ads.",
+  },
+  {
+    key: "gad_campaignid",
+    label: "gad_campaignid",
+    placeholder: "24150989666",
+    hint: "ID numérico automático da campanha Google.",
+  },
 ] as const;
 
 const metaAdsFields = [
-  { key: "fbclid", label: "Clique Meta", placeholder: "(auto no anúncio)" },
+  {
+    key: "fbclid",
+    label: "Clique Meta",
+    placeholder: "(auto no anúncio)",
+    hint: "Gerado sozinho pelo Facebook/Instagram no clique.",
+  },
 ] as const;
 
 const metaSourcePresets = [
@@ -54,13 +104,23 @@ interface ExtraParam {
   value: string;
 }
 
-function buildUrl(base: string, params: Array<[string, string]>) {
+function normalizeBaseUrl(base: string) {
   const trimmed = base.trim();
-  if (!trimmed) return { url: "", error: "" };
+  if (!trimmed) return "";
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+function buildUrl(base: string, params: Array<[string, string]>) {
+  const candidate = normalizeBaseUrl(base);
+  if (!candidate) return { url: "", error: "" };
   try {
-    const parsed = new URL(trimmed);
+    const parsed = new URL(candidate);
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return { url: "", error: "Use um endereço que comece com http ou https." };
+      return {
+        url: "",
+        error: "Use um endereço com http:// ou https:// (ex.: https://cliente.com).",
+      };
     }
     for (const [key, value] of params) {
       const name = key.trim();
@@ -70,7 +130,11 @@ function buildUrl(base: string, params: Array<[string, string]>) {
     }
     return { url: parsed.toString(), error: "" };
   } catch {
-    return { url: "", error: "Esse endereço ainda não é uma URL válida." };
+    return {
+      url: "",
+      error:
+        "Esse endereço ainda não é uma URL válida. Ex.: https://cliente.com/oferta",
+    };
   }
 }
 
@@ -167,6 +231,10 @@ export function UrlBuilder() {
           </div>
           <label className="block text-[12px] text-muted-foreground">
             Endereço base
+            <span className="mt-0.5 block text-[11px] text-muted">
+              Página de destino do anúncio. Se faltar o protocolo, usamos{" "}
+              <span className="font-mono">https://</span> automaticamente.
+            </span>
             <input
               value={base}
               onChange={(event) => setBase(event.target.value)}
@@ -183,6 +251,9 @@ export function UrlBuilder() {
                 {field.label}
                 <span className="ml-2 font-mono text-[10px] text-muted">
                   {field.key}
+                </span>
+                <span className="mt-0.5 block text-[11px] text-muted">
+                  {field.hint}
                 </span>
                 <input
                   value={utm[field.key] ?? ""}
@@ -221,6 +292,9 @@ export function UrlBuilder() {
                   {field.label}
                   <span className="ml-2 font-mono text-[10px] text-muted">
                     {field.key}
+                  </span>
+                  <span className="mt-0.5 block text-[11px] text-muted">
+                    {field.hint}
                   </span>
                   <input
                     value={utm[field.key] ?? ""}
@@ -290,6 +364,9 @@ export function UrlBuilder() {
                   {field.label}
                   <span className="ml-2 font-mono text-[10px] text-muted">
                     {field.key}
+                  </span>
+                  <span className="mt-0.5 block text-[11px] text-muted">
+                    {field.hint}
                   </span>
                   <input
                     value={utm[field.key] ?? ""}
@@ -378,42 +455,83 @@ export function UrlBuilder() {
         </div>
       </form>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface xl:self-start">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
-          <div>
-            <h2 className="text-sm font-medium">Exemplo de URL final</h2>
+      <div className="grid gap-6 xl:self-start">
+        <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
+            <div>
+              <h2 className="text-sm font-medium">Exemplo de URL final</h2>
+              <p className="text-[12px] text-muted">
+                {filled.length === 1
+                  ? "1 parâmetro no exemplo"
+                  : `${filled.length} parâmetros no exemplo`}
+              </p>
+            </div>
+            {result.url && <CopyButton value={result.url} />}
+          </div>
+          <div className="p-5">
+            {result.error ? (
+              <p className="text-[12px] text-negative">{result.error}</p>
+            ) : result.url ? (
+              <>
+                <p className="break-all rounded-xl border border-border bg-background/60 p-3.5 font-mono text-[12px] leading-5 text-foreground">
+                  {result.url}
+                </p>
+                {result.url && (
+                  <Link
+                    href={`/encurtador?url=${encodeURIComponent(result.url)}`}
+                    className="mt-4 inline-block rounded-xl border border-border px-3.5 py-2 text-[12px] font-medium text-foreground transition hover:bg-surface-elevated"
+                  >
+                    Encurtar esta URL
+                  </Link>
+                )}
+              </>
+            ) : (
+              <p className="text-[12px] text-muted">
+                Informe o endereço base para montar o exemplo com os parâmetros.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+          <div className="border-b border-border px-5 py-3.5">
+            <h2 className="text-sm font-medium">Como funciona na prática</h2>
             <p className="text-[12px] text-muted">
-              {filled.length === 1
-                ? "1 parâmetro no exemplo"
-                : `${filled.length} parâmetros no exemplo`}
+              Onde aplicar a URL e como o Fractal registra a origem
             </p>
           </div>
-          {result.url && <CopyButton value={result.url} />}
-        </div>
-        <div className="p-5">
-          {result.error ? (
-            <p className="text-[12px] text-negative">{result.error}</p>
-          ) : result.url ? (
-            <>
-              <p className="break-all rounded-xl border border-border bg-background/60 p-3.5 font-mono text-[12px] leading-5 text-foreground">
-                {result.url}
-              </p>
-              {result.url && (
-                <Link
-                  href={`/encurtador?url=${encodeURIComponent(result.url)}`}
-                  className="mt-4 inline-block rounded-xl border border-border px-3.5 py-2 text-[12px] font-medium text-foreground transition hover:bg-surface-elevated"
-                >
-                  Encurtar esta URL
-                </Link>
-              )}
-            </>
-          ) : (
-            <p className="text-[12px] text-muted">
-              Informe o endereço base para montar o exemplo com os parâmetros.
-            </p>
-          )}
-        </div>
-      </section>
+          <ul className="space-y-3 p-5 text-[12px] leading-relaxed text-muted-foreground">
+            <li>
+              <strong className="font-medium text-foreground">
+                1. Onde colar no gerenciador:
+              </strong>{" "}
+              use a URL completa como destino do anúncio ou cole apenas o trecho
+              após o <code className="font-mono text-[11px] text-foreground">?</code>{" "}
+              no campo <em>Sufixo da URL final</em> (Google Ads) ou{" "}
+              <em>Parâmetros de URL</em> (Meta Ads).
+            </li>
+            <li>
+              <strong className="font-medium text-foreground">
+                2. Padronize a origem:
+              </strong>{" "}
+              mantenha <code className="font-mono text-[11px] text-foreground">utm_source</code>{" "}
+              como <code className="font-mono text-[11px]">google</code>,{" "}
+              <code className="font-mono text-[11px]">meta</code>,{" "}
+              <code className="font-mono text-[11px]">facebook</code> ou{" "}
+              <code className="font-mono text-[11px]">instagram</code> para que os
+              relatórios separem cada plataforma corretamente.
+            </li>
+            <li>
+              <strong className="font-medium text-foreground">
+                3. Persistência na sessão:
+              </strong>{" "}
+              quando o visitante entra no site, o script Fractal guarda os UTMs e
+              IDs de clique da primeira página e os associa às páginas seguintes,
+              eventos e formulários de lead enviados.
+            </li>
+          </ul>
+        </section>
+      </div>
       </div>
     </div>
   );

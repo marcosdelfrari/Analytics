@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["dbo", "leads", "tracking", "marketing"]
+  schemas  = ["dbo", "leads", "tracking", "marketing", "public"]
 }
 
 enum Role {
@@ -407,4 +407,78 @@ model PublishedReport {
   @@index([companyId, publishedAt])
   @@map("mov_relatorio_publicado")
   @@schema("marketing")
+}
+
+enum ProposalStatus {
+  draft
+  requested
+  sent
+  accepted
+  cancelled
+
+  @@schema("public")
+}
+
+enum MarketingPlanStatus {
+  draft
+  saved
+
+  @@schema("public")
+}
+
+/// Proposta comercial Lótus (schema public). userId → dbo.cad_usuario.id, sem FK.
+model TrafficProposal {
+  id                 String         @id @default(uuid())
+  userId             String         @map("user_id")
+  clientEmail        String         @default("") @map("client_email")
+  clientName         String         @default("") @map("client_name")
+  companyName        String         @map("company_name")
+  segment            String         @default("")
+  monthlyMediaBudget Int?           @map("monthly_media_budget")
+  goals              String         @default("")
+  contactPhone       String         @default("") @map("contact_phone")
+  intro              String         @default("")
+  title              String?
+  scope              Json           @default("[]")
+  services           Json           @default("[]")
+  setupFee           Int?           @map("setup_fee")
+  adBudgetSuggestion Int?           @map("ad_budget_suggestion")
+  deadlineDays       Int?           @map("deadline_days")
+  implementationPlan Json           @default("[]") @map("implementation_plan")
+  conditions         Json           @default("[]")
+  terms              Json           @default("[]")
+  validUntil         DateTime?      @map("valid_until") @db.Date
+  status             ProposalStatus @default(requested)
+  acceptedAt         DateTime?      @map("accepted_at")
+  acceptance         Json?
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  marketingPlans     MarketingPlan[]
+
+  @@index([userId])
+  @@index([clientEmail])
+  @@map("traffic_proposals")
+  @@schema("public")
+}
+
+/// Plano de marketing por proposta aceita; analyticsCompanyId → dbo.cad_empresa.id, sem FK.
+model MarketingPlan {
+  id                 String              @id @default(uuid())
+  proposalId         String              @map("proposal_id")
+  analyticsCompanyId String              @map("analytics_company_id")
+  operationProposal  String              @map("operation_proposal")
+  funnelTouchpoints  String[]            @default([]) @map("funnel_touchpoints")
+  mediaChannels      String[]            @default([]) @map("media_channels")
+  adFormats          String[]            @default([]) @map("ad_formats")
+  notes              String              @default("")
+  customAssets       String              @default("") @map("custom_assets")
+  status             MarketingPlanStatus @default(saved)
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  proposal           TrafficProposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, analyticsCompanyId])
+  @@index([proposalId])
+  @@map("marketing_plans")
+  @@schema("public")
 }

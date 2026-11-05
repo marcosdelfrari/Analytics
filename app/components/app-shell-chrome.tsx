@@ -86,6 +86,8 @@ export function AppShellChrome({
     authEnabled && sessionMode ? sessionMode : shellModeFromPathname(pathname);
   const sections = navSectionsForMode(mode, navContext);
   const homeHref = "/dashboard";
+  const showLotusPartner =
+    !authEnabled || Boolean(navContext?.lotusPartner || navContext?.platformAdmin);
 
   const toggleSidebar = () => setSidebarCollapsed((prev) => !prev);
 
@@ -108,7 +110,7 @@ export function AppShellChrome({
           >
             <BrandMark
               compact={sidebarCollapsed}
-              fractalOnly={sidebarCollapsed}
+              fractalOnly={sidebarCollapsed || !showLotusPartner}
               href={homeHref}
             />
             <button
@@ -145,7 +147,12 @@ export function AppShellChrome({
           {children}
         </div>
 
-        <MobileAppNav mode={mode} navContext={navContext} user={user} />
+        <MobileAppNav
+          mode={mode}
+          navContext={navContext}
+          user={user}
+          showLotusPartner={showLotusPartner}
+        />
       </div>
     </SidebarContext.Provider>
   );

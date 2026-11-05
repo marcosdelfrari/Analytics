@@ -60,9 +60,7 @@ export function FractalHero() {
             </div>
             <HeroPreview />
           </motion.div>
-          <p className="mt-3 text-center text-[12px] text-muted">
-            Prévia da plataforma com dados ilustrativos.
-          </p>
+          
         </motion.div>
 
         <motion.p

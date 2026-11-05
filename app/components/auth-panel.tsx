@@ -83,7 +83,7 @@ function Divider() {
 
 function AuthHeroShowcase() {
   return (
-    <div className="relative flex w-full max-w-[min(100%,32rem)] flex-col justify-center">
+    <div className="relative mx-auto flex w-full max-w-[min(100%,32rem)] flex-col justify-center">
       <div
         className="pointer-events-none absolute -inset-6 rounded-2xl bg-gradient-to-br from-white/[0.06] via-transparent to-white/[0.04] blur-2xl"
         aria-hidden
@@ -106,9 +106,7 @@ function AuthHeroShowcase() {
         </div>
         <HeroPreview />
       </motion.div>
-      <p className="relative mt-4 text-center text-[12px] text-white/45">
-        Prévia da plataforma com dados ilustrativos.
-      </p>
+     
     </div>
   );
 }
@@ -132,58 +130,58 @@ function AuthShell({
         <BrandMark priority href="/" />
       </header>
 
-      <div className="flex min-h-0 flex-1 overflow-y-auto px-5 py-16 [scrollbar-width:thin] sm:px-8 lg:px-10">
-        <div className="m-auto grid w-full max-w-[960px] items-center gap-8 lg:grid-cols-[minmax(0,22.5rem)_minmax(0,1fr)] lg:gap-12 xl:max-w-[1020px] xl:gap-14">
-          <div
-            className={`mx-auto w-full lg:mx-0 ${compact ? "max-w-[340px]" : "max-w-[360px]"}`}
-          >
-            <div className="text-center lg:text-left">
-              <h1
-                className={`font-semibold leading-tight tracking-tight text-white ${
-                  compact
-                    ? "text-[1.35rem] sm:text-[1.5rem]"
-                    : "text-[1.55rem] sm:text-[1.75rem]"
-                }`}
-              >
-                {title}
-              </h1>
-              <p
-                className={`mt-3 max-w-[32ch] text-white/60 ${
-                  compact
-                    ? "mx-auto text-[12px] leading-5 lg:mx-0"
-                    : "mx-auto text-[12.5px] leading-5 lg:mx-0"
-                }`}
-              >
-                {description}
-              </p>
-            </div>
-
+      <div className="flex min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin]">
+        <div className="grid w-full lg:min-h-full lg:grid-cols-2">
+          <div className="flex items-center justify-center px-5 py-16 sm:px-8 lg:px-12 xl:px-16">
             <div
-              className={`rounded-2xl border border-white/10 bg-[#151513] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.75)] ${
-                compact ? "mt-5 p-4" : "mt-7 p-5 sm:p-6"
-              }`}
+              className={`w-full ${compact ? "max-w-[340px]" : "max-w-[360px]"}`}
             >
-              {children}
-            </div>
-
-            {footer ? (
-              <div
-                className={`text-center lg:text-left ${compact ? "mt-4" : "mt-6"}`}
-              >
-                {footer}
+              <div className="text-center lg:text-left">
+                <h1
+                  className={`font-semibold leading-tight tracking-tight text-white ${
+                    compact
+                      ? "text-[1.35rem] sm:text-[1.5rem]"
+                      : "text-[1.55rem] sm:text-[1.75rem]"
+                  }`}
+                >
+                  {title}
+                </h1>
+                <p
+                  className={`mt-3 max-w-[32ch] text-white/60 ${
+                    compact
+                      ? "mx-auto text-[12px] leading-5 lg:mx-0"
+                      : "mx-auto text-[12.5px] leading-5 lg:mx-0"
+                  }`}
+                >
+                  {description}
+                </p>
               </div>
-            ) : null}
+
+              <div
+                className={`rounded-2xl border border-white/10 bg-[#151513] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.75)] ${
+                  compact ? "mt-5 p-4" : "mt-7 p-5 sm:p-6"
+                }`}
+              >
+                {children}
+              </div>
+
+              {footer ? (
+                <div
+                  className={`text-center lg:text-left ${compact ? "mt-4" : "mt-6"}`}
+                >
+                  {footer}
+                </div>
+              ) : null}
+            </div>
           </div>
 
-          <div className="hidden min-w-0 justify-center lg:flex lg:justify-start">
+          <div className="relative hidden min-w-0 items-center justify-center border-white/10 px-8 py-16 lg:flex lg:border-l xl:px-16">
             <AuthHeroShowcase />
           </div>
         </div>
       </div>
 
-      <footer className="shrink-0 px-5 pb-4 pt-1 text-center text-[10.5px] text-white/30">
-        Fractal — Analytics para mídia paga
-      </footer>
+    
     </main>
   );
 }
@@ -235,12 +233,12 @@ export function LoginPanel({
       description="O próximo passo para escalar os resultados do seu negócio começa aqui."
       footer={
         <p className="text-[12px] text-white/55">
-          Primeiro acesso sem Google?{" "}
+          Primeiro acesso?{" "}
           <Link
             href={`/cadastro?next=${encodeURIComponent(next)}`}
             className="cursor-pointer font-medium text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white"
           >
-            Criar conta com e-mail
+            Criar conta
           </Link>
         </p>
       }
@@ -507,24 +505,26 @@ export function AuthRouteLoading({ title }: { title: string }) {
         <BrandMark priority href="/" />
       </header>
 
-      <div className="flex h-full min-h-0 items-center justify-center px-5 py-16 sm:px-8 lg:px-10">
-        <div className="grid w-full max-w-[960px] items-center gap-8 lg:grid-cols-[minmax(0,22.5rem)_minmax(0,1fr)] lg:gap-12 xl:max-w-[1020px] xl:gap-14">
-          <div className="mx-auto w-full max-w-[360px] lg:mx-0">
-            <div className="text-center lg:text-left">
-              <h1 className="text-[1.55rem] font-semibold leading-tight tracking-tight text-white sm:text-[1.75rem]">
-                {title}
-              </h1>
-              <div className="mx-auto mt-2 h-3.5 w-52 animate-pulse rounded bg-white/10 lg:mx-0" />
-            </div>
+      <div className="flex h-full min-h-0">
+        <div className="grid w-full lg:grid-cols-2">
+          <div className="flex items-center justify-center px-5 py-16 sm:px-8 lg:px-12 xl:px-16">
+            <div className="w-full max-w-[360px]">
+              <div className="text-center lg:text-left">
+                <h1 className="text-[1.55rem] font-semibold leading-tight tracking-tight text-white sm:text-[1.75rem]">
+                  {title}
+                </h1>
+                <div className="mx-auto mt-2 h-3.5 w-52 animate-pulse rounded bg-white/10 lg:mx-0" />
+              </div>
 
-            <div className="mt-5 space-y-2.5 rounded-2xl border border-white/10 bg-[#151513] p-4 sm:p-5">
-              <div className="h-10 w-full animate-pulse rounded-lg bg-white/10" />
-              <div className="mx-auto h-2.5 w-16 animate-pulse rounded bg-white/5 lg:mx-0" />
-              <div className="h-9 w-full animate-pulse rounded-lg bg-white/5" />
+              <div className="mt-5 space-y-2.5 rounded-2xl border border-white/10 bg-[#151513] p-4 sm:p-5">
+                <div className="h-10 w-full animate-pulse rounded-lg bg-white/10" />
+                <div className="mx-auto h-2.5 w-16 animate-pulse rounded bg-white/5 lg:mx-0" />
+                <div className="h-9 w-full animate-pulse rounded-lg bg-white/5" />
+              </div>
             </div>
           </div>
 
-          <div className="hidden min-w-0 justify-center lg:flex lg:justify-start">
+          <div className="hidden min-w-0 items-center justify-center border-white/10 px-8 py-16 lg:flex lg:border-l xl:px-16">
             <div className="h-[min(72vh,28rem)] w-full max-w-[min(100%,32rem)] animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
           </div>
         </div>

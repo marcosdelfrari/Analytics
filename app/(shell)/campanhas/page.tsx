@@ -1,13 +1,25 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { AppShellMain } from "@/app/components/app-shell";
 import { CampaignsLoadingFallback } from "@/app/components/loading-fallbacks";
 import { CampaignsHierarchy } from "@/app/components/campaigns-hierarchy";
 import { PlatformTabs } from "@/app/components/platform-tabs";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import { campaignsForPlatform, loadClientAnalytics } from "@/lib/analytics";
+import { authEnabled } from "@/lib/auth-config";
 import { clientSubtitle, getClientPageContext } from "@/lib/client-page";
+import { userHasLotusPartnerAccess } from "@/lib/lotus-proposal";
 
 async function CampaignsPageContent() {
-  const { planActive, clientId, title } = await getClientPageContext();
+  const { planActive, clientId, title, session } = await getClientPageContext();
+  if (authEnabled && session) {
+    const allowed =
+      isSystemAdminAccount(session.role) ||
+      (await userHasLotusPartnerAccess(session.userId, session.email));
+    if (!allowed) {
+      redirect("/dashboard");
+    }
+  }
   const analytics = await loadClientAnalytics(clientId, planActive);
 
   return (
