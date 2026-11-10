@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { readSession, sessionCookie } from "@/lib/session";
 import { companyCookie, resolveClientCompanyContext } from "@/lib/company-context";
@@ -9,7 +10,7 @@ import { findAccountById } from "@/lib/users-store";
 import type { Session } from "@/lib/types";
 import { isSystemAdminAccount } from "@/lib/access-roles";
 
-export async function getSession(): Promise<Session | null> {
+export const getSession = cache(async (): Promise<Session | null> => {
   const jar = await cookies();
   const session = await readSession(jar.get(sessionCookie)?.value);
   if (!session) return null;
@@ -37,7 +38,7 @@ export async function getSession(): Promise<Session | null> {
     planActive,
     isProprietario,
   };
-}
+});
 
 export async function getActiveCompanyIdForSession(
   session: Session,

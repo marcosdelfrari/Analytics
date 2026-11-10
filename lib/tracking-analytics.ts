@@ -1,9 +1,11 @@
+import { unstable_cache } from "next/cache";
 import {
   dateKeyToUtc,
   eachDateKey,
   formatRangeLabel,
   trackingWindowFor,
   windowFromDays,
+  isDateKey,
   type ReportPeriod,
   type TrackingWindow,
 } from "@/lib/report-period";
@@ -45,6 +47,23 @@ export type {
 export { toEventShareRows } from "@/lib/tracking-analytics-shared";
 
 const TOP_EVENT_SERIES = 5;
+const TRACKING_CACHE_SECONDS = 45;
+
+export function trackingPeriodCacheKey(period: ReportPeriod | number): string {
+  if (typeof period === "number") return `n:${period}`;
+  if (period.kind === "days") return `d:${period.days}`;
+  return `r:${period.from}:${period.to}`;
+}
+
+export function trackingPeriodFromCacheKey(key: string): ReportPeriod | number {
+  if (key.startsWith("n:")) return Number(key.slice(2));
+  if (key.startsWith("d:")) return { kind: "days", days: Number(key.slice(2)) };
+  const rangeMatch = /^r:(\d{4}-\d{2}-\d{2}):(\d{4}-\d{2}-\d{2})$/.exec(key);
+  if (rangeMatch && isDateKey(rangeMatch[1]) && isDateKey(rangeMatch[2])) {
+    return { kind: "range", from: rangeMatch[1], to: rangeMatch[2] };
+  }
+  return 14;
+}
 
 function formatDayLabel(value: Date) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -130,6 +149,65 @@ function buildEventTrend(
   };
 }
 
+function buildTrafficOverview(
+  window: TrackingWindow,
+  rows: Awaited<ReturnType<typeof listDailyMetrics>>,
+  eventsByName: Awaited<ReturnType<typeof listEventBreakdownFromHits>>,
+) {
+  const eventShare = toEventShareRows(eventsByName);
+  const axisDays = axisDaysFor(window);
+  const byDay = new Map(rows.map((row) => [utcDayKey(row.day), row]));
+  const points = axisDays.map((day) => {
+    const row = byDay.get(utcDayKey(day));
+    return {
+      label: formatDayLabel(day),
+      pageviews: row?.pageviews ?? 0,
+      events: row?.events ?? 0,
+      visitors: row?.visitors ?? 0,
+    };
+  });
+  const totalsBase = points.reduce(
+    (acc, point) => ({
+      pageviews: acc.pageviews + point.pageviews,
+      events: acc.events + point.events,
+      visitors: acc.visitors + point.visitors,
+    }),
+    { pageviews: 0, events: 0, visitors: 0 },
+  );
+  const eventsTotal =
+    totalsBase.events > 0
+      ? totalsBase.events
+      : eventShare.reduce((sum, row) => sum + row.count, 0);
+  const conversions = totalConversionsFromEvents(eventsByName);
+  const conversionRate =
+    totalsBase.pageviews > 0
+      ? (conversions / totalsBase.pageviews) * 100
+      : 0;
+  const eventRate =
+    totalsBase.pageviews > 0 ? (eventsTotal / totalsBase.pageviews) * 100 : 0;
+  const eventsPerVisit =
+    totalsBase.pageviews > 0 ? eventsTotal / totalsBase.pageviews : 0;
+  const emptySuffix = rows.length === 0 ? " · aguardando visitas" : "";
+  const periodLabel = `${formatRangeLabel(window.from, window.to)}${emptySuffix}`;
+
+  return {
+    periodLabel,
+    points,
+    eventsByName,
+    eventShare,
+    totals: {
+      pageviews: totalsBase.pageviews,
+      events: eventsTotal,
+      visitors: totalsBase.visitors,
+      conversions,
+      conversionRate,
+      eventRate,
+      eventsPerVisit,
+    },
+    topEvent: eventShare[0] ?? null,
+  };
+}
+
 function emptyAnalytics(): SiteTrackingAnalytics {
   return {
     ready: false,
@@ -164,7 +242,47 @@ function emptyAnalytics(): SiteTrackingAnalytics {
   };
 }
 
-export async function loadSiteTrackingAnalytics(
+async function loadSiteTrackingAnalyticsOverviewImpl(
+  companyId: string,
+  period: ReportPeriod | number = 14,
+): Promise<SiteTrackingAnalytics> {
+  const empty = emptyAnalytics();
+  const site = await trackingSiteForCompany(companyId);
+  if (!site) return empty;
+
+  const window = trackingWindowFor(resolvePeriod(period));
+  const [rows, eventsByName] = await Promise.all([
+    listDailyMetrics(site.id, window),
+    listEventBreakdownFromHits(site.id, window),
+  ]);
+  const overview = buildTrafficOverview(window, rows, eventsByName);
+
+  return {
+    ready: true,
+    period: overview.periodLabel,
+    range: window,
+    totals: overview.totals,
+    topEvent: overview.topEvent,
+    points: overview.points,
+    eventsByName: overview.eventsByName,
+    eventShare: overview.eventShare,
+    eventPlatformMix: [],
+    eventTrend: { names: [], points: [] },
+    byPath: [],
+    byPathFlow: [],
+    byDevice: [],
+    byBrowser: [],
+    byAttribution: [],
+    byPlatform: {
+      google: { attribution: [], eventsByName: [] },
+      meta: { attribution: [], eventsByName: [] },
+      other: { attribution: [], eventsByName: [] },
+      none: { attribution: [], eventsByName: [] },
+    },
+  };
+}
+
+async function loadSiteTrackingAnalyticsFullImpl(
   companyId: string,
   period: ReportPeriod | number = 14,
 ): Promise<SiteTrackingAnalytics> {
@@ -218,65 +336,24 @@ export async function loadSiteTrackingAnalytics(
     none: { attribution: noneAttribution, eventsByName: noneEvents },
   };
 
-  const eventShare = toEventShareRows(eventsByName);
+  const overview = buildTrafficOverview(window, rows, eventsByName);
   const eventPlatformMix = mixEventPlatforms(eventsByName, eventPlatform);
   const axisDays = axisDaysFor(window);
   const eventTrend = buildEventTrend(
-    eventShare.slice(0, TOP_EVENT_SERIES).map((row) => row.name),
+    overview.eventShare.slice(0, TOP_EVENT_SERIES).map((row) => row.name),
     axisDays,
     eventDaily,
   );
-  const byDay = new Map(rows.map((row) => [utcDayKey(row.day), row]));
-  const points = axisDays.map((day) => {
-    const row = byDay.get(utcDayKey(day));
-    return {
-      label: formatDayLabel(day),
-      pageviews: row?.pageviews ?? 0,
-      events: row?.events ?? 0,
-      visitors: row?.visitors ?? 0,
-    };
-  });
-  const totalsBase = points.reduce(
-    (acc, point) => ({
-      pageviews: acc.pageviews + point.pageviews,
-      events: acc.events + point.events,
-      visitors: acc.visitors + point.visitors,
-    }),
-    { pageviews: 0, events: 0, visitors: 0 },
-  );
-  const eventsTotal =
-    totalsBase.events > 0
-      ? totalsBase.events
-      : eventShare.reduce((sum, row) => sum + row.count, 0);
-  const conversions = totalConversionsFromEvents(eventsByName);
-  const conversionRate =
-    totalsBase.pageviews > 0
-      ? (conversions / totalsBase.pageviews) * 100
-      : 0;
-  const eventRate =
-    totalsBase.pageviews > 0 ? (eventsTotal / totalsBase.pageviews) * 100 : 0;
-  const eventsPerVisit =
-    totalsBase.pageviews > 0 ? eventsTotal / totalsBase.pageviews : 0;
-  const emptySuffix = rows.length === 0 ? " · aguardando visitas" : "";
-  const periodLabel = `${formatRangeLabel(window.from, window.to)}${emptySuffix}`;
 
   return {
     ready: true,
-    period: periodLabel,
+    period: overview.periodLabel,
     range: window,
-    totals: {
-      pageviews: totalsBase.pageviews,
-      events: eventsTotal,
-      visitors: totalsBase.visitors,
-      conversions,
-      conversionRate,
-      eventRate,
-      eventsPerVisit,
-    },
-    topEvent: eventShare[0] ?? null,
-    points,
-    eventsByName,
-    eventShare,
+    totals: overview.totals,
+    topEvent: overview.topEvent,
+    points: overview.points,
+    eventsByName: overview.eventsByName,
+    eventShare: overview.eventShare,
     eventPlatformMix,
     eventTrend,
     byPath,
@@ -286,4 +363,44 @@ export async function loadSiteTrackingAnalytics(
     byAttribution,
     byPlatform,
   };
+}
+
+const loadSiteTrackingAnalyticsFullCached = unstable_cache(
+  async (companyId: string, periodKey: string) =>
+    loadSiteTrackingAnalyticsFullImpl(
+      companyId,
+      trackingPeriodFromCacheKey(periodKey),
+    ),
+  ["site-tracking-full"],
+  { revalidate: TRACKING_CACHE_SECONDS },
+);
+
+const loadSiteTrackingAnalyticsOverviewCached = unstable_cache(
+  async (companyId: string, periodKey: string) =>
+    loadSiteTrackingAnalyticsOverviewImpl(
+      companyId,
+      trackingPeriodFromCacheKey(periodKey),
+    ),
+  ["site-tracking-overview"],
+  { revalidate: TRACKING_CACHE_SECONDS },
+);
+
+export async function loadSiteTrackingAnalytics(
+  companyId: string,
+  period: ReportPeriod | number = 14,
+): Promise<SiteTrackingAnalytics> {
+  return loadSiteTrackingAnalyticsFullCached(
+    companyId,
+    trackingPeriodCacheKey(period),
+  );
+}
+
+export async function loadSiteTrackingAnalyticsOverview(
+  companyId: string,
+  period: ReportPeriod | number = 14,
+): Promise<SiteTrackingAnalytics> {
+  return loadSiteTrackingAnalyticsOverviewCached(
+    companyId,
+    trackingPeriodCacheKey(period),
+  );
 }

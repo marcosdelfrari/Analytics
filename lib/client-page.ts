@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { getSession } from "@/lib/auth";
@@ -6,7 +7,7 @@ import { resolveClientCompanyContext } from "@/lib/company-context";
 import { AccountRole, isSystemAdminAccount } from "@/lib/access-roles";
 import { listCompanies } from "@/lib/organizations-store";
 
-export async function getClientPageContext() {
+export const getClientPageContext = cache(async () => {
   await connection();
   const session = await getSession();
   if (authEnabled && !session) {
@@ -40,7 +41,7 @@ export async function getClientPageContext() {
     activeCompanyId: first?.id,
     organizationName: first?.organizationName,
   };
-}
+});
 
 export function clientSubtitle(planActive: boolean, period: string) {
   return planActive ? period : `${period} · demonstração`;

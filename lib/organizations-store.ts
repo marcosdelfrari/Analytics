@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { randomUUID } from "node:crypto";
 import { adminEmail, roleForEmail } from "@/lib/access-code";
 import {
@@ -370,7 +371,7 @@ export async function findCompanyById(id: string) {
   };
 }
 
-export async function listAccessibleCompanies(
+async function listAccessibleCompaniesUncached(
   email: string,
 ): Promise<CompanyAccount[]> {
   const normalized = normalizeEmail(email);
@@ -387,13 +388,35 @@ export async function listAccessibleCompanies(
   });
 
   const byId = new Map<string, CompanyAccount>();
+  const orgIdsWithAll = [
+    ...new Set(
+      grants.filter((grant) => grant.allCompanies).map((grant) => grant.organizationId),
+    ),
+  ];
+  type CompanyWithOrg = Awaited<
+    ReturnType<
+      typeof prisma.company.findMany<{
+        include: { organization: true };
+      }>
+    >
+  >[number];
+  const companiesByOrgId = new Map<string, CompanyWithOrg[]>();
+
+  if (orgIdsWithAll.length > 0) {
+    const companies = await prisma.company.findMany({
+      where: { organizationId: { in: orgIdsWithAll } },
+      include: { organization: true },
+    });
+    for (const company of companies) {
+      const bucket = companiesByOrgId.get(company.organizationId) ?? [];
+      bucket.push(company);
+      companiesByOrgId.set(company.organizationId, bucket);
+    }
+  }
 
   for (const grant of grants) {
     if (grant.allCompanies) {
-      const companies = await prisma.company.findMany({
-        where: { organizationId: grant.organizationId },
-        include: { organization: true },
-      });
+      const companies = companiesByOrgId.get(grant.organizationId) ?? [];
       for (const company of companies) {
         byId.set(company.id, {
           id: company.id,
@@ -418,11 +441,14 @@ export async function listAccessibleCompanies(
     }
   }
 
-  return [...byId.values()].sort((a, b) =>
-    a.organizationName.localeCompare(b.organizationName, "pt-BR") ||
-    a.name.localeCompare(b.name, "pt-BR"),
+  return [...byId.values()].sort(
+    (a, b) =>
+      a.organizationName.localeCompare(b.organizationName, "pt-BR") ||
+      a.name.localeCompare(b.name, "pt-BR"),
   );
 }
+
+export const listAccessibleCompanies = cache(listAccessibleCompaniesUncached);
 
 export async function emailHasPlatformAccess(email: string) {
   const normalized = normalizeEmail(email);

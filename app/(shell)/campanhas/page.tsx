@@ -20,7 +20,12 @@ async function CampaignsPageContent() {
       redirect("/dashboard");
     }
   }
-  const analytics = await loadClientAnalytics(clientId, planActive);
+  const analytics = await loadClientAnalytics(
+    clientId,
+    planActive,
+    undefined,
+    "none",
+  );
 
   return (
     <AppShellMain

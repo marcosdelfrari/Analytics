@@ -8,7 +8,12 @@ import { canRegisterResources } from "@/lib/organization-access";
 
 async function DashboardPageContent() {
   const { planActive, clientId, title, session } = await getClientPageContext();
-  const analytics = await loadClientAnalytics(clientId, planActive);
+  const analytics = await loadClientAnalytics(
+    clientId,
+    planActive,
+    undefined,
+    "overview",
+  );
   const showSetupLink = !session || canRegisterResources(session);
 
   return (

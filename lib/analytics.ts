@@ -7,6 +7,7 @@ import {
 } from "@/lib/demo-analytics";
 import {
   loadSiteTrackingAnalytics,
+  loadSiteTrackingAnalyticsOverview,
   type SiteTrackingAnalytics,
 } from "@/lib/tracking-analytics";
 import type {
@@ -25,6 +26,8 @@ export type ClientAnalytics = {
   siteTracking: SiteTrackingAnalytics | null;
   demo: boolean;
 };
+
+export type ClientAnalyticsTracking = "full" | "overview" | "none";
 
 function evolutionFromReports(reports: PublishedReport[]): EvolutionPoint[] {
   const byPeriod = new Map<string, { spend: number; conversions: number }>();
@@ -46,6 +49,7 @@ export async function loadClientAnalytics(
   clientId: string | undefined,
   planActive: boolean,
   period?: ReportPeriod | number,
+  trackingMode: ClientAnalyticsTracking = "full",
 ): Promise<ClientAnalytics> {
   if (!planActive) {
     const id = clientId ?? "demo";
@@ -81,9 +85,16 @@ export async function loadClientAnalytics(
     };
   }
 
+  const siteTrackingPromise =
+    trackingMode === "none"
+      ? Promise.resolve(null)
+      : trackingMode === "overview"
+        ? loadSiteTrackingAnalyticsOverview(clientId, period)
+        : loadSiteTrackingAnalytics(clientId, period);
+
   const [dashboard, siteTracking] = await Promise.all([
     getDashboard(clientId),
-    loadSiteTrackingAnalytics(clientId, period),
+    siteTrackingPromise,
   ]);
 
   return {

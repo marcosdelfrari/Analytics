@@ -182,33 +182,7 @@ export async function listAttributionBreakdownFromHits(
   siteId: string,
   window: TrackingWindow,
 ) {
-  const { from, to } = bounds(window);
-  const createdFrom = dateKeyToUtc(from);
-  const createdToExclusive = dateKeyToUtc(addDaysToKey(to, 1));
-
-  // Agrupa só por source/medium/campaign — a tabela de Páginas não mostra term/content.
-  const rows = await prisma.$queryRawUnsafe<AttributionRow[]>(
-    `SELECT
-      ${SQL_HIT_UTM_SOURCE} AS source,
-      ${SQL_HIT_UTM_MEDIUM} AS medium,
-      ${SQL_HIT_UTM_CAMPAIGN} AS campaign,
-      COUNT(*) FILTER (WHERE kind = 'pageview')::bigint AS pageviews,
-      COUNT(*) FILTER (WHERE kind = 'event')::bigint AS events,
-      COUNT(*) FILTER (WHERE ${SQL_HIT_CONVERSION})::bigint AS conversions
-    FROM tracking.mov_hit
-    WHERE site_id = $1
-      AND created_at >= $2
-      AND created_at < $3
-    GROUP BY 1, 2, 3
-    ORDER BY (
-      COUNT(*) FILTER (WHERE kind = 'pageview')
-      + COUNT(*) FILTER (WHERE ${SQL_HIT_CONVERSION})
-    ) DESC
-    LIMIT 25`,
-    siteId,
-    createdFrom,
-    createdToExclusive,
-  );
+  const rows = await attributionQuery(siteId, window);
   return mapAttribution(rows);
 }
 
@@ -217,7 +191,11 @@ export async function listAttributionForPlatform(
   origin: TrackingMediaOrigin,
   window: TrackingWindow,
 ) {
-  return attributionFromHitsForOrigin(siteId, window, origin);
+  if (origin === "other" || origin === "none") {
+    return attributionFromHitsForOrigin(siteId, window, origin);
+  }
+  const rows = await attributionQuery(siteId, window, origin);
+  return mapAttribution(rows);
 }
 
 export async function listEventBreakdownForPlatform(

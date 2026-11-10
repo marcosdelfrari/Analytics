@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { CompanyAccount } from "@/lib/organizations-store";
@@ -20,7 +21,7 @@ export function companyCookieOptions(origin?: string) {
   };
 }
 
-export async function resolveClientCompanyContext(session: Session) {
+export const resolveClientCompanyContext = cache(async (session: Session) => {
   const accessible = await listAccessibleCompanies(session.email);
   if (accessible.length === 0) {
     if (isSystemAdminAccount(session.role)) {
@@ -52,7 +53,7 @@ export async function resolveClientCompanyContext(session: Session) {
     activeCompanyId: company.id,
     organizationName: company.organizationName,
   };
-}
+});
 
 export type ClientCompanyContext = {
   clientId: string | undefined;

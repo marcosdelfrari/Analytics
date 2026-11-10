@@ -94,12 +94,11 @@ export function trackingWindowFor(period: ReportPeriod): TrackingWindow {
 }
 
 export function formatDateKeyLabel(key: DateKey) {
-  const [year, month, day] = key.split("-").map(Number);
-  if (!year || !month || !day) return key;
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "short",
-  }).format(new Date(year, month - 1, day));
+    timeZone: "UTC",
+  }).format(dateKeyToUtc(key));
 }
 
 export function formatRangeLabel(from: DateKey, to: DateKey) {
