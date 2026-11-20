@@ -25,12 +25,12 @@ export function buildRootMetadata(): Metadata {
     description: FRACTAL_SITE_DESCRIPTION,
     icons: { icon: DEFAULT_OG_IMAGE },
     alternates: {
-      canonical: "/",
+      canonical: "/produto",
     },
     openGraph: {
       type: "website",
       locale: "pt_BR",
-      url: "/",
+      url: "/produto",
       siteName: FRACTAL_BRAND,
       title: FRACTAL_SITE_TITLE,
       description: FRACTAL_SITE_DESCRIPTION,

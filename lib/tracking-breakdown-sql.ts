@@ -416,6 +416,76 @@ export async function listPathBreakdown(siteId: string, window: TrackingWindow) 
   }));
 }
 
+type ContactHitRow = {
+  id: string;
+  createdAt: Date;
+  path: string;
+  name: string;
+  visitorId: string | null;
+  params: unknown;
+  properties: unknown;
+};
+
+export async function listGoogleCampaignsFromHits(
+  siteId: string,
+  window: TrackingWindow,
+) {
+  const createdFrom = dateKeyToUtc(window.from);
+  const createdToExclusive = dateKeyToUtc(addDaysToKey(window.to, 1));
+  const originSql = sqlHitSourceMatchesMediaOrigin("google");
+  const rows = await prisma.$queryRawUnsafe<{ campaign: string }[]>(
+    `SELECT DISTINCT
+       COALESCE(NULLIF(TRIM(params->>'utm_campaign'), ''), '') AS campaign
+     FROM tracking.mov_hit
+     WHERE site_id = $1
+       AND created_at >= $2
+       AND created_at < $3
+       AND ${originSql}
+       AND COALESCE(NULLIF(TRIM(params->>'utm_campaign'), ''), '') <> ''`,
+    siteId,
+    createdFrom,
+    createdToExclusive,
+  );
+  return rows
+    .map((row) => row.campaign.trim())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+export async function listCampaignContactHits(
+  siteId: string,
+  window: TrackingWindow,
+  campaign: string,
+) {
+  const createdFrom = dateKeyToUtc(window.from);
+  const createdToExclusive = dateKeyToUtc(addDaysToKey(window.to, 1));
+  const originSql = sqlHitSourceMatchesMediaOrigin("google");
+  const rows = await prisma.$queryRawUnsafe<ContactHitRow[]>(
+    `SELECT
+       id,
+       created_at AS "createdAt",
+       path,
+       name,
+       visitor_id AS "visitorId",
+       params,
+       properties
+     FROM tracking.mov_hit
+     WHERE site_id = $1
+       AND created_at >= $2
+       AND created_at < $3
+       AND ${originSql}
+       AND ${SQL_HIT_CONVERSION}
+       AND LOWER(TRIM(params->>'utm_campaign')) = LOWER(TRIM($4))
+     ORDER BY created_at DESC
+     LIMIT 200`,
+    siteId,
+    createdFrom,
+    createdToExclusive,
+    campaign,
+  );
+  return rows;
+}
+
 export async function listPathFlowBreakdown(
   siteId: string,
   window: TrackingWindow,

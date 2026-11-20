@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 
 /** Páginas públicas indexáveis. Rotas internas ficam fora do sitemap. */
-export const publicPaths = ["/"] as const;
+export const publicPaths = ["/", "/produto"] as const;
 
 export async function siteOrigin() {
   const configured = process.env.SITE_URL?.trim().replace(/\/$/, "");

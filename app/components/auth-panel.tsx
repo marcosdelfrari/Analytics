@@ -127,7 +127,7 @@ function AuthShell({
   return (
     <main className="relative flex h-dvh max-h-dvh flex-col overflow-hidden bg-[#0e0e0d] text-white">
       <header className="absolute left-5 top-5 z-10 sm:left-8 sm:top-6 lg:left-10">
-        <BrandMark priority href="/" />
+        <BrandMark priority href="/produto" />
       </header>
 
       <div className="flex min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin]">
@@ -502,7 +502,7 @@ export function AuthRouteLoading({ title }: { title: string }) {
   return (
     <main className="relative h-dvh max-h-dvh overflow-hidden bg-[#0e0e0d] text-white">
       <header className="absolute left-5 top-5 z-10 sm:left-8 sm:top-6 lg:left-10">
-        <BrandMark priority href="/" />
+        <BrandMark priority href="/produto" />
       </header>
 
       <div className="flex h-full min-h-0">

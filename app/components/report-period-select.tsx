@@ -11,10 +11,21 @@ import { useReportsNavigation } from "@/app/components/reports-navigation-contex
 export function ReportPeriodSelect({
   period,
   plain = false,
+  pathname = "/relatorios",
+  extraQuery,
 }: {
   period: ReportPeriod;
   plain?: boolean;
+  pathname?: string;
+  extraQuery?: Record<string, string>;
 }) {
+  function hrefForDays(days: number) {
+    const base = reportPeriodHref(days, pathname);
+    if (!extraQuery || Object.keys(extraQuery).length === 0) return base;
+    const separator = base.includes("?") ? "&" : "?";
+    const tail = new URLSearchParams(extraQuery).toString();
+    return `${base}${separator}${tail}`;
+  }
   const { beginNavigation } = useReportsNavigation();
 
   return (
@@ -32,7 +43,7 @@ export function ReportPeriodSelect({
         return (
           <Link
             key={option.days}
-            href={reportPeriodHref(option.days)}
+            href={hrefForDays(option.days)}
             aria-current={selected ? "true" : undefined}
             onClick={() => {
               if (!selected) beginNavigation();

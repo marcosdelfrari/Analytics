@@ -87,6 +87,7 @@ model Company {
   leadSubmissions LeadSubmission[]
   shortLinks      ShortLink[]
   publishedReports PublishedReport[]
+  campaignAdsImports CampaignAdsImport[]
 
   @@index([organizationId])
   @@map("cad_empresa")
@@ -406,6 +407,27 @@ model PublishedReport {
 
   @@index([companyId, publishedAt])
   @@map("mov_relatorio_publicado")
+  @@schema("marketing")
+}
+
+model CampaignAdsImport {
+  id           String   @id @default(uuid())
+  companyId    String   @map("company_id")
+  fileName     String   @map("file_name")
+  contentHash  String   @map("content_hash")
+  reportType   String   @map("report_type")
+  periodFrom   String?  @map("period_from")
+  periodTo     String?  @map("period_to")
+  currency     String   @default("BRL")
+  campaignName String   @default("") @map("campaign_name")
+  parsed       Json
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, contentHash])
+  @@index([companyId, createdAt])
+  @@map("mov_importacao_ads")
   @@schema("marketing")
 }
 

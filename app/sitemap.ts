@@ -7,6 +7,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return publicPaths.map((path) => ({
     url: new URL(path, `${origin}/`).toString(),
     changeFrequency: "weekly" as const,
-    priority: path === "/" ? 1 : 0.7,
+    priority: path === "/produto" ? 1 : path === "/" ? 0.3 : 0.7,
   }));
 }

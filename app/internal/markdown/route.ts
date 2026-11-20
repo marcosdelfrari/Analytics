@@ -6,7 +6,7 @@ const discoveryLinks =
 
 export async function GET(request: Request) {
   await connection();
-  const pageUrl = new URL("/", request.url);
+  const pageUrl = new URL("/produto", request.url);
   const htmlResponse = await fetch(pageUrl, {
     cache: "no-store",
     headers: {

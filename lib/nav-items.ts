@@ -110,7 +110,13 @@ const analyticsSection = (includeCampaigns: boolean): NavSection => ({
     { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { href: "/relatorios", label: "Relatórios", icon: "reports" },
     ...(includeCampaigns
-      ? [{ href: "/campanhas", label: "Campanhas", icon: "campaigns" as const }]
+      ? [
+          {
+            href: "/campanhas",
+            label: "Análise de campanhas",
+            icon: "campaigns" as const,
+          },
+        ]
       : []),
   ],
 });
@@ -250,7 +256,9 @@ export function mobileMenuItems(
   if (mode === "agency") {
     items.push(mobileDashboardItem(), mobileReportsItem());
     if (includeCampaigns) {
-      items.push(mobileMenuItem("/campanhas", "Campanhas", "campaigns"));
+      items.push(
+        mobileMenuItem("/campanhas", "Análise de campanhas", "campaigns"),
+      );
     }
     items.push(
       mobileMenuItem("/admin/usuarios", "Usuários", "users"),
@@ -259,7 +267,9 @@ export function mobileMenuItems(
     );
   } else {
     if (includeCampaigns) {
-      items.push(mobileMenuItem("/campanhas", "Campanhas", "campaigns"));
+      items.push(
+        mobileMenuItem("/campanhas", "Análise de campanhas", "campaigns"),
+      );
     }
     if (context.platformAdmin) {
       items.push(

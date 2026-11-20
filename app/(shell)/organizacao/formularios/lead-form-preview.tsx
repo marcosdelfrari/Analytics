@@ -1,5 +1,6 @@
 "use client";
 
+import { ArtworkWithNoise } from "@/app/components/home/artwork-with-noise";
 import {
   LEAD_FORM_KIND_LABELS,
   type LeadFormDraft,
@@ -238,12 +239,14 @@ export function LeadFormPreview({ draft }: { draft: LeadFormDraft }) {
                 className="relative h-28 w-full overflow-hidden border-b"
                 style={{ borderColor: surface.fieldBorder }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={headerImageUrl}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
+                <ArtworkWithNoise className="absolute inset-0" intensity="subtle" noiseClassName="z-[1]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={headerImageUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </ArtworkWithNoise>
               </div>
             ) : null}
 

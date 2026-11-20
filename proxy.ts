@@ -19,7 +19,7 @@ export function proxy(request: NextRequest) {
   }
 
   if (
-    pathname === "/" &&
+    pathname === "/produto" &&
     request.headers.get("x-fractal-source") !== "1" &&
     acceptsMarkdown(request.headers.get("accept"))
   ) {
@@ -29,13 +29,15 @@ export function proxy(request: NextRequest) {
   }
 
   const response = NextResponse.next();
-  if (pathname === "/") {
+  if (pathname === "/" || pathname === "/produto") {
     response.headers.append("Link", discoveryLinks);
-    response.headers.append("Vary", "Accept");
+    if (pathname === "/produto") {
+      response.headers.append("Vary", "Accept");
+    }
   }
   return response;
 }
 
 export const config = {
-  matcher: "/",
+  matcher: ["/", "/produto"],
 };

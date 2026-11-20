@@ -154,8 +154,8 @@ function reportPeriodQuery(period: ReportPeriod) {
   return `?de=${period.from}&ate=${period.to}`;
 }
 
-export function reportPeriodHref(period: ReportPeriod | number) {
-  return `/relatorios${reportPeriodQuery(asPeriod(period))}`;
+export function reportPeriodHref(period: ReportPeriod | number, pathname = "/relatorios") {
+  return `${pathname}${reportPeriodQuery(asPeriod(period))}`;
 }
 
 export function reportExportHref(period: ReportPeriod | number) {

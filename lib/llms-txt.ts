@@ -9,8 +9,8 @@ export function buildLlmsTxt(origin: string) {
 
 ## Produto (humanos)
 
-- [Landing page](${base}/): benefícios, como funciona, planos (Pro e Agency), FAQ e cadastro gratuito via Google.
-- Negociação \`Accept: text/markdown\` na home devolve a mesma página em Markdown.
+- [Produto / landing](${base}/produto): benefícios, como funciona, planos (Pro e Agency), FAQ e cadastro gratuito via Google.
+- Negociação \`Accept: text/markdown\` em \`/produto\` devolve a mesma página em Markdown.
 
 ## Perguntas frequentes (resumo)
 

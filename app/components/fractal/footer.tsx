@@ -15,7 +15,7 @@ export function FractalFooter() {
     <footer className="border-t border-border bg-surface/30">
       <Reveal className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
         <div className="lg:col-span-1">
-          <Link href="/" className="inline-flex items-center gap-2">
+          <Link href="/produto" className="inline-flex items-center gap-2">
             <Image
               src="/fractalbranco.webp"
               alt="Fractal"

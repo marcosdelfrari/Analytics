@@ -42,12 +42,11 @@ export function ReportsNavigationProvider({ children }: { children: ReactNode })
   );
 }
 
+const fallbackNavigation: ReportsNavigationContextValue = {
+  navigationPending: false,
+  beginNavigation: () => {},
+};
+
 export function useReportsNavigation() {
-  const context = useContext(ReportsNavigationContext);
-  if (!context) {
-    throw new Error(
-      "useReportsNavigation must be used within ReportsNavigationProvider",
-    );
-  }
-  return context;
+  return useContext(ReportsNavigationContext) ?? fallbackNavigation;
 }

@@ -22,7 +22,7 @@ export function FractalNavbar() {
     >
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4">
-          <Link href="/" className="flex shrink-0 items-center" aria-label="Fractal">
+          <Link href="/produto" className="flex shrink-0 items-center" aria-label="Fractal">
             <Image
               src="/fractalbranco.webp"
               alt="Fractal"

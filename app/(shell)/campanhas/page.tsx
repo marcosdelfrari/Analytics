@@ -1,16 +1,27 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { AppShellMain } from "@/app/components/app-shell";
+import { CampaignAnalysisPanel } from "@/app/components/campaign-analysis-panel";
 import { CampaignsLoadingFallback } from "@/app/components/loading-fallbacks";
-import { CampaignsHierarchy } from "@/app/components/campaigns-hierarchy";
-import { PlatformTabs } from "@/app/components/platform-tabs";
+import { ReportPeriodSelect } from "@/app/components/report-period-select";
 import { isSystemAdminAccount } from "@/lib/access-roles";
-import { campaignsForPlatform, loadClientAnalytics } from "@/lib/analytics";
+import {
+  campaignAnalysisPeriodFromSearch,
+  loadCampaignAnalysis,
+} from "@/lib/campaign-analysis/load";
 import { authEnabled } from "@/lib/auth-config";
 import { clientSubtitle, getClientPageContext } from "@/lib/client-page";
 import { userHasLotusPartnerAccess } from "@/lib/lotus-proposal";
 
-async function CampaignsPageContent() {
+async function CampaignsPageContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ dias?: string; de?: string; ate?: string; campanha?: string }>;
+}) {
+  await connection();
+  const params = await searchParams;
+  const period = campaignAnalysisPeriodFromSearch(params);
   const { planActive, clientId, title, session } = await getClientPageContext();
   if (authEnabled && session) {
     const allowed =
@@ -20,53 +31,60 @@ async function CampaignsPageContent() {
       redirect("/dashboard");
     }
   }
-  const analytics = await loadClientAnalytics(
-    clientId,
+
+  const analysis = await loadCampaignAnalysis({
+    companyId: clientId,
     planActive,
-    undefined,
-    "none",
-  );
+    period,
+    campaign: params.campanha,
+  });
+
+  const alignPeriodHref =
+    analysis.reportWindow && !analysis.periodAligned
+      ? (() => {
+          const query = new URLSearchParams();
+          query.set("de", analysis.reportWindow!.from);
+          query.set("ate", analysis.reportWindow!.to);
+          if (analysis.campaign) query.set("campanha", analysis.campaign);
+          return `/campanhas?${query.toString()}`;
+        })()
+      : null;
 
   return (
     <AppShellMain
       title={title}
-      subtitle={clientSubtitle(planActive, analytics.dashboard.period)}
+      subtitle={clientSubtitle(
+        planActive,
+        analysis.demo
+          ? "Demonstração · análise de campanhas"
+          : "Análise de campanhas",
+      )}
       planActive={planActive}
     >
-      <div className="space-y-4">
-        <header>
-          <p className="text-[11px] uppercase tracking-wider text-muted">
-            Campanhas
-          </p>
-          <h2 className="mt-1 text-lg font-medium tracking-tight">
-            Estrutura por plataforma
-          </h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Performance e hierarquia publicadas (campanha → grupo → anúncio). O
-            plano de marketing e o funil de aquisição são definidos na Lótus.
-          </p>
-        </header>
-        <PlatformTabs
-          google={
-            <CampaignsHierarchy
-              campaigns={campaignsForPlatform(analytics.campaigns, "google")}
-            />
-          }
-          meta={
-            <CampaignsHierarchy
-              campaigns={campaignsForPlatform(analytics.campaigns, "meta")}
-            />
-          }
-        />
-      </div>
+      <CampaignAnalysisPanel
+        view={analysis}
+        periodControls={
+          <ReportPeriodSelect
+            period={period}
+            plain
+            pathname="/campanhas"
+            extraQuery={analysis.campaign ? { campanha: analysis.campaign } : undefined}
+          />
+        }
+        alignPeriodHref={alignPeriodHref}
+      />
     </AppShellMain>
   );
 }
 
-export default function CampaignsPage() {
+export default function CampaignsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ dias?: string; de?: string; ate?: string; campanha?: string }>;
+}) {
   return (
     <Suspense fallback={<CampaignsLoadingFallback />}>
-      <CampaignsPageContent />
+      <CampaignsPageContent searchParams={searchParams} />
     </Suspense>
   );
 }
