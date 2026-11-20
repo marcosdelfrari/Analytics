@@ -16,32 +16,16 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     price: "R$ 697",
     period: "/mês",
     description:
-      "Tudo o que você precisa para rastrear campanhas, capturar leads atribuídos e analisar resultados com precisão.",
+      "A estrutura completa para rastrear campanhas no seu domínio, capturar leads atribuídos e cruzar tráfego com investimento.",
     features: [
       "Google Ads + Meta Ads no mesmo painel",
-      "Script de rastreamento + verificador ao vivo",
-      "Formulários de captura (WhatsApp, Popup e Saída)",
-      "Leads atribuídos por UTM + exportação CSV",
+      "Script próprio + validador ao vivo e suporte a SPA",
+      "Formulários nativos (WhatsApp, Popup, Saída e Seção)",
+      "Leads com UTM e página de entrada + exportação CSV",
       "Montador de parâmetros UTM e encurtador de links",
-      "Histórico de dados e relatórios em CSV/PDF",
+      "Jornada por páginas, eventos, acessos da equipe e relatórios CSV/PDF",
     ],
     highlighted: true,
-  },
-  {
-    name: "Agency",
-    price: "R$ 2.997",
-    period: "/mês",
-    description:
-      "A estrutura completa e escalável para agências e grupos gerenciarem múltiplas empresas e equipes.",
-    features: [
-      "Tudo do plano Pro",
-      "Gestão multi-organização e multi-empresa",
-      "Papéis de Proprietário e Analista com fluxo visual",
-      "Dashboards e formulários segregados por empresa",
-      "Publicação de relatórios customizados (Planilha/PDF)",
-      "Domínios de rastreio ilimitados",
-    ],
-    highlighted: false,
   },
 ];
 

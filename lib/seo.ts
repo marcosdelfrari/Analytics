@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const FRACTAL_BRAND = "Fractal";
 
-export const FRACTAL_SITE_TITLE = `${FRACTAL_BRAND} — Coleta, análise e custo`;
+export const FRACTAL_SITE_TITLE = `${FRACTAL_BRAND}: coleta, análise e custo`;
 
 export const FRACTAL_SITE_DESCRIPTION =
   "Coleta de dados no site: visitas, ações e conversões. Análise para melhorar, cruzada com custo em Google Ads e Meta Ads em um painel claro. Parte do ecossistema marcosdelfrari.com.";
@@ -37,7 +37,7 @@ export function buildRootMetadata(): Metadata {
       images: [
         {
           url: DEFAULT_OG_IMAGE,
-          alt: `${FRACTAL_BRAND} — logo`,
+          alt: `${FRACTAL_BRAND} logo`,
         },
       ],
     },

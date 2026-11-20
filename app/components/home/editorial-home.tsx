@@ -8,11 +8,12 @@ import { type CSSProperties, useState } from "react";
 import { ArtworkWithNoise } from "@/app/components/home/artwork-with-noise";
 import { HeroWhiteNoise } from "@/app/components/home/hero-white-noise";
 import { fractalLandingFaqs } from "@/lib/fractal-faq";
-import { subscriptionPlans } from "@/lib/subscription-plans";
+import { subscriptionPlans, whatsAppCheckoutUrl } from "@/lib/subscription-plans";
 import skyArt from "@/public/ceu.webp";
 import heroDesktop from "@/public/hero.webp";
 import heroMobile from "@/public/heromobile.webp";
-import sectionArt from "@/public/section.webp";
+import sectionArtCompact from "@/public/section.webp";
+import sectionArtSpacious from "@/public/section2.webp";
 import sectionMobile from "@/public/sectionmobile.webp";
 
 const editorialSerif = Instrument_Serif({
@@ -48,120 +49,120 @@ const featureTabs: FeatureTab[] = [
   {
     id: "atribuicao",
     label: "Análise",
-    headingLine1: "Do dado coletado",
-    headingLine2: "à leitura com custo",
+    headingLine1: "Da primeira visita ao lead,",
+    headingLine2: "tudo cruzado com a mídia",
     description:
-      "Visitas, eventos e leads do site no mesmo painel do gasto em Google e Meta — para você ver o que melhorar, sem planilha solta.",
+      "Enxergue por onde o visitante entrou, quais páginas percorreu e quais campanhas de Google e Meta realmente geram leads e retorno.",
     subFeatures: [
       {
         icon: "insights",
-        title: "Visão unificada",
-        description: "Site, Google Ads e Meta Ads lado a lado",
+        title: "Caminho por página",
+        description: "Veja a URL de entrada e cada passo até a conversão",
       },
       {
         icon: "engagement",
-        title: "Origem preservada",
-        description: "Cada conversão ligada à origem certa",
+        title: "Origem presa na sessão",
+        description: "A UTM do clique acompanha toda a navegação no site",
       },
       {
         icon: "performance",
-        title: "Custo vs. resultado",
-        description: "Compare investimento e volume gerado",
+        title: "Site + Ads na mesma tela",
+        description: "Visitas, eventos e leads ao lado de CPA, CTR e gasto",
       },
       {
         icon: "satisfaction",
-        title: "Leitura direta",
-        description: "Análise clara, sem amostragem confusa",
+        title: "Contagem sem névoa",
+        description: "Dados diretos do seu domínio, sem amostragem do GA4",
       },
     ],
   },
   {
     id: "formularios",
-    label: "Formulários",
-    headingLine1: "Coleta nativa",
-    headingLine2: "de leads no site",
+    label: "Leads",
+    headingLine1: "Nenhum contato escapa",
+    headingLine2: "sem dizer de onde veio",
     description:
-      "Formulários em botão de WhatsApp, popup, intenção de saída ou bloco na página — cada envio entra na base com UTM e página salvos.",
+      "Substitua cliques cegos no WhatsApp por captura nativa em 4 formatos. Cada lead já entra salvo com página, campanha e anúncio.",
     subFeatures: [
       {
         icon: "engagement",
-        title: "Botão WhatsApp",
-        description: "Captura antes de abrir a conversa",
-      },
-      {
-        icon: "insights",
-        title: "Popup e saída",
-        description: "Ative no momento exato da jornada",
+        title: "Botão de WhatsApp",
+        description: "Registra nome e telefone antes de abrir a conversa",
       },
       {
         icon: "performance",
-        title: "UTM automática",
-        description: "Fonte, mídia, campanha e página salvos",
+        title: "Popup, saída e seção",
+        description: "Aborde o visitante no instante certo da página",
+      },
+      {
+        icon: "insights",
+        title: "UTM gravada sozinha",
+        description: "Fonte, mídia, campanha e URL salvas automaticamente",
       },
       {
         icon: "satisfaction",
-        title: "Base exportável",
-        description: "Baixe todos os leads atribuídos em CSV",
+        title: "Base limpa em CSV",
+        description: "Filtre por formulário ou unidade e exporte em 1 clique",
       },
     ],
   },
   {
     id: "rastreamento",
     label: "Rastreamento",
-    headingLine1: "Cada clique e evento",
-    headingLine2: "entra na coleta",
+    headingLine1: "Cada clique e rota sob",
+    headingLine2: "o olhar do seu domínio",
     description:
-      "Monte UTMs, encurte links de bio e WhatsApp e valide o script ao vivo — tudo para a coleta no site ficar completa e confiável.",
+      "Instale uma única tag no <head>, confirme o disparo ao vivo e encurte links de bio e WhatsApp para nada passar sem rastro.",
     subFeatures: [
       {
-        icon: "insights",
-        title: "Montador UTM",
-        description: "Padrão limpo para Google e Meta Ads",
+        icon: "satisfaction",
+        title: "Validador em tempo real",
+        description: "Checa o HTML e confirma a primeira visita na hora",
       },
       {
         icon: "performance",
-        title: "Encurtador próprio",
-        description: "Links curtos com contagem de cliques",
+        title: "Botões e rotas SPA",
+        description: "Mapeie ações com fractal.track() sem perder trocas de tela",
+      },
+      {
+        icon: "insights",
+        title: "Encurtador com UTM",
+        description: "Links curtos para bio, QR code e WhatsApp contados",
       },
       {
         icon: "engagement",
-        title: "Teste ao vivo",
-        description: "Confirme a tag instalada antes de escalar",
-      },
-      {
-        icon: "satisfaction",
-        title: "Domínios seguros",
-        description: "Bloqueie disparos fora dos seus sites",
+        title: "Domínios autorizados",
+        description: "Bloqueia disparos fora dos seus sites e subdomínios",
       },
     ],
   },
   {
     id: "governanca",
-    label: "Governança",
-    headingLine1: "Vários projetos,",
-    headingLine2: "um só lugar",
+    label: "Equipe",
+    headingLine1: "Sua operação organizada,",
+    headingLine2: "sem risco para o rastreio",
     description:
-      "Separe marcas e sites na mesma conta, convide quem só precisa ler e exporte coleta, análise e custo quando precisar decidir.",
+      "Separe marcas ou unidades na mesma conta e libere para cada analista somente o que ele precisa consultar, capturar e exportar.",
     subFeatures: [
       {
+        icon: "performance",
+        title: "Unidades em 1 clique",
+        description: "Alterne de marca ou domínio direto no topo do menu",
+      },
+      {
         icon: "engagement",
-        title: "Multi-empresa",
-        description: "Troque de operação em um único clique",
+        title: "Vínculo arrasta e solta",
+        description: "Conecte visualmente cada empresa aos seus analistas",
       },
       {
         icon: "satisfaction",
-        title: "Papéis sob medida",
-        description: "Fluxo claro entre Proprietário e Analista",
+        title: "Tag sempre protegida",
+        description: "A equipe cria forms e vê leads sem mexer no script",
       },
       {
         icon: "insights",
-        title: "CSV e Planilhas",
-        description: "Exporte mídia, tráfego, eventos e leads",
-      },
-      {
-        icon: "performance",
-        title: "Painéis por marca",
-        description: "Um dashboard para cada projeto ou cliente",
+        title: "Histórico por unidade",
+        description: "Relatórios, eventos e leads isolados por operação",
       },
     ],
   },
@@ -177,24 +178,42 @@ const weeklyChartBars = [
   { day: "Dom", heightPct: 54, value: "139 leads" },
 ];
 
-const howItWorksSteps = [
+const ctaInsightSteps = [
+  "Leads de WhatsApp atribuídos",
+  "Jornada completa por página",
+  "Custo por conversão claro",
+  "Acessos sob medida para a equipe",
+];
+
+const ctaOverviewBars = [
+  { month: "Abr", heightPct: 42, pct: "38,5%" },
+  { month: "Mai", heightPct: 58, pct: "52,1%" },
+  { month: "Jun", heightPct: 74, pct: "71,4%" },
+  { month: "Jul", heightPct: 92, pct: "92,6%", highlighted: true },
+];
+
+const howItWorksSteps: Array<{
+  icon: "link" | "tag" | "chart";
+  title: string;
+  description: string;
+}> = [
   {
-    number: "01",
-    title: "Ative a coleta no site",
+    icon: "link",
+    title: "Conecte e ative a coleta",
     description:
-      "Instale o script no cabeçalho, valide ao vivo e publique formulários — visitas, ações e leads passam a ser registrados no Fractal.",
+      "Autorize seu domínio, cole o snippet no <head>, valide ao vivo e publique formulários. Visitas, eventos e leads já entram no painel.",
   },
   {
-    number: "02",
-    title: "Organize origens e links",
+    icon: "tag",
+    title: "Padronize origens e links",
     description:
-      "Padronize UTMs nos anúncios ou use links curtos em bio, QR code e WhatsApp para nenhum acesso chegar sem contexto.",
+      "Monte UTMs limpas para Google e Meta ou crie links curtos para bio, QR code e WhatsApp preservando a origem em toda a sessão.",
   },
   {
-    number: "03",
-    title: "Analise e cruze com custo",
+    icon: "chart",
+    title: "Cruze tráfego, leads e custo",
     description:
-      "Compare o que foi coletado com o que você investiu em mídia. Exporte CSV ou compartilhe o painel com quem decide com você.",
+      "Leia no mesmo período o que foi coletado no site ao lado do investimento consolidado de mídia e exporte tudo pronto para decisão.",
   },
 ];
 
@@ -289,6 +308,7 @@ export function EditorialHome() {
   const [activeTab, setActiveTab] = useState<FeatureTabId>("atribuicao");
   const [hoveredBarIndex, setHoveredBarIndex] = useState<number>(3);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [ctaFocusStep, setCtaFocusStep] = useState(0);
 
   const currentTab =
     featureTabs.find((tab) => tab.id === activeTab) ?? featureTabs[0];
@@ -314,14 +334,21 @@ export function EditorialHome() {
 
   const commonSectionArtProps = {
     alt: "Pintura clássica emergindo das nuvens, representando clareza e revelação nos dados",
-    sizes: "(min-width: 1024px) 560px, (min-width: 640px) 90vw, 100vw",
+    sizes: "(min-width: 1024px) 780px, (min-width: 640px) 90vw, 100vw",
   };
 
   const {
-    props: { srcSet: sectionDesktopSrcSet },
+    props: { srcSet: sectionSpaciousSrcSet },
   } = getImageProps({
     ...commonSectionArtProps,
-    src: sectionArt,
+    src: sectionArtSpacious,
+  });
+
+  const {
+    props: { srcSet: sectionCompactSrcSet },
+  } = getImageProps({
+    ...commonSectionArtProps,
+    src: sectionArtCompact,
   });
 
   const {
@@ -341,19 +368,19 @@ export function EditorialHome() {
       }
       className={`${uiSans.className} min-h-screen bg-white text-[#111111] selection:bg-[#1D8CFF] selection:text-white`}
     >
-      {/* 1. HERO ARTWORK + NAVBAR SOBREPOSTA + NOISE BRANCO */}
-      <section className="relative w-full overflow-hidden bg-[#247FE0]">
-        {/* Header flutuante fiel à referência */}
-        <header className="absolute inset-x-0 top-0 z-30 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-7 sm:pt-6">
-          <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3">
+      {/* 1. HERO — fullscreen inicial (100dvh): somente arte + título; faixa de canais entra ao rolar */}
+      <section className="relative flex w-full flex-col overflow-hidden bg-white md:h-[100dvh] md:min-h-[600px]">
+        {/* Header flutuante — sobre a faixa da arte */}
+        <header className="absolute inset-x-0 top-0 z-30 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-7 sm:pt-6 lg:pointer-events-none lg:[&_a]:pointer-events-auto lg:[&_button]:pointer-events-auto">
+          <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-3 lg:max-w-none">
             {/* Símbolo branco solto sobre a hero */}
             <Link
               href="/"
               className="inline-flex items-center justify-center drop-shadow-[0_2px_8px_rgba(8,36,78,0.25)] transition-opacity hover:opacity-85"
-              aria-label="Fractal — Início"
+              aria-label="Fractal, início"
             >
               <Image
-                src="/fractalbranco.webp"
+                src="/lotuslogo.webp"
                 alt="Fractal"
                 width={28}
                 height={28}
@@ -362,14 +389,8 @@ export function EditorialHome() {
               />
             </Link>
 
-            {/* Ações à direita */}
+            {/* Ações à direita — "Nova conta" só no menu hamburger */}
             <div className="relative flex items-center gap-3 sm:gap-5">
-              <Link
-                href="/cadastro"
-                className="hidden text-[13px] font-medium text-white drop-shadow-[0_1px_2px_rgba(8,36,78,0.28)] transition-opacity hover:opacity-80 sm:block"
-              >
-                Nova conta
-              </Link>
               <Link
                 href="/login"
                 className="rounded-[3px] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#111111] shadow-[0_6px_20px_rgba(0,0,0,0.12)] transition-colors hover:bg-gray-100 sm:px-5"
@@ -434,7 +455,7 @@ export function EditorialHome() {
                       onClick={() => setMenuOpen(false)}
                       className="mt-1 block rounded-[3px] bg-[#1D8CFF] px-3 py-2 text-center text-[13px] font-medium text-white transition-colors hover:bg-[#0B7AE8]"
                     >
-                      Criar conta grátis
+                      Nova conta
                     </Link>
                   </motion.nav>
                 )}
@@ -443,17 +464,17 @@ export function EditorialHome() {
           </div>
         </header>
 
-        {/* heromobile.webp fullscreen no mobile; hero.webp no desktop */}
+        {/* heromobile.webp fullscreen no mobile; hero.webp + título dividindo 100dvh a partir de md */}
         <ArtworkWithNoise
-          className="w-full h-[100dvh] min-h-[100dvh] max-md:max-h-[100dvh] md:aspect-[1816/866] md:h-auto md:min-h-0 md:max-h-none"
+          className="h-[100dvh] min-h-[100dvh] w-full max-md:max-h-[100dvh] bg-[#247FE0] md:min-h-0 md:flex-[16] md:basis-0 md:aspect-auto md:h-auto md:max-h-none"
           noiseSlot={
             <>
-              <HeroWhiteNoise intensity="subtle" className="z-20 md:hidden" />
-              <HeroWhiteNoise intensity="default" className="z-20 hidden md:block" />
+              <HeroWhiteNoise intensity="subtle" className="z-20 lg:hidden" />
+              <HeroWhiteNoise intensity="default" className="z-20 hidden lg:block" />
             </>
           }
         >
-          <picture className="block h-full min-h-[inherit] w-full">
+          <picture className="block h-full min-h-[inherit] w-full md:absolute md:inset-0">
             <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
             <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
             <img
@@ -461,13 +482,13 @@ export function EditorialHome() {
               loading="eager"
               fetchPriority="high"
               decoding="async"
-              className="h-full min-h-[inherit] w-full object-cover object-[center_38%] select-none md:object-top"
+              className="h-full min-h-[inherit] w-full object-cover object-[center_38%] select-none md:object-[center_46%]"
             />
           </picture>
 
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 z-10 h-28 bg-gradient-to-b from-[#0C4A9A]/30 to-transparent md:h-24 md:from-[#0C4A9A]/20"
+            className="pointer-events-none absolute inset-x-0 top-0 z-10 h-28 bg-gradient-to-b from-[#0C4A9A]/30 to-transparent lg:hidden"
           />
 
           <div
@@ -489,64 +510,29 @@ export function EditorialHome() {
             </div>
           </div>
         </ArtworkWithNoise>
+
+        <motion.div
+          className="flex w-full flex-col items-center justify-center bg-white px-5 pb-12 pt-12 text-center sm:px-6 md:min-h-0 md:flex-[9] md:basis-0 md:px-10 md:py-4 xl:px-14"
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.06 }}
+        >
+          <h1
+            className={`${editorialSerif.className} mx-auto w-full max-w-[20ch] text-[40px] leading-[1.06] tracking-[-0.028em] text-[#111111] sm:max-w-[24ch] sm:text-[52px] lg:max-w-[26ch] lg:text-[clamp(3rem,6.8vh,5rem)] lg:leading-[1.04] xl:text-[clamp(3.25rem,7.2vh,5.25rem)]`}
+          >
+            Nada passa despercebido.
+            <br />
+            Nem seus{" "}
+            <span className="italic text-[#1D8CFF]">leads</span>.
+          </h1>
+        </motion.div>
       </section>
 
       <main>
-        {/* 2. BLOCO CENTRAL EDITORIAL: PROVA SOCIAL + HEADLINE SERIFADA */}
-        <section className="bg-white px-5 pb-10 pt-11 sm:px-6 sm:pb-16 sm:pt-16 lg:pb-20 lg:pt-20">
-          <motion.div
-            className="mx-auto max-w-4xl text-center"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {/* Eyebrow com linhas laterais finas */}
-            <div className="inline-flex items-center justify-center gap-3 sm:gap-4">
-              <span aria-hidden="true" className="h-px w-10 bg-[#E5E7EB] sm:w-14" />
-              <div className="inline-flex items-center gap-2.5">
-                <div className="flex shrink-0 -space-x-1.5" aria-hidden="true">
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#1D8CFF] text-[9px] font-semibold text-white ring-2 ring-white">
-                    G
-                  </span>
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#111827] text-[9px] font-semibold text-white ring-2 ring-white">
-                    M
-                  </span>
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#DBEAFE] text-[9px] font-semibold text-[#1D4ED8] ring-2 ring-white">
-                    U
-                  </span>
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FEF3C7] text-[9px] font-semibold text-[#92400E] ring-2 ring-white">
-                    +
-                  </span>
-                </div>
-                <span aria-hidden="true" className="hidden h-3 w-px shrink-0 bg-[#D1D5DB] sm:block" />
-                <p className="text-[11.5px] font-medium tracking-[-0.01em] text-[#6B7280] sm:text-[12.5px]">
-                  <span className="tabular-nums text-[#111111]">+1.000</span> dados
-                  trackeados
-                </p>
-              </div>
-              <span aria-hidden="true" className="h-px w-10 bg-[#E5E7EB] sm:w-14" />
-            </div>
-
-            <h1
-              className={`${editorialSerif.className} mx-auto mt-6 max-w-2xl text-[44px] leading-[1.03] tracking-[-0.025em] text-[#111111] sm:mt-7 sm:text-[60px] lg:text-[68px]`}
-            >
-              <span className="italic text-[#1D8CFF]">Coleta</span> e análise
-              <br />
-              cruzadas com o{" "}
-              <span className="italic text-[#1D8CFF]">custo</span>.
-            </h1>
-
-            <p className="mx-auto mt-5 max-w-[40ch] text-[15px] leading-[1.6] text-[#6B7280] sm:mt-6 sm:max-w-xl sm:text-[16.5px]">
-              Visitas, ações e conversões no seu domínio — análise para melhorar e
-              cruzamento com gasto em Google e Meta.
-            </p>
-          </motion.div>
-        </section>
-
-        {/* 3. ECOSSISTEMA: MARQUEE FLUÍDO NO MOBILE / GRADE FINA NO DESKTOP */}
+        {/* 2. ECOSSISTEMA: MARQUEE FLUÍDO NO MOBILE / GRADE FINA NO DESKTOP */}
         <section
           aria-label="Canais e integrações suportados"
-          className="border-y border-[#EAEAEA] bg-[#FAFAFA] lg:bg-white"
+          className="border-t border-[#EAEAEA] bg-white lg:border-y"
         >
           {/* Mobile & tablet: fita editorial contínua com fade lateral */}
           <div
@@ -558,11 +544,11 @@ export function EditorialHome() {
               <>
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#FAFAFA] to-transparent"
+                  className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-white to-transparent"
                 />
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-[#FAFAFA] to-transparent"
+                  className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-white to-transparent"
                 />
               </>
             )}
@@ -623,13 +609,13 @@ export function EditorialHome() {
                       UTM · LINKS
                     </span>
                   </div>
-                  <div className="flex h-16 w-40 items-center justify-center gap-2 px-4 text-[#6B7280]">
+                  <div className="flex h-16 w-44 items-center justify-center gap-2 px-4 text-[#6B7280]">
                     <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-4 w-4">
                       <rect x="3.5" y="3.5" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M7 8V12.5M10 6.5V12.5M13 9.5V12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M7 8.5h6M7 12h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                     <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em]">
-                      CSV &amp; PDF
+                      Eventos &amp; SPA
                     </span>
                   </div>
                 </div>
@@ -694,7 +680,7 @@ export function EditorialHome() {
               </span>
             </div>
 
-            {/* CSV & PDF */}
+            {/* Eventos & SPA */}
             <div className="flex h-16 items-center justify-center gap-2 px-4 text-[#6B7280] transition-colors hover:text-[#111111] sm:h-[72px]">
               <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-4 w-4">
                 <rect
@@ -707,14 +693,14 @@ export function EditorialHome() {
                   strokeWidth="1.5"
                 />
                 <path
-                  d="M7 8V12.5M10 6.5V12.5M13 9.5V12.5"
+                  d="M7 8.5h6M7 12h4"
                   stroke="currentColor"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                 />
               </svg>
               <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em]">
-                CSV &amp; PDF
+                Eventos &amp; SPA
               </span>
             </div>
           </div>
@@ -723,15 +709,15 @@ export function EditorialHome() {
         {/* 4. SHOWCASE INTERATIVO: BARRA AZUL DE ABAS + COLAGEM DE CÉU COM NOISE */}
         <section
           id="recursos"
-          className="scroll-mt-8 bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+          className="scroll-mt-8 bg-white px-5 py-20 sm:px-6 lg:px-8 lg:py-28"
         >
-          <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-8 max-md:gap-6 lg:grid-cols-12 lg:gap-12 xl:gap-14">
-            {/* Abas — primeiro no mobile */}
-            <div className="order-1 lg:col-span-6 lg:row-start-1 lg:pt-2">
+          <div className="mx-auto grid max-w-[1320px] grid-cols-1 gap-8 max-md:gap-6 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:items-stretch lg:gap-x-12 lg:gap-y-0 xl:gap-x-16">
+            {/* Abas — primeiro no mobile e alinhadas ao topo da imagem no desktop */}
+            <div className="order-1 lg:col-span-5 lg:row-start-1">
               <div
                 role="tablist"
                 aria-label="Recursos da plataforma Fractal"
-                className="grid grid-cols-2 gap-1 rounded-[4px] bg-[#1D8CFF] p-1 sm:inline-grid sm:grid-cols-4"
+                className="grid w-full grid-cols-2 gap-1 rounded-[5px] bg-[#1D8CFF] p-1 sm:flex sm:items-center"
               >
                 {featureTabs.map((tab) => {
                   const selected = tab.id === activeTab;
@@ -742,10 +728,10 @@ export function EditorialHome() {
                       role="tab"
                       aria-selected={selected}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`rounded-[2px] px-4 py-2 text-[12.5px] font-medium transition-all ${
+                      className={`whitespace-nowrap rounded-[3px] px-3 py-2.5 text-center text-[12.5px] font-medium transition-all sm:flex-1 ${
                         selected
-                          ? "bg-white text-[#111111] shadow-[0_1px_3px_rgba(0,0,0,0.1)]"
-                          : "text-white/90 hover:text-white"
+                          ? "bg-white text-[#111111] shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
+                          : "text-white/95 hover:text-white"
                       }`}
                     >
                       {tab.label}
@@ -755,35 +741,37 @@ export function EditorialHome() {
               </div>
             </div>
 
-            {/* Arte + mockups — segundo no mobile; coluna direita no desktop */}
-            <div className="order-2 lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1">
+            {/* Arte + mockups — terceiro no mobile; 7 colunas amplas no desktop na proporção nativa 1080/920 */}
+            <div className="order-3 lg:order-2 lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1">
               <ArtworkWithNoise
                 intensity="default"
                 noiseClassName="z-10"
-                className="mx-auto w-full bg-[#247FE0] max-md:aspect-[1024/1536] max-md:rounded-[12px] md:aspect-square md:rounded-[8px]"
+                className="mx-auto w-full bg-[#247FE0] max-md:aspect-[1024/1536] max-md:rounded-[12px] md:aspect-square md:rounded-[8px] lg:aspect-[1080/920] lg:rounded-[4px]"
               >
                 <picture className="absolute inset-0 block h-full w-full">
-                  <source media="(min-width: 768px)" srcSet={sectionDesktopSrcSet} />
+                  <source media="(min-width: 1024px)" srcSet={sectionSpaciousSrcSet} />
+                  <source media="(min-width: 768px)" srcSet={sectionCompactSrcSet} />
                   <source media="(max-width: 767px)" srcSet={sectionMobileSrcSet} />
                   <img
                     {...sectionImgRest}
                     loading="lazy"
                     decoding="async"
-                    className="h-full w-full object-cover object-[center_32%] select-none md:object-center"
+                    className="h-full w-full object-cover object-[center_32%] select-none md:object-[center_42%] lg:object-center"
                   />
                 </picture>
 
-                <div className="pointer-events-none absolute inset-x-[5%] top-[4%] z-20 max-md:px-0 sm:inset-x-[13%] sm:top-[12%] lg:inset-x-[14%] lg:top-[12%]">
-                  <AnimatePresence mode="wait">
-                    {activeTab === "atribuicao" && (
-                      <motion.div
-                        key="card-atribuicao"
-                        initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                        transition={{ duration: 0.25 }}
-                        className="feature-showcase-card pointer-events-auto mx-auto w-full max-w-[min(100%,318px)] rounded-[18px] border border-white bg-white p-3 shadow-[0_20px_48px_rgba(12,48,96,0.26)] max-md:max-w-none sm:p-4"
-                      >
+                <div className="pointer-events-none absolute inset-x-[5%] top-[4%] z-20 max-md:px-0 sm:inset-x-[13%] sm:top-[10%] lg:inset-x-auto lg:right-[4.5%] lg:top-[6.5%] lg:w-[55%] lg:max-w-[384px]">
+                  <div className="mx-auto w-full max-w-[min(100%,332px)] rounded-[16px] border border-white/55 bg-white/25 p-1.5 shadow-[0_24px_54px_rgba(9,42,88,0.22)] backdrop-blur-md max-md:max-w-none lg:max-w-none">
+                    <AnimatePresence mode="wait">
+                      {activeTab === "atribuicao" && (
+                        <motion.div
+                          key="card-atribuicao"
+                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                          transition={{ duration: 0.25 }}
+                          className="feature-showcase-card pointer-events-auto w-full rounded-[12px] bg-white p-3.5 sm:p-4"
+                        >
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-[12px] font-medium text-[#6B7280]">
                             Leads atribuídos · Semana
@@ -859,7 +847,7 @@ export function EditorialHome() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.98 }}
                         transition={{ duration: 0.25 }}
-                        className="feature-showcase-card pointer-events-auto mx-auto w-full max-w-[min(100%,318px)] rounded-[18px] border border-white bg-white p-3 shadow-[0_20px_48px_rgba(12,48,96,0.26)] max-md:max-w-none sm:p-4"
+                        className="feature-showcase-card pointer-events-auto w-full rounded-[12px] bg-white p-3.5 sm:p-4"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-[11.5px] font-medium text-[#6B7280]">
@@ -936,7 +924,7 @@ export function EditorialHome() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.98 }}
                         transition={{ duration: 0.25 }}
-                        className="feature-showcase-card pointer-events-auto mx-auto w-full max-w-[min(100%,318px)] rounded-[18px] border border-white bg-white p-3 shadow-[0_20px_48px_rgba(12,48,96,0.26)] max-md:max-w-none sm:p-4"
+                        className="feature-showcase-card pointer-events-auto w-full rounded-[12px] bg-white p-3.5 sm:p-4"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-[11.5px] font-medium text-[#6B7280]">
@@ -982,14 +970,14 @@ export function EditorialHome() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.98 }}
                         transition={{ duration: 0.25 }}
-                        className="feature-showcase-card pointer-events-auto mx-auto w-full max-w-[min(100%,318px)] rounded-[18px] border border-white bg-white p-3 shadow-[0_20px_48px_rgba(12,48,96,0.26)] max-md:max-w-none sm:p-4"
+                        className="feature-showcase-card pointer-events-auto w-full rounded-[12px] bg-white p-3.5 sm:p-4"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-[11.5px] font-medium text-[#6B7280]">
-                            Organização &amp; Acessos
+                            Unidades &amp; Acessos
                           </span>
-                          <span className="rounded-full bg-[#F3F4F6] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#111111]">
-                            Multi-empresa
+                          <span className="rounded-full bg-[#EFF6FF] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#1D8CFF]">
+                            Equipe
                           </span>
                         </div>
 
@@ -1025,13 +1013,14 @@ export function EditorialHome() {
                         </div>
                       </motion.div>
                     )}
-                  </AnimatePresence>
+                    </AnimatePresence>
+                  </div>
                 </div>
               </ArtworkWithNoise>
             </div>
 
-            {/* Texto + benefícios — terceiro no mobile; continuação da coluna esquerda no desktop */}
-            <div className="order-3 lg:col-span-6 lg:row-start-2">
+            {/* Texto + benefícios — esticado de ponta a ponta para casar topo e base com a arte */}
+            <div className="order-2 flex flex-col lg:order-3 lg:col-span-5 lg:row-start-2 lg:h-full lg:pt-9 xl:pt-11">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentTab.id}
@@ -1039,33 +1028,32 @@ export function EditorialHome() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex flex-1 flex-col justify-between"
                 >
-                  <h2
-                    className={`${editorialSerif.className} mt-0 text-[38px] leading-[1.06] tracking-[-0.02em] text-[#111111] sm:mt-0 sm:text-[48px]`}
-                  >
-                    {currentTab.headingLine1}
-                    <br />
-                    {currentTab.headingLine2}
-                  </h2>
+                  <div>
+                    <h2
+                      className={`${editorialSerif.className} mt-0 text-[38px] leading-[1.05] tracking-[-0.02em] text-[#111111] sm:text-[48px] xl:text-[54px]`}
+                    >
+                      {currentTab.headingLine1}
+                      <br />
+                      {currentTab.headingLine2}
+                    </h2>
 
-                  <p className="mt-4 max-w-md text-[14.5px] leading-[1.65] text-[#6B7280]">
-                    {currentTab.description}
-                  </p>
+                    <p className="mt-4 max-w-md text-[14.5px] leading-[1.65] text-[#6B7280] xl:text-[15.5px]">
+                      {currentTab.description}
+                    </p>
+                  </div>
 
-                  <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-7 sm:mt-12 sm:grid-cols-2">
+                  <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-7 sm:mt-12 sm:grid-cols-2 lg:mt-auto lg:pt-10">
                     {currentTab.subFeatures.map((item) => (
-                      <div key={item.title} className="flex items-start gap-2.5">
-                        <div className="mt-0.5">
-                          <SubFeatureIcon type={item.icon} />
-                        </div>
-                        <div>
-                          <h3 className="text-[13.5px] font-semibold tracking-[-0.01em] text-[#111111]">
-                            {item.title}
-                          </h3>
-                          <p className="mt-1 text-[12.5px] leading-5 text-[#737373]">
-                            {item.description}
-                          </p>
-                        </div>
+                      <div key={item.title} className="flex flex-col items-start">
+                        <SubFeatureIcon type={item.icon} />
+                        <h3 className="mt-2.5 text-[14px] font-semibold tracking-[-0.01em] text-[#111111]">
+                          {item.title}
+                        </h3>
+                        <p className="mt-1 text-[12.5px] leading-5 text-[#737373]">
+                          {item.description}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -1075,11 +1063,10 @@ export function EditorialHome() {
           </div>
         </section>
 
-        {/* 5. CTA — céu puro (ceu.webp) */}
+        {/* 5. CTA — céu + mockup em camadas + trilha lateral */}
         <section className="px-5 pb-20 sm:px-6 lg:px-8 lg:pb-28">
-          <div className="mx-auto max-w-6xl">
-            <div className="relative overflow-hidden rounded-[18px] bg-[#247FE0] sm:rounded-[8px]">
-              {/* O ArtworkWithNoise estava sendo "esmagado" por ser absolute inset-0 sem altura definida no pai */}
+          <div className="mx-auto max-w-[1320px]">
+            <div className="relative min-h-[520px] overflow-hidden rounded-[18px] bg-[#1a5fad] sm:min-h-[560px] sm:rounded-[12px] lg:min-h-[520px]">
               <div className="absolute inset-0 z-0 overflow-hidden rounded-[inherit]">
                 <ArtworkWithNoise
                   className="h-full w-full"
@@ -1090,196 +1077,371 @@ export function EditorialHome() {
                     src={skyArt}
                     alt=""
                     fill
-                    sizes="(min-width: 1024px) 1152px, 100vw"
-                    className="object-cover object-center select-none max-md:object-[50%_18%]"
+                    sizes="(min-width: 1024px) 1320px, 100vw"
+                    className="object-cover object-[62%_38%] select-none max-lg:object-[55%_30%]"
                   />
                 </ArtworkWithNoise>
               </div>
 
-              {/* Scrim leve — céu continua visível */}
               <div
                 aria-hidden="true"
-                className="absolute inset-0 z-[2] bg-gradient-to-r from-[#0B4F9C]/55 via-[#1A6FCE]/28 to-[#247FE0]/15 max-md:bg-[linear-gradient(165deg,rgba(11,79,156,0.58)_0%,rgba(26,111,206,0.3)_35%,transparent_100%)]"
+                className="absolute inset-0 z-[2] bg-gradient-to-r from-[#062d5c]/78 via-[#0d4f96]/42 to-[#030914]/55"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-y-0 right-0 z-[2] w-[38%] bg-[radial-gradient(90%_120%_at_100%_50%,rgba(3,8,20,0.85)_0%,transparent_72%)]"
               />
 
-              <div className="relative z-10 grid items-center gap-10 px-6 py-14 max-md:pb-14 max-md:pt-16 sm:px-12 sm:py-16 lg:grid-cols-12 lg:py-20">
-                <div className="lg:col-span-7">
+              <div className="relative z-10 flex flex-col gap-10 px-6 py-12 sm:px-10 sm:py-14 lg:flex-row lg:items-center lg:gap-8 lg:px-12 lg:py-16 xl:gap-12 xl:px-14">
+                <div className="min-w-0 lg:w-[30%] lg:shrink-0 xl:w-[28%]">
                   <h2
-                    className={`${editorialSerif.className} text-[40px] leading-[1.04] tracking-[-0.02em] text-white [text-shadow:0_2px_18px_rgba(5,32,72,0.8)] sm:text-[50px]`}
+                    className={`${editorialSerif.className} text-[34px] leading-[1.08] tracking-[-0.02em] text-white [text-shadow:0_2px_18px_rgba(5,32,72,0.55)] sm:text-[42px] xl:text-[46px]`}
                   >
-                    Coleta no site.
-                    <br />
-                    Análise com clareza.
+                    Pare de adivinhar qual campanha trouxe o lead
                   </h2>
-                  <p className="mt-4 max-w-md text-[14.5px] leading-[1.65] text-white/95 [text-shadow:0_1px_4px_rgba(5,32,72,0.6)]">
-                    Ative o script, acompanhe os dados e cruze com o custo — tudo no
-                    mesmo painel.
+                  <p className="mt-4 max-w-sm text-[14px] leading-[1.65] text-white/92 sm:text-[15px]">
+                    Instale o script em dois minutos, ative o botão de WhatsApp
+                    rastreado e enxergue o retorno real de cada anúncio.
                   </p>
-                  <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                    <Link
-                      href="/login"
-                      className="rounded-[4px] bg-white px-5 py-3.5 text-center text-[13px] font-semibold text-[#111111] shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-colors hover:bg-gray-100 sm:py-3 sm:text-left"
-                    >
-                      Acessar minha conta
-                    </Link>
-                    <Link
-                      href="/cadastro"
-                      className="rounded-[4px] border border-white/50 bg-white/20 px-5 py-3.5 text-center text-[13px] font-semibold text-white shadow-[0_6px_22px_rgba(8,36,78,0.15)] backdrop-blur-md transition-colors hover:bg-white/30 [text-shadow:0_1px_2px_rgba(5,32,72,0.5)] sm:py-3 sm:text-left"
-                    >
-                      Nova conta grátis
-                    </Link>
+                  <Link
+                    href="/cadastro"
+                    className="mt-8 inline-flex items-center justify-center gap-2 rounded-[6px] bg-[#1D8CFF] px-6 py-3.5 text-[13.5px] font-semibold text-white shadow-[0_12px_32px_rgba(29,140,255,0.38)] transition-colors hover:bg-[#0B7AE8]"
+                  >
+                    Criar conta grátis
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="mt-3 block text-[13px] font-medium text-white/85 underline-offset-4 transition-colors hover:text-white hover:underline"
+                  >
+                    Já tenho conta
+                  </Link>
+                </div>
+
+                <div className="flex min-w-0 flex-1 justify-center lg:justify-center">
+                  <div className="w-full max-w-[420px] rounded-[16px] border border-white/25 bg-white/12 p-3 shadow-[0_28px_60px_rgba(5,24,52,0.35)] backdrop-blur-xl sm:max-w-[460px]">
+                    <div className="rounded-[12px] border border-white/60 bg-white px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
+                      <div className="flex items-center gap-3">
+                        <div className="flex -space-x-2" aria-hidden="true">
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1D8CFF] text-[10px] font-semibold text-white ring-2 ring-white">
+                            A
+                          </span>
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#111827] text-[10px] font-semibold text-white ring-2 ring-white">
+                            B
+                          </span>
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#DBEAFE] text-[10px] font-semibold text-[#1D4ED8] ring-2 ring-white">
+                            C
+                          </span>
+                        </div>
+                        <p className="text-[12px] font-medium text-[#374151]">
+                          Novos leads:{" "}
+                          <span className="font-semibold text-[#059669]">
+                            +248 esta semana
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5 rounded-[12px] border border-white/60 bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.1)]">
+                      <div className="flex gap-1 rounded-[6px] bg-[#F3F4F6] p-1">
+                        {["Visão geral", "Leads", "Mídia"].map((tab, index) => (
+                          <span
+                            key={tab}
+                            className={`flex-1 rounded-[4px] px-2 py-1.5 text-center text-[10.5px] font-medium ${
+                              index === 0
+                                ? "bg-white text-[#111111] shadow-sm"
+                                : "text-[#6B7280]"
+                            }`}
+                          >
+                            {tab}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap items-end gap-3">
+                        <p
+                          className={`${editorialSerif.className} text-[40px] leading-none tracking-[-0.02em] text-[#111111]`}
+                        >
+                          1.248
+                        </p>
+                        <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-[#DCFCE7] px-2.5 py-1 text-[10.5px] font-semibold text-[#15803D]">
+                          124 ↗
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11.5px] text-[#6B7280]">
+                        Leads atribuídos subiram ~58% neste mês
+                      </p>
+
+                      <div className="mt-4 grid h-[92px] grid-cols-4 items-end gap-2">
+                        {ctaOverviewBars.map((bar) => (
+                          <div key={bar.month} className="flex h-full flex-col items-center justify-end">
+                            <span
+                              className={`mb-1 text-[9px] font-semibold ${
+                                bar.highlighted ? "text-[#1D8CFF]" : "text-[#9CA3AF]"
+                              }`}
+                            >
+                              {bar.pct}
+                            </span>
+                            <div
+                              style={{ height: `${bar.heightPct}%` }}
+                              className={`w-full rounded-t-[6px] ${
+                                bar.highlighted
+                                  ? "bg-[#1D8CFF]"
+                                  : "bg-[#DBEAFE]"
+                              }`}
+                            />
+                            <span className="mt-1.5 text-[9.5px] font-medium text-[#6B7280]">
+                              {bar.month}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5 flex items-center justify-between gap-3 rounded-[12px] border border-white/60 bg-white px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
+                      <div>
+                        <p className="text-[10.5px] font-medium text-[#6B7280]">
+                          Investimento rastreado
+                        </p>
+                        <p className="mt-0.5 text-[15px] font-semibold text-[#111111]">
+                          R$ 10.850,10
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-[6px] bg-[#1D8CFF] px-3 py-2 text-[11px] font-semibold text-white">
+                        Exportar CSV →
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="lg:col-span-5">
-                  <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 sm:gap-4">
-                    <div className="rounded-[10px] border border-white/30 bg-[#06386F]/65 p-4 shadow-[0_12px_32px_rgba(8,36,78,0.2)] backdrop-blur-[6px] sm:bg-white/18">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-white/90 [text-shadow:0_1px_2px_rgba(5,32,72,0.5)]">
-                        Google Ads
-                      </p>
-                      <p
-                        className={`${editorialSerif.className} mt-1 text-3xl text-white [text-shadow:0_2px_8px_rgba(5,32,72,0.6)]`}
-                      >
-                        186 leads
-                      </p>
-                      <p className="mt-1 text-[11.5px] text-white/90 [text-shadow:0_1px_2px_rgba(5,32,72,0.4)]">
-                        Atribuídos por UTM
-                      </p>
-                    </div>
-                    <div className="rounded-[10px] border border-white/30 bg-[#06386F]/65 p-4 shadow-[0_12px_32px_rgba(8,36,78,0.2)] backdrop-blur-[6px] sm:bg-white/18">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-white/90 [text-shadow:0_1px_2px_rgba(5,32,72,0.5)]">
-                        Meta Ads
-                      </p>
-                      <p
-                        className={`${editorialSerif.className} mt-1 text-3xl text-white [text-shadow:0_2px_8px_rgba(5,32,72,0.6)]`}
-                      >
-                        214 leads
-                      </p>
-                      <p className="mt-1 text-[11.5px] text-white/90 [text-shadow:0_1px_2px_rgba(5,32,72,0.4)]">
-                        Cruzados com visitas
-                      </p>
-                    </div>
-                  </div>
+                <div className="lg:w-[24%] lg:shrink-0 xl:w-[22%]">
+                  <ul
+                    className="relative flex flex-col gap-3 pl-1"
+                    aria-label="Benefícios destacados"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-2 left-[7px] top-2 w-px bg-white/35"
+                    />
+                    {ctaInsightSteps.map((label, index) => {
+                      const active = ctaFocusStep === index;
+                      return (
+                        <li key={label} className="relative flex items-center gap-3 pl-0">
+                          <span
+                            aria-hidden="true"
+                            className={`relative z-[1] h-[15px] w-[15px] shrink-0 rounded-full border-2 ${
+                              active
+                                ? "border-white bg-white shadow-[0_0_0_3px_rgba(255,255,255,0.25)]"
+                                : "border-white/70 bg-[#0a2d58]/40"
+                            }`}
+                          />
+                          <button
+                            type="button"
+                            onMouseEnter={() => setCtaFocusStep(index)}
+                            onFocus={() => setCtaFocusStep(index)}
+                            onClick={() => setCtaFocusStep(index)}
+                            className={`w-full rounded-[6px] px-3.5 py-2.5 text-left text-[12.5px] font-medium transition-all ${
+                              active
+                                ? "bg-white text-[#111111] shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+                                : "border border-white/20 bg-white/10 text-white/95 backdrop-blur-sm hover:bg-white/15"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 6. COMO FUNCIONA — GRADE ARQUITETÔNICA DE 3 ETAPAS */}
+        {/* 6. COMO FUNCIONA — BLOCO ESCURO COM ÍCONES GLOW + MANIFESTO EDITORIAL */}
         <section
           id="como-funciona"
-          className="scroll-mt-8 border-t border-[#EAEAEA] bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-24"
+          className="scroll-mt-8 bg-white px-5 pb-20 pt-2 sm:px-6 lg:px-8 lg:pb-28"
         >
-          <div className="mx-auto max-w-6xl">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#1D8CFF]">
-                Como funciona
-              </p>
-              <h2
-                className={`${editorialSerif.className} mt-3 text-[36px] leading-[1.08] tracking-[-0.02em] text-[#111111] sm:text-[46px]`}
-              >
-                Da coleta à análise
-                <br />
-                em três passos
-              </h2>
+          <div className="mx-auto max-w-[1320px]">
+            <div className="rounded-[12px] bg-[#050505] px-6 py-14 text-white sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+              <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-start lg:gap-12">
+                <div>
+                  <div className="inline-flex items-center gap-2.5">
+                    <span
+                      aria-hidden="true"
+                      className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#1D8CFF]/25 ring-1 ring-[#1D8CFF]/50"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_#1D8CFF]" />
+                    </span>
+                    <span className="text-[12.5px] font-medium tracking-[-0.01em] text-white/90">
+                      Como funciona
+                    </span>
+                  </div>
+
+                  <h2
+                    className={`${editorialSerif.className} mt-4 text-[36px] leading-[1.06] tracking-[-0.02em] text-white sm:text-[46px] lg:text-[50px]`}
+                  >
+                    Nosso processo de
+                    <br />
+                    coleta e análise
+                  </h2>
+                </div>
+
+                <p className="max-w-xs text-[13.5px] leading-[1.65] text-white/75 lg:pt-7">
+                  Do primeiro clique no anúncio ao lead salvo na base: três passos
+                  simples para organizar sua operação sem configurações pesadas.
+                </p>
+              </div>
+
+              <div className="mt-16 grid gap-10 sm:mt-20 md:grid-cols-3 md:gap-10 lg:mt-24 lg:gap-14">
+                {howItWorksSteps.map((step) => (
+                  <div key={step.title} className="flex flex-col items-start">
+                    <div
+                      aria-hidden="true"
+                      className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0A2547] ring-1 ring-[#1D8CFF]/35 shadow-[0_0_32px_rgba(29,140,255,0.42)]"
+                    >
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1D8CFF] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.35)]">
+                        {step.icon === "link" && (
+                          <svg
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            className="h-4 w-4"
+                          >
+                            <path
+                              d="M8.5 11.5L11.5 8.5M7 13L5.6 14.4a2.5 2.5 0 0 1-3.54-3.54L3.5 9.4M13 7l1.4-1.4a2.5 2.5 0 0 1 3.54 3.54L16.5 10.6"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                        )}
+                        {step.icon === "tag" && (
+                          <svg
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            className="h-4 w-4"
+                          >
+                            <rect
+                              x="3.5"
+                              y="4.5"
+                              width="13"
+                              height="11"
+                              rx="2.2"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                            />
+                            <path
+                              d="M7 8.5h6M7 11.5h3.5"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                        )}
+                        {step.icon === "chart" && (
+                          <svg
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            className="h-4 w-4"
+                          >
+                            <circle
+                              cx="8.5"
+                              cy="7"
+                              r="2.5"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                            />
+                            <path
+                              d="M4 15.2c.8-2.1 2.4-3.2 4.5-3.2s3.7 1.1 4.5 3.2M14 6.5v4M12 8.5h4"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                        )}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-6 text-[16px] font-semibold tracking-[-0.015em] text-white">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2.5 max-w-[30ch] text-[13.5px] leading-[1.6] text-white/65">
+                      {step.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="mt-14 grid border border-[#EAEAEA] md:grid-cols-3 md:divide-x md:divide-[#EAEAEA]">
-              {howItWorksSteps.map((step) => (
-                <div
-                  key={step.number}
-                  className="border-b border-[#EAEAEA] p-7 last:border-b-0 sm:p-9 md:border-b-0"
-                >
-                  <span className="inline-flex rounded-[3px] bg-[#EFF6FF] px-2.5 py-1 font-mono text-[11.5px] font-semibold text-[#1D8CFF]">
-                    Etapa {step.number}
-                  </span>
-                  <h3
-                    className={`${editorialSerif.className} mt-5 text-[28px] leading-[1.12] text-[#111111]`}
-                  >
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 text-[14px] leading-[1.65] text-[#6B7280]">
-                    {step.description}
-                  </p>
-                </div>
-              ))}
+            <div className="pt-16 sm:pt-20 lg:pt-24">
+              <p
+                className={`${editorialSerif.className} max-w-4xl text-[32px] leading-[1.14] tracking-[-0.02em] text-[#111111] sm:text-[42px] lg:text-[48px]`}
+              >
+                Feito para empresas e times de marketing que cansaram de cruzar
+                gerenciador de anúncios, GA4 confuso e conversas soltas no WhatsApp
+                para descobrir o que realmente traz retorno.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* 7. PLANOS — ESTÉTICA CLARA EDITORIAL */}
+        {/* 7. PLANO — ESTÉTICA CLARA EDITORIAL (OFERTA ÚNICA) */}
         <section
           id="planos"
           className="scroll-mt-8 border-t border-[#EAEAEA] bg-[#FAFAFA] px-4 py-20 sm:px-6 lg:px-8 lg:py-24"
         >
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-4xl">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#1D8CFF]">
-                Planos e assinatura
+                Assinatura
               </p>
               <h2
                 className={`${editorialSerif.className} mt-3 text-[36px] leading-[1.08] tracking-[-0.02em] text-[#111111] sm:text-[46px]`}
               >
-                Planos para coletar
+                Um plano completo para coletar
                 <br />e analisar com clareza
               </h2>
               <p className="mt-3 text-[14px] leading-6 text-[#6B7280]">
-                Cadastro gratuito para conhecer o painel. Assinatura libera coleta,
-                análise e integrações completas.
+                Cadastro gratuito para conhecer o painel. A assinatura libera toda a
+                coleta, formulários e análise da sua operação.
               </p>
             </div>
 
-            <div className="mt-12 grid gap-6 lg:grid-cols-2">
+            <div className="mx-auto mt-12 max-w-2xl">
               {subscriptionPlans.map((plan) => (
                 <div
                   key={plan.name}
-                  className={`relative flex flex-col rounded-[4px] bg-white p-7 sm:p-9 ${
-                    plan.highlighted
-                      ? "border-2 border-[#1D8CFF] shadow-[0_20px_50px_rgba(29,140,255,0.1)]"
-                      : "border border-[#EAEAEA]"
-                  }`}
+                  className="relative flex flex-col rounded-[6px] border-2 border-[#1D8CFF] bg-white p-7 shadow-[0_20px_50px_rgba(29,140,255,0.1)] sm:p-10"
                 >
-                  {plan.highlighted && (
-                    <span className="absolute -top-3 left-7 rounded-[2px] bg-[#1D8CFF] px-3 py-0.5 text-[11px] font-semibold text-white">
-                      Mais popular
-                    </span>
-                  )}
+                  <span className="absolute -top-3 left-7 rounded-[2px] bg-[#1D8CFF] px-3 py-0.5 text-[11px] font-semibold text-white sm:left-10">
+                    Acesso completo
+                  </span>
 
-                  <div className="flex items-baseline justify-between gap-4">
-                    <h3
-                      className={`${editorialSerif.className} text-[32px] leading-none text-[#111111]`}
-                    >
-                      {plan.name}
-                    </h3>
-                    <div className="text-right">
+                  <div className="flex flex-wrap items-baseline justify-between gap-4">
+                    <div>
+                      <h3
+                        className={`${editorialSerif.className} text-[34px] leading-none text-[#111111] sm:text-[38px]`}
+                      >
+                        Fractal {plan.name}
+                      </h3>
+                      <p className="mt-3 max-w-md text-[14px] leading-6 text-[#6B7280]">
+                        {plan.description}
+                      </p>
+                    </div>
+                    <div className="shrink-0 sm:text-right">
                       <span
-                        className={`${editorialSerif.className} text-[36px] leading-none text-[#111111]`}
+                        className={`${editorialSerif.className} text-[42px] leading-none text-[#111111] sm:text-[46px]`}
                       >
                         {plan.price}
                       </span>
-                      <span className="ml-1 text-[13px] text-[#6B7280]">
+                      <span className="ml-1 text-[13.5px] text-[#6B7280]">
                         {plan.period}
                       </span>
                     </div>
                   </div>
 
-                  <p className="mt-4 text-[14px] leading-6 text-[#6B7280]">
-                    {plan.description}
-                  </p>
-
-                  <Link
-                    href="/login"
-                    className={`mt-7 block rounded-[3px] px-5 py-3 text-center text-[13.5px] font-medium transition-colors ${
-                      plan.highlighted
-                        ? "bg-[#1D8CFF] text-white hover:bg-[#0B7AE8]"
-                        : "border border-[#D1D5DB] bg-white text-[#111111] hover:border-[#111111]"
-                    }`}
-                  >
-                    Acessar e assinar
-                  </Link>
-
-                  <ul className="mt-7 flex flex-1 flex-col gap-3 border-t border-[#EAEAEA] pt-6 text-[13.5px] text-[#374151]">
+                  <ul className="mt-8 grid gap-x-6 gap-y-3 border-t border-[#EAEAEA] pt-7 text-[13.5px] text-[#374151] sm:grid-cols-2">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2.5">
                         <span
@@ -1292,6 +1454,23 @@ export function EditorialHome() {
                       </li>
                     ))}
                   </ul>
+
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Link
+                      href="/cadastro"
+                      className="flex-1 rounded-[4px] bg-[#1D8CFF] px-6 py-3.5 text-center text-[13.5px] font-semibold text-white transition-colors hover:bg-[#0B7AE8]"
+                    >
+                      Criar conta e testar grátis
+                    </Link>
+                    <a
+                      href={whatsAppCheckoutUrl(plan.name)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-[4px] border border-[#D1D5DB] bg-white px-5 py-3.5 text-center text-[13px] font-medium text-[#111111] transition-colors hover:border-[#111111]"
+                    >
+                      Falar no WhatsApp →
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
@@ -1361,105 +1540,59 @@ export function EditorialHome() {
         </section>
       </main>
 
-      {/* 9. RODAPÉ EDITORIAL MINIMALISTA */}
+      {/* 9. RODAPÉ MINIMAL */}
       <footer className="border-t border-[#EAEAEA] bg-white">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
-          <div>
-            <Link href="/" className="inline-flex items-center gap-2.5">
+        <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-between gap-5 px-5 py-8 text-[12.5px] text-[#6B7280] sm:px-6 md:flex-row lg:px-8">
+          <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
+            <Link href="/" className="inline-flex items-center gap-2 text-[#111111]">
               <Image
-                src="/fractalbranco.webp"
+                src="/lotuslogo.webp"
                 alt="Fractal"
-                width={24}
-                height={24}
-                className="h-6 w-6 invert"
+                width={20}
+                height={20}
+                className="h-5 w-5 invert"
               />
-              <span
-                className={`${editorialSerif.className} text-2xl tracking-[-0.01em] text-[#111111]`}
-              >
+              <span className={`${editorialSerif.className} text-xl leading-none`}>
                 Fractal
               </span>
             </Link>
-            <p className="mt-3 max-w-xs text-[13.5px] leading-6 text-[#6B7280]">
-              Coleta de dados no site, análise e cruzamento com custo. Parte do{" "}
+            <span aria-hidden="true" className="text-[#D1D5DB]">
+              ·
+            </span>
+            <span>
+              © 2026{" "}
               <a
                 href="https://marcosdelfrari.com/ecossistema"
-                className="font-medium text-[#111111] underline decoration-[#D1D5DB] underline-offset-4 hover:decoration-[#1D8CFF]"
-              >
-                ecossistema marcosdelfrari.com
-              </a>
-              .
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[11.5px] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
-              Navegação
-            </p>
-            <ul className="mt-4 space-y-2.5 text-[13.5px] text-[#4B5563]">
-              {navAnchors.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="transition-colors hover:text-[#1D8CFF]"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="text-[11.5px] font-semibold uppercase tracking-[0.12em] text-[#9CA3AF]">
-              Plataforma
-            </p>
-            <ul className="mt-4 space-y-2.5 text-[13.5px] text-[#4B5563]">
-              <li>
-                <Link
-                  href="/login"
-                  className="transition-colors hover:text-[#1D8CFF]"
-                >
-                  Entrar na conta
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/cadastro"
-                  className="transition-colors hover:text-[#1D8CFF]"
-                >
-                  Criar conta grátis
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/produto"
-                  className="transition-colors hover:text-[#1D8CFF]"
-                >
-                  Visão técnica do produto
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="border-t border-[#EAEAEA]">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-[12px] text-[#6B7280] sm:flex-row sm:px-6 lg:px-8">
-            <p>© 2026 Fractal. Todos os direitos reservados.</p>
-            <div className="flex items-center gap-5">
-              <a
-                href="https://marcosdelfrari.com"
                 className="transition-colors hover:text-[#111111]"
               >
-                Termos de uso
+                marcosdelfrari.com
               </a>
+            </span>
+          </div>
+
+          <nav
+            aria-label="Rodapé"
+            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
+          >
+            {navAnchors.map((link) => (
               <a
-                href="https://marcosdelfrari.com"
+                key={link.href}
+                href={link.href}
                 className="transition-colors hover:text-[#111111]"
               >
-                Política de privacidade
+                {link.label}
               </a>
-            </div>
-          </div>
+            ))}
+            <Link href="/login" className="transition-colors hover:text-[#111111]">
+              Entrar
+            </Link>
+            <a
+              href="https://marcosdelfrari.com"
+              className="transition-colors hover:text-[#111111]"
+            >
+              Privacidade
+            </a>
+          </nav>
         </div>
       </footer>
     </div>

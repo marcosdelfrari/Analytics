@@ -14,7 +14,7 @@ Use esta skill para localizar a superfície pública da Fractal antes de chamar 
 
 ## O produto (resumo)
 
-A Fractal é a API de trackeamento e atribuição do ecossistema marcosdelfrari.com: mapeia origens, interações e conversões de ponta a ponta para quem investe em Google Ads e Meta Ads. Unifica investimento publicado no painel com visitas e eventos do site (script no \`head\` ou GTM, API \`fractal.track(...)\`), encurtador com UTMs e dashboards. Cadastro gratuito; uso dos recursos mediante plano Pro ou Agency (multi-cliente). A landing em \`/produto\` explica benefícios, planos e FAQ; \`/llms.txt\` resume links para humanos e agentes.
+A Fractal é a API de trackeamento e atribuição do ecossistema marcosdelfrari.com: mapeia origens, interações e conversões de ponta a ponta para quem investe em Google Ads e Meta Ads. Unifica investimento publicado no painel com visitas e eventos do site (script no \`head\` ou GTM, API \`fractal.track(...)\`), encurtador com UTMs e dashboards. Cadastro gratuito; uso completo mediante assinatura do plano Pro. A landing em \`/produto\` explica benefícios, assinatura e FAQ; \`/llms.txt\` resume links para humanos e agentes.
 
 ## Descoberta
 

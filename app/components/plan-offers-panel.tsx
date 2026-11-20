@@ -19,16 +19,16 @@ export function PlanOffersPanel({ onClose }: { onClose?: () => void }) {
         </button>
       )}
       <p className="pr-8 text-[11px] uppercase tracking-wider text-muted">
-        Planos
+        Assinatura
       </p>
       <h2 id="plan-offers-title" className="mt-1 text-base font-medium">
-        Escolha o plano para o seu negócio
+        Ative o Fractal Pro no seu negócio
       </h2>
       <p className="mt-2 text-[12px] leading-5 text-muted-foreground">
         Toque em adquirir para falar com a equipe no WhatsApp e concluir a
         contratação.
       </p>
-      <ul className="mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto lg:grid lg:grid-cols-3 lg:overflow-visible">
+      <ul className="mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto lg:overflow-visible">
         {subscriptionPlans.map((plan) => (
           <li
             key={plan.name}

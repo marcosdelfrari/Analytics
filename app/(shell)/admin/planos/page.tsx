@@ -114,7 +114,7 @@ async function AdminPlansContent() {
               {subscriptionPlans.length}
             </p>
             <p className="mt-1 text-[11.5px] text-muted-foreground">
-              Pro (R$ 697) · Agency (R$ 2.997)
+              Pro (R$ 697/mês)
             </p>
           </div>
         </section>
@@ -383,7 +383,7 @@ async function AdminPlansContent() {
             </h2>
           </div>
 
-          <div className="grid gap-4 p-6 lg:grid-cols-2">
+          <div className="grid gap-4 p-6">
             {subscriptionPlans.map((plan) => (
               <div
                 key={plan.name}

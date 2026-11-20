@@ -15,7 +15,7 @@ export function FractalPricing() {
         O cadastro é gratuito. Para utilizar os recursos, é necessário assinar
         um plano.
       </Reveal>
-      <RevealGroup className="grid gap-4 lg:grid-cols-2 max-w-4xl mx-auto">
+      <RevealGroup className="mx-auto grid max-w-xl gap-4">
         {plans.map((plan) => (
           <RevealItem
             key={plan.name}

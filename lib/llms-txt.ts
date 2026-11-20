@@ -9,13 +9,13 @@ export function buildLlmsTxt(origin: string) {
 
 ## Produto (humanos)
 
-- [Produto / landing](${base}/produto): benefícios, como funciona, planos (Pro e Agency), FAQ e cadastro gratuito via Google.
+- [Produto / landing](${base}/produto): benefícios, como funciona, plano Pro, FAQ e cadastro gratuito via Google.
 - Negociação \`Accept: text/markdown\` em \`/produto\` devolve a mesma página em Markdown.
 
 ## Perguntas frequentes (resumo)
 
 - Foco em clareza financeira: cruzar gasto em Google/Meta com tráfego no site (alternativa mais simples que GA4 para mídia paga).
-- Script único no \`<head>\` ou GTM; encurtador integrado a UTMs; plano Agency para multi-cliente.
+- Script único no \`<head>\` ou GTM; encurtador integrado a UTMs; suporte a múltiplas marcas/unidades e equipe na mesma conta.
 - Investimento é publicado no painel; dashboards refletem o acordado no período.
 
 ## Superfície para agentes

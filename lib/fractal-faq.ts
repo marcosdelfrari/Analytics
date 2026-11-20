@@ -11,9 +11,9 @@ export const fractalLandingFaqs = [
       "Não. Você só precisa copiar um único script e colar no cabeçalho (head) do seu site ou via Google Tag Manager. É tão simples quanto instalar um pixel do Facebook.",
   },
   {
-    question: "Posso gerenciar vários clientes na mesma conta?",
+    question: "Posso gerenciar mais de uma marca ou site na mesma conta?",
     answer:
-      "Sim! No plano Agency, você entra no modo agência e pode criar dashboards individuais para cada cliente, publicando relatórios específicos para eles.",
+      "Sim! Você pode cadastrar diferentes empresas ou unidades do seu grupo na mesma organização, alternar a operação ativa em um clique no topo do menu e definir visualmente o que cada analista da sua equipe pode acessar.",
   },
   {
     question: "Os dados de investimento são atualizados como?",
@@ -23,16 +23,16 @@ export const fractalLandingFaqs = [
   {
     question: "Preciso do encurtador se já uso Google ou Meta?",
     answer:
-      "No Google e Meta, o principal é a URL certa no próprio anúncio — o Fractal ajuda a montar esse formato. O encurtador entra quando a divulgação é por WhatsApp, SMS, e-mail ou link em bio: você não configura parâmetros na plataforma de anúncio, mas ainda quer contar o clique e levar a pessoa para o destino certo.",
+      "No Google e Meta, o principal é a URL certa no próprio anúncio. O Fractal ajuda a montar esse formato. O encurtador entra quando a divulgação é por WhatsApp, SMS, e-mail ou link em bio: você não configura parâmetros na plataforma de anúncio, mas ainda quer contar o clique e levar a pessoa para o destino certo.",
   },
   {
     question: "Como funcionam os formulários de captura de leads?",
     answer:
-      "Você cria formulários direto no painel — no formato de botão flutuante de WhatsApp, popup ou intenção de saída — e instala com um snippet no site. Cada lead preenchido fica registrado na plataforma já vinculado à empresa, à página e aos parâmetros UTM da campanha que trouxe o visitante.",
+      "Você cria formulários direto no painel (botão flutuante de WhatsApp, popup, intenção de saída ou seção fixa na página) e instala com um snippet no site. Cada lead preenchido já entra na base vinculado à empresa, à URL de origem e aos parâmetros UTM da sessão.",
   },
   {
-    question: "Posso liberar acesso apenas de leitura para minha equipe ou cliente?",
+    question: "Posso liberar acesso apenas de leitura para minha equipe?",
     answer:
-      "Sim. O Proprietário gerencia empresas, acessos, script, encurtador e o restante do cadastro. Pode convidar Analistas liberando só as empresas que cada um deve ver. O Analista consulta dashboard, relatórios e campanhas, exporta CSV, acompanha leads e pode criar, editar e instalar formulários dentro das empresas liberadas — sem abrir Empresas e acessos, Script ou Encurtador.",
+      "Sim. O Proprietário gerencia empresas, acessos, script, encurtador e o restante do cadastro. Pode convidar Analistas da equipe liberando só as empresas ou unidades que cada um deve ver. O Analista consulta dashboard e relatórios, exporta CSV, acompanha leads e pode criar, editar e instalar formulários dentro das empresas liberadas, sem abrir Empresas e acessos, Script ou Encurtador.",
   },
 ] as const;
