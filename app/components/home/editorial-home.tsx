@@ -47,41 +47,41 @@ type FeatureTab = {
 const featureTabs: FeatureTab[] = [
   {
     id: "atribuicao",
-    label: "Atribuição",
-    headingLine1: "Eleve a precisão da",
-    headingLine2: "sua mídia paga",
+    label: "Análise",
+    headingLine1: "Do dado coletado",
+    headingLine2: "à leitura com custo",
     description:
-      "O Fractal cruza seus custos em Google e Meta Ads com acessos reais, ações e leads capturados no site, entregando um painel de ROI preciso.",
+      "Visitas, eventos e leads do site no mesmo painel do gasto em Google e Meta — para você ver o que melhorar, sem planilha solta.",
     subFeatures: [
       {
         icon: "insights",
         title: "Visão unificada",
-        description: "Google Ads, Meta Ads e site lado a lado",
+        description: "Site, Google Ads e Meta Ads lado a lado",
       },
       {
         icon: "engagement",
-        title: "Origem real",
-        description: "Cada conversão ligada à campanha certa",
+        title: "Origem preservada",
+        description: "Cada conversão ligada à origem certa",
       },
       {
         icon: "performance",
-        title: "Custo vs. retorno",
-        description: "Compare verba investida e volume gerado",
+        title: "Custo vs. resultado",
+        description: "Compare investimento e volume gerado",
       },
       {
         icon: "satisfaction",
-        title: "Decisão rápida",
-        description: "Sem amostragem confusa nem planilhas soltas",
+        title: "Leitura direta",
+        description: "Análise clara, sem amostragem confusa",
       },
     ],
   },
   {
     id: "formularios",
     label: "Formulários",
-    headingLine1: "Capture cada lead já",
-    headingLine2: "com a campanha certa",
+    headingLine1: "Coleta nativa",
+    headingLine2: "de leads no site",
     description:
-      "Monte formulários nativos em formato de botão flutuante de WhatsApp, popup, intenção de saída ou seção no corpo da página com UTM automática.",
+      "Formulários em botão de WhatsApp, popup, intenção de saída ou bloco na página — cada envio entra na base com UTM e página salvos.",
     subFeatures: [
       {
         icon: "engagement",
@@ -108,10 +108,10 @@ const featureTabs: FeatureTab[] = [
   {
     id: "rastreamento",
     label: "Rastreamento",
-    headingLine1: "Padronize links, UTMs",
-    headingLine2: "e eventos ao vivo",
+    headingLine1: "Cada clique e evento",
+    headingLine2: "entra na coleta",
     description:
-      "Gere URLs parametrizadas para seus anúncios, crie links curtos para WhatsApp e bio e valide o script no navegador em tempo real.",
+      "Monte UTMs, encurte links de bio e WhatsApp e valide o script ao vivo — tudo para a coleta no site ficar completa e confiável.",
     subFeatures: [
       {
         icon: "insights",
@@ -138,10 +138,10 @@ const featureTabs: FeatureTab[] = [
   {
     id: "governanca",
     label: "Governança",
-    headingLine1: "Organize múltiplas",
-    headingLine2: "empresas e equipes",
+    headingLine1: "Vários projetos,",
+    headingLine2: "um só lugar",
     description:
-      "Separe operações por empresa na mesma conta, distribua acessos entre Proprietários e Analistas e exporte relatórios prontos para decisão.",
+      "Separe marcas e sites na mesma conta, convide quem só precisa ler e exporte coleta, análise e custo quando precisar decidir.",
     subFeatures: [
       {
         icon: "engagement",
@@ -160,8 +160,8 @@ const featureTabs: FeatureTab[] = [
       },
       {
         icon: "performance",
-        title: "Modo agência",
-        description: "Dashboards dedicados para cada cliente",
+        title: "Painéis por marca",
+        description: "Um dashboard para cada projeto ou cliente",
       },
     ],
   },
@@ -180,21 +180,21 @@ const weeklyChartBars = [
 const howItWorksSteps = [
   {
     number: "01",
-    title: "Padronize links e UTMs",
+    title: "Ative a coleta no site",
     description:
-      "Monte URLs consistentes para Google Ads e Meta Ads ou gere links curtos rastreáveis para bio, QR code, SMS e WhatsApp.",
+      "Instale o script no cabeçalho, valide ao vivo e publique formulários — visitas, ações e leads passam a ser registrados no Fractal.",
   },
   {
     number: "02",
-    title: "Ative o script e a captura",
+    title: "Organize origens e links",
     description:
-      "Cole uma única tag leve no cabeçalho do site, valide a instalação ao vivo e publique formulários que já registram a origem de cada lead.",
+      "Padronize UTMs nos anúncios ou use links curtos em bio, QR code e WhatsApp para nenhum acesso chegar sem contexto.",
   },
   {
     number: "03",
-    title: "Compare verba e resultado",
+    title: "Analise e cruze com custo",
     description:
-      "Cruze o valor investido com visitas, eventos e leads reais. Compartilhe com analistas ou exporte relatórios completos em segundos.",
+      "Compare o que foi coletado com o que você investiu em mídia. Exporte CSV ou compartilhe o painel com quem decide com você.",
   },
 ];
 
@@ -484,7 +484,7 @@ export function EditorialHome() {
                 animate={{ y: "0%" }}
                 transition={{ delay: 0.45, duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
               >
-                Observe tudo.
+                Colete tudo.
               </motion.p>
             </div>
           </div>
@@ -520,28 +520,25 @@ export function EditorialHome() {
                 </div>
                 <span aria-hidden="true" className="hidden h-3 w-px shrink-0 bg-[#D1D5DB] sm:block" />
                 <p className="text-[11.5px] font-medium tracking-[-0.01em] text-[#6B7280] sm:text-[12.5px]">
-                  <span className="sm:hidden">Gestores de tráfego &amp; agências</span>
-                  <span className="hidden sm:inline">
-                    Escolhido por gestores de tráfego e agências
-                  </span>
+                  <span className="tabular-nums text-[#111111]">+1.000</span> dados
+                  trackeados
                 </p>
               </div>
               <span aria-hidden="true" className="h-px w-10 bg-[#E5E7EB] sm:w-14" />
             </div>
 
             <h1
-              className={`${editorialSerif.className} mx-auto mt-6 max-w-2xl text-[42px] leading-[1.03] tracking-[-0.025em] text-[#111111] sm:mt-7 sm:text-[60px] lg:text-[68px]`}
+              className={`${editorialSerif.className} mx-auto mt-6 max-w-2xl text-[44px] leading-[1.03] tracking-[-0.025em] text-[#111111] sm:mt-7 sm:text-[60px] lg:text-[68px]`}
             >
-              Atribuição e Controle
+              <span className="italic text-[#1D8CFF]">Coleta</span> e análise
               <br />
-              <span className="italic text-[#1D8CFF] sm:not-italic sm:text-[#111111]">
-                para Gestores
-              </span>{" "}
-              de Tráfego
+              cruzadas com o{" "}
+              <span className="italic text-[#1D8CFF]">custo</span>.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-[34ch] text-[14px] leading-[1.6] text-[#6B7280] sm:hidden">
-              Custos de Google e Meta cruzados com cliques, eventos e leads reais no seu site.
+            <p className="mx-auto mt-5 max-w-[40ch] text-[15px] leading-[1.6] text-[#6B7280] sm:mt-6 sm:max-w-xl sm:text-[16.5px]">
+              Visitas, ações e conversões no seu domínio — análise para melhorar e
+              cruzamento com gasto em Google e Meta.
             </p>
           </motion.div>
         </section>
@@ -1110,13 +1107,13 @@ export function EditorialHome() {
                   <h2
                     className={`${editorialSerif.className} text-[40px] leading-[1.04] tracking-[-0.02em] text-white [text-shadow:0_2px_18px_rgba(5,32,72,0.8)] sm:text-[50px]`}
                   >
-                    Transforme Dados em
+                    Coleta no site.
                     <br />
-                    Clareza Estratégica
+                    Análise com clareza.
                   </h2>
                   <p className="mt-4 max-w-md text-[14.5px] leading-[1.65] text-white/95 [text-shadow:0_1px_4px_rgba(5,32,72,0.6)]">
-                    Chega de adivinhar qual campanha gera vendas reais. Conecte mídia
-                    paga, acessos e leads atribuídos no seu painel em poucos minutos.
+                    Ative o script, acompanhe os dados e cruze com o custo — tudo no
+                    mesmo painel.
                   </p>
                   <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                     <Link
@@ -1182,9 +1179,9 @@ export function EditorialHome() {
               <h2
                 className={`${editorialSerif.className} mt-3 text-[36px] leading-[1.08] tracking-[-0.02em] text-[#111111] sm:text-[46px]`}
               >
-                Do clique ao lead atribuído
+                Da coleta à análise
                 <br />
-                em três etapas simples
+                em três passos
               </h2>
             </div>
 
@@ -1224,13 +1221,12 @@ export function EditorialHome() {
               <h2
                 className={`${editorialSerif.className} mt-3 text-[36px] leading-[1.08] tracking-[-0.02em] text-[#111111] sm:text-[46px]`}
               >
-                Escolha a estrutura ideal
-                <br />
-                para a sua operação
+                Planos para coletar
+                <br />e analisar com clareza
               </h2>
               <p className="mt-3 text-[14px] leading-6 text-[#6B7280]">
-                O cadastro é gratuito para conhecer o ambiente. Recursos liberados
-                mediante assinatura na plataforma.
+                Cadastro gratuito para conhecer o painel. Assinatura libera coleta,
+                análise e integrações completas.
               </p>
             </div>
 
@@ -1384,7 +1380,7 @@ export function EditorialHome() {
               </span>
             </Link>
             <p className="mt-3 max-w-xs text-[13.5px] leading-6 text-[#6B7280]">
-              Trackeamento e atribuição de eventos para mídia paga. Parte do{" "}
+              Coleta de dados no site, análise e cruzamento com custo. Parte do{" "}
               <a
                 href="https://marcosdelfrari.com/ecossistema"
                 className="font-medium text-[#111111] underline decoration-[#D1D5DB] underline-offset-4 hover:decoration-[#1D8CFF]"

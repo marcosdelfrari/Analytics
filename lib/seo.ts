@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 
 export const FRACTAL_BRAND = "Fractal";
 
-export const FRACTAL_SITE_TITLE = `${FRACTAL_BRAND} — Trackeamento e atribuição`;
+export const FRACTAL_SITE_TITLE = `${FRACTAL_BRAND} — Coleta, análise e custo`;
 
 export const FRACTAL_SITE_DESCRIPTION =
-  "API de trackeamento e atribuição de eventos: mapeie origens, interações e conversões de ponta a ponta. Una Google Ads e Meta Ads com visitas do site em um painel claro. Parte do ecossistema marcosdelfrari.com.";
+  "Coleta de dados no site: visitas, ações e conversões. Análise para melhorar, cruzada com custo em Google Ads e Meta Ads em um painel claro. Parte do ecossistema marcosdelfrari.com.";
 
 const DEFAULT_OG_IMAGE = "/fractalbranco.webp";
 

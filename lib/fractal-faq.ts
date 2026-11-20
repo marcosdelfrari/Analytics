@@ -3,7 +3,7 @@ export const fractalLandingFaqs = [
   {
     question: "Como o Fractal se diferencia do GA4?",
     answer:
-      "Diferente do GA4, que pode ser complexo e ter dados amostrados, o Fractal foca na clareza financeira. Nós cruzamos o que você realmente gastou no Google/Meta com o tráfego que chegou ao site, sem complicações.",
+      "O Fractal prioriza coleta clara no seu site e análise simples: visitas, eventos e leads cruzados com o que você gastou no Google e Meta, sem a complexidade nem amostragem típica do GA4.",
   },
   {
     question: "Preciso de um desenvolvedor para instalar?",
