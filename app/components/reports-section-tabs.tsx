@@ -13,6 +13,7 @@ import { TrackingBreakdownTables } from "@/app/components/tracking-breakdown-tab
 import { TrackingPlatformPanel } from "@/app/components/tracking-platform-panel";
 import { TrackingReportPanel } from "@/app/components/tracking-report-panel";
 import type { ReportsPublishedAdsData } from "@/lib/reports-ads-props";
+import { trackingTotalsForFilter } from "@/lib/tracking-filter-totals";
 import type { SiteTrackingAnalytics } from "@/lib/tracking-analytics-shared";
 import type { Platform } from "@/lib/types";
 import {
@@ -87,6 +88,14 @@ function ReportsSectionTabsInner({
 
   const mediaOrigin =
     platform === "all" ? undefined : (platform as TrackingMediaOrigin);
+
+  const trafficTotals = useMemo(
+    () =>
+      tracking?.ready
+        ? trackingTotalsForFilter(tracking, platform)
+        : null,
+    [platform, tracking],
+  );
 
   const panelContent = useMemo(() => {
     if (!tracking?.ready) {
@@ -235,9 +244,10 @@ function ReportsSectionTabsInner({
         </div>
       </section>
 
-      {showTrafficSummary && !panelLoading ? (
+      {showTrafficSummary && !panelLoading && trafficTotals ? (
         <TrackingReportPanel
           tracking={tracking!}
+          totals={trafficTotals}
           variant="metrics"
           showSetupLink={false}
           showReportLink={false}

@@ -7,11 +7,14 @@ import { formatNumber, formatPercent } from "@/lib/format";
 
 export function TrackingReportPanel({
   tracking,
+  totals,
   variant = "full",
   showSetupLink = true,
   showReportLink = true,
 }: {
   tracking: SiteTrackingAnalytics;
+  /** Substitui `tracking.totals` (ex.: filtro de origem na aba Relatórios). */
+  totals?: SiteTrackingAnalytics["totals"];
   variant?: "full" | "overview" | "metrics";
   showSetupLink?: boolean;
   showReportLink?: boolean;
@@ -34,6 +37,7 @@ export function TrackingReportPanel({
     );
   }
 
+  const metrics = totals ?? tracking.totals;
   const showBreakdown = variant === "full";
   const showChart = variant !== "metrics";
   const compactMetrics = variant === "overview" || variant === "metrics";
@@ -83,24 +87,24 @@ export function TrackingReportPanel({
       >
         <MetricCard
           label="Visitantes"
-          value={formatNumber(tracking.totals.visitors)}
+          value={formatNumber(metrics.visitors)}
         />
         <MetricCard
           label="Navegações"
-          value={formatNumber(tracking.totals.pageviews)}
+          value={formatNumber(metrics.pageviews)}
         />
         <MetricCard
           label="Eventos"
-          value={formatNumber(tracking.totals.events)}
+          value={formatNumber(metrics.events)}
         />
         <MetricCard
           label="Conversões"
-          value={formatNumber(tracking.totals.conversions)}
+          value={formatNumber(metrics.conversions)}
           tone="positive"
         />
         <MetricCard
           label="Taxa de conversão"
-          value={formatPercent(tracking.totals.conversionRate, 1)}
+          value={formatPercent(metrics.conversionRate, 1)}
           tone="positive"
         />
         {variant === "full" ? (
