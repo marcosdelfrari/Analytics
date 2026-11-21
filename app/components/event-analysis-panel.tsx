@@ -6,8 +6,10 @@ import type {
   EventPlatformMixRow,
   SiteTrackingAnalytics,
 } from "@/lib/tracking-analytics-shared";
+import { toEventShareRows } from "@/lib/tracking-analytics-shared";
 import { formatNumber, formatPercent } from "@/lib/format";
 import type { TrackingWindow } from "@/lib/report-period";
+import type { TrackingMediaOrigin } from "@/lib/utm-platform";
 
 function EventPlatformMix({
   rows,
@@ -140,14 +142,38 @@ export function TrackingSummaryBar({
   );
 }
 
+function filterEventPlatformMix(
+  rows: EventPlatformMixRow[],
+  origin?: TrackingMediaOrigin,
+) {
+  if (!origin) return rows;
+  return rows.filter((row) => {
+    if (origin === "google") return row.google > 0;
+    if (origin === "meta") return row.meta > 0;
+    if (origin === "other") return row.other > 0;
+    const attributed = row.google + row.meta + row.other;
+    return row.count > attributed;
+  });
+}
+
 export function EventAnalysisPanel({
   tracking,
+  mediaOrigin,
 }: {
   tracking: SiteTrackingAnalytics;
+  mediaOrigin?: TrackingMediaOrigin;
 }) {
   if (!tracking.ready) {
     return null;
   }
+
+  const eventShare = mediaOrigin
+    ? toEventShareRows(tracking.byPlatform[mediaOrigin].eventsByName)
+    : tracking.eventShare;
+  const eventPlatformMix = filterEventPlatformMix(
+    tracking.eventPlatformMix,
+    mediaOrigin,
+  );
 
   return (
     <div className="space-y-3">
@@ -159,7 +185,11 @@ export function EventAnalysisPanel({
               Clique num evento para ver o histórico.
             </p>
           </div>
-          <EventMixList rows={tracking.eventShare} range={tracking.range} />
+          <EventMixList
+            rows={eventShare}
+            range={tracking.range}
+            mediaOrigin={mediaOrigin}
+          />
         </div>
         <div className="overflow-hidden rounded-xl border border-border bg-surface">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3.5 py-2.5">
@@ -184,10 +214,7 @@ export function EventAnalysisPanel({
               </span>
             </div>
           </div>
-          <EventPlatformMix
-            rows={tracking.eventPlatformMix}
-            range={tracking.range}
-          />
+          <EventPlatformMix rows={eventPlatformMix} range={tracking.range} />
         </div>
       </div>
 

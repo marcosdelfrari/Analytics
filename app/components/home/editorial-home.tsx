@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Instrument_Serif, Inter } from "next/font/google";
 import Image, { getImageProps } from "next/image";
 import Link from "next/link";
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, useRef, useState, type TouchEvent } from "react";
 import { ArtworkWithNoise } from "@/app/components/home/artwork-with-noise";
 import { HeroWhiteNoise } from "@/app/components/home/hero-white-noise";
 import { fractalLandingFaqs } from "@/lib/fractal-faq";
@@ -302,6 +302,12 @@ function SubFeatureIcon({ type }: { type: SubFeature["icon"] }) {
   }
 }
 
+const FEATURE_TAB_SWIPE_MIN_PX = 48;
+
+function isFeatureTabSwipeTarget() {
+  return typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
+}
+
 export function EditorialHome() {
   const prefersReducedMotion = useReducedMotion();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -309,9 +315,48 @@ export function EditorialHome() {
   const [hoveredBarIndex, setHoveredBarIndex] = useState<number>(3);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [ctaFocusStep, setCtaFocusStep] = useState(0);
+  const featureTabSwipeStart = useRef<{ x: number; y: number } | null>(null);
 
   const currentTab =
     featureTabs.find((tab) => tab.id === activeTab) ?? featureTabs[0];
+
+  function shiftFeatureTabBySwipe(deltaX: number, deltaY: number) {
+    if (!isFeatureTabSwipeTarget()) return;
+    if (
+      Math.abs(deltaX) < FEATURE_TAB_SWIPE_MIN_PX ||
+      Math.abs(deltaX) < Math.abs(deltaY)
+    ) {
+      return;
+    }
+
+    const currentIndex = featureTabs.findIndex((tab) => tab.id === activeTab);
+    if (currentIndex < 0) return;
+
+    if (deltaX < 0 && currentIndex < featureTabs.length - 1) {
+      setActiveTab(featureTabs[currentIndex + 1].id);
+    } else if (deltaX > 0 && currentIndex > 0) {
+      setActiveTab(featureTabs[currentIndex - 1].id);
+    }
+  }
+
+  function onFeatureTabTouchStart(event: TouchEvent<HTMLDivElement>) {
+    if (!isFeatureTabSwipeTarget()) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    featureTabSwipeStart.current = { x: touch.clientX, y: touch.clientY };
+  }
+
+  function onFeatureTabTouchEnd(event: TouchEvent<HTMLDivElement>) {
+    if (!isFeatureTabSwipeTarget()) return;
+    const start = featureTabSwipeStart.current;
+    featureTabSwipeStart.current = null;
+    if (!start) return;
+
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    shiftFeatureTabBySwipe(touch.clientX - start.x, touch.clientY - start.y);
+  }
 
   const commonHeroProps = {
     alt: "Céu azul com nuvens e recorte renascentista simbolizando clareza e visão estratégica no Fractal",
@@ -491,24 +536,6 @@ export function EditorialHome() {
             className="pointer-events-none absolute inset-x-0 top-0 z-10 h-28 bg-gradient-to-b from-[#0C4A9A]/30 to-transparent lg:hidden"
           />
 
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-44 bg-[radial-gradient(120%_90%_at_0%_100%,rgba(6,38,84,0.62)_0%,rgba(12,74,154,0.2)_52%,transparent_80%)] md:hidden"
-          />
-
-          <div className="pointer-events-none absolute bottom-0 left-0 z-30 flex flex-col items-start px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] md:hidden">
-            <div className="overflow-hidden pb-1 pr-2">
-              <motion.p
-                aria-hidden="true"
-                className={`${editorialSerif.className} text-[44px] leading-[0.98] tracking-[-0.02em] text-white italic [text-shadow:0_2px_4px_rgba(5,32,72,0.6),0_10px_30px_rgba(5,32,72,0.5)]`}
-                initial={{ y: "110%" }}
-                animate={{ y: "0%" }}
-                transition={{ delay: 0.45, duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-              >
-                Colete tudo.
-              </motion.p>
-            </div>
-          </div>
         </ArtworkWithNoise>
 
         <motion.div
@@ -711,7 +738,14 @@ export function EditorialHome() {
           id="recursos"
           className="scroll-mt-8 bg-white px-5 py-20 sm:px-6 lg:px-8 lg:py-28"
         >
-          <div className="mx-auto grid max-w-[1320px] grid-cols-1 gap-8 max-md:gap-6 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:items-stretch lg:gap-x-12 lg:gap-y-0 xl:gap-x-16">
+          <div
+            className="mx-auto grid max-w-[1320px] grid-cols-1 gap-8 max-md:gap-6 touch-pan-y lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:items-stretch lg:gap-x-12 lg:gap-y-0 xl:gap-x-16"
+            onTouchStart={onFeatureTabTouchStart}
+            onTouchEnd={onFeatureTabTouchEnd}
+            onTouchCancel={() => {
+              featureTabSwipeStart.current = null;
+            }}
+          >
             {/* Abas — primeiro no mobile e alinhadas ao topo da imagem no desktop */}
             <div className="order-1 lg:col-span-5 lg:row-start-1">
               <div
@@ -1044,7 +1078,7 @@ export function EditorialHome() {
                     </p>
                   </div>
 
-                  <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-7 sm:mt-12 sm:grid-cols-2 lg:mt-auto lg:pt-10">
+                  <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-7 sm:mt-12 sm:gap-x-8 lg:mt-auto lg:pt-10">
                     {currentTab.subFeatures.map((item) => (
                       <div key={item.title} className="flex flex-col items-start">
                         <SubFeatureIcon type={item.icon} />

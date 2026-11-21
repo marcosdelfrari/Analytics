@@ -6,6 +6,9 @@ const META = /facebook|meta|instagram|^fb$|^ig$/i;
 /** Origens da coleta do site na aba Mídia (além das plataformas de ads). */
 export type TrackingMediaOrigin = Platform | "other" | "none";
 
+/** Filtro de origem nos relatórios (`all` = sem filtro). */
+export type ReportMediaFilter = TrackingMediaOrigin | "all";
+
 export const TRACKING_MEDIA_ORIGIN_LABELS: Record<TrackingMediaOrigin, string> =
   {
     google: "Google Ads",

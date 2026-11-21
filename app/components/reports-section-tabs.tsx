@@ -1,13 +1,24 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
+import { useMemo, useState, useTransition, type ReactNode } from "react";
+import { EventAnalysisPanel } from "@/app/components/event-analysis-panel";
 import { PlatformLogoLabel } from "@/app/components/platform-logo";
+import { ReportPlatformPanel } from "@/app/components/report-platform-panel";
 import { ReportsTabPanelSkeleton } from "@/app/components/loading-fallbacks";
 import {
   ReportsNavigationProvider,
   useReportsNavigation,
 } from "@/app/components/reports-navigation-context";
-import type { TrackingMediaOrigin } from "@/lib/utm-platform";
+import { TrackingBreakdownTables } from "@/app/components/tracking-breakdown-tables";
+import { TrackingPlatformPanel } from "@/app/components/tracking-platform-panel";
+import { TrackingReportPanel } from "@/app/components/tracking-report-panel";
+import type { ReportsPublishedAdsData } from "@/lib/reports-ads-props";
+import type { SiteTrackingAnalytics } from "@/lib/tracking-analytics-shared";
+import type { Platform } from "@/lib/types";
+import {
+  type ReportMediaFilter,
+  type TrackingMediaOrigin,
+} from "@/lib/utm-platform";
 
 type SectionTab = "events" | "pages" | "platforms";
 
@@ -17,7 +28,8 @@ const TABS: { id: SectionTab; label: string }[] = [
   { id: "platforms", label: "Mídia" },
 ];
 
-const MEDIA_TABS: { id: TrackingMediaOrigin; label: string }[] = [
+const MEDIA_TABS: { id: ReportMediaFilter; label: string }[] = [
+  { id: "all", label: "Todos" },
   { id: "google", label: "Google Ads" },
   { id: "meta", label: "Meta Ads" },
   { id: "other", label: "Outros" },
@@ -31,11 +43,14 @@ const tabClass = (selected: boolean) =>
       : "text-muted-foreground hover:text-foreground"
   }`;
 
-function mediaChipClass(origin: TrackingMediaOrigin, selected: boolean) {
+function mediaChipClass(origin: ReportMediaFilter, selected: boolean) {
   const base =
     "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-medium transition";
   if (!selected) {
     return `${base} text-muted-foreground hover:text-foreground`;
+  }
+  if (origin === "all") {
+    return `${base} bg-surface-elevated text-foreground ring-1 ring-border`;
   }
   if (origin === "google") {
     return `${base} bg-google/15 text-foreground ring-1 ring-google/40`;
@@ -46,43 +61,98 @@ function mediaChipClass(origin: TrackingMediaOrigin, selected: boolean) {
   return `${base} bg-surface-elevated text-foreground ring-1 ring-border`;
 }
 
+function trackingUnavailable(message: string) {
+  return (
+    <p className="rounded-xl border border-border bg-surface px-3.5 py-4 text-[12px] text-muted-foreground">
+      {message}
+    </p>
+  );
+}
+
 function ReportsSectionTabsInner({
   toolbarStart,
   toolbarEnd,
-  trafficSummary,
-  events,
-  pages,
-  google,
-  meta,
-  other,
-  none,
+  tracking,
+  publishedAds,
 }: {
   toolbarStart: ReactNode;
   toolbarEnd?: ReactNode;
-  trafficSummary?: ReactNode;
-  events: ReactNode;
-  pages: ReactNode;
-  google: ReactNode;
-  meta: ReactNode;
-  other: ReactNode;
-  none: ReactNode;
+  tracking: SiteTrackingAnalytics | null;
+  publishedAds: ReportsPublishedAdsData;
 }) {
   const { navigationPending } = useReportsNavigation();
   const [active, setActive] = useState<SectionTab>("events");
-  const [platform, setPlatform] = useState<TrackingMediaOrigin>("google");
+  const [platform, setPlatform] = useState<ReportMediaFilter>("all");
   const [tabPending, startTabTransition] = useTransition();
 
-  const mediaPanel =
-    platform === "google"
-      ? google
-      : platform === "meta"
-        ? meta
-        : platform === "other"
-          ? other
-          : none;
+  const mediaOrigin =
+    platform === "all" ? undefined : (platform as TrackingMediaOrigin);
+
+  const panelContent = useMemo(() => {
+    if (!tracking?.ready) {
+      if (active === "events") {
+        return trackingUnavailable("Sem eventos coletados no período.");
+      }
+      if (active === "pages") {
+        return trackingUnavailable(
+          "Sem páginas ou UTMs coletados no período.",
+        );
+      }
+      return trackingUnavailable("Sem coleta do site no período.");
+    }
+
+    if (active === "events") {
+      return (
+        <EventAnalysisPanel tracking={tracking} mediaOrigin={mediaOrigin} />
+      );
+    }
+
+    if (active === "pages") {
+      const slice = mediaOrigin ? tracking.byPlatform[mediaOrigin] : null;
+      return (
+        <TrackingBreakdownTables
+          eventsByName={slice?.eventsByName ?? tracking.eventsByName}
+          byAttribution={slice?.attribution ?? tracking.byAttribution}
+          byPath={tracking.byPath}
+          byPathFlow={tracking.byPathFlow}
+          byDevice={tracking.byDevice}
+          byBrowser={tracking.byBrowser}
+          showEvents={false}
+          range={tracking.range}
+        />
+      );
+    }
+
+    const slice =
+      platform === "all"
+        ? {
+            attribution: tracking.byAttribution,
+            eventsByName: tracking.eventsByName,
+          }
+        : tracking.byPlatform[platform as TrackingMediaOrigin];
+    const adsPlatform: Platform | null =
+      platform === "google" || platform === "meta" ? platform : null;
+
+    return (
+      <div className="space-y-3">
+        <TrackingPlatformPanel
+          origin={platform}
+          attribution={slice.attribution}
+          eventsByName={slice.eventsByName}
+          range={tracking.range}
+        />
+        {adsPlatform ? (
+          <ReportPlatformPanel
+            summary={publishedAds[adsPlatform].summary}
+            reports={publishedAds[adsPlatform].reports}
+          />
+        ) : null}
+      </div>
+    );
+  }, [active, mediaOrigin, platform, publishedAds, tracking]);
 
   const showTrafficSummary =
-    Boolean(trafficSummary) && (active === "events" || active === "pages");
+    Boolean(tracking?.ready) && (active === "events" || active === "pages");
 
   const panelLoading = navigationPending || tabPending;
 
@@ -91,13 +161,10 @@ function ReportsSectionTabsInner({
     startTabTransition(() => setActive(id));
   }
 
-  function selectPlatform(id: TrackingMediaOrigin) {
+  function selectPlatform(id: ReportMediaFilter) {
     if (id === platform) return;
     startTabTransition(() => setPlatform(id));
   }
-
-  const panelContent =
-    active === "events" ? events : active === "pages" ? pages : mediaPanel;
 
   return (
     <div className="space-y-3">
@@ -139,38 +206,43 @@ function ReportsSectionTabsInner({
             })}
           </div>
 
-          {active === "platforms" ? (
-            <div
-              className="inline-flex max-w-full flex-wrap items-center gap-0.5 rounded-lg border border-border bg-background p-0.5"
-              role="tablist"
-              aria-label="Origem da mídia"
-            >
-              {MEDIA_TABS.map((item) => {
-                const selected = platform === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={selected}
-                    disabled={panelLoading}
-                    onClick={() => selectPlatform(item.id)}
-                    className={`${mediaChipClass(item.id, selected)} disabled:cursor-wait disabled:opacity-70`}
-                  >
-                    {item.id === "google" || item.id === "meta" ? (
-                      <PlatformLogoLabel platform={item.id} size={14} />
-                    ) : (
-                      item.label
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          ) : null}
+          <div
+            className="inline-flex max-w-full flex-wrap items-center gap-0.5 rounded-lg border border-border bg-background p-0.5"
+            role="tablist"
+            aria-label="Origem da mídia"
+          >
+            {MEDIA_TABS.map((item) => {
+              const selected = platform === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  disabled={panelLoading}
+                  onClick={() => selectPlatform(item.id)}
+                  className={`${mediaChipClass(item.id, selected)} disabled:cursor-wait disabled:opacity-70`}
+                >
+                  {item.id === "google" || item.id === "meta" ? (
+                    <PlatformLogoLabel platform={item.id} size={14} />
+                  ) : (
+                    item.label
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {showTrafficSummary && !panelLoading ? trafficSummary : null}
+      {showTrafficSummary && !panelLoading ? (
+        <TrackingReportPanel
+          tracking={tracking!}
+          variant="metrics"
+          showSetupLink={false}
+          showReportLink={false}
+        />
+      ) : null}
       {showTrafficSummary && panelLoading ? (
         <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -196,20 +268,25 @@ function ReportsSectionTabsInner({
   );
 }
 
-export function ReportsSectionTabs(props: {
+export function ReportsSectionTabs({
+  toolbarStart,
+  toolbarEnd,
+  tracking,
+  publishedAds,
+}: {
   toolbarStart: ReactNode;
   toolbarEnd?: ReactNode;
-  trafficSummary?: ReactNode;
-  events: ReactNode;
-  pages: ReactNode;
-  google: ReactNode;
-  meta: ReactNode;
-  other: ReactNode;
-  none: ReactNode;
+  tracking: SiteTrackingAnalytics | null;
+  publishedAds: ReportsPublishedAdsData;
 }) {
   return (
     <ReportsNavigationProvider>
-      <ReportsSectionTabsInner {...props} />
+      <ReportsSectionTabsInner
+        toolbarStart={toolbarStart}
+        toolbarEnd={toolbarEnd}
+        tracking={tracking}
+        publishedAds={publishedAds}
+      />
     </ReportsNavigationProvider>
   );
 }

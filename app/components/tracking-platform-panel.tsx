@@ -19,6 +19,7 @@ import type {
 import { isSiteConversionEvent } from "@/lib/tracking-events";
 import {
   trackingMediaOriginLabel,
+  type ReportMediaFilter,
   type TrackingMediaOrigin,
 } from "@/lib/utm-platform";
 
@@ -39,7 +40,10 @@ function totals(rows: AttributionBreakdownRow[]) {
   );
 }
 
-function emptyMessage(origin: TrackingMediaOrigin) {
+function emptyMessage(origin: ReportMediaFilter) {
+  if (origin === "all") {
+    return "Sem visitas ou eventos no período.";
+  }
   if (origin === "other") {
     return "Sem visitas com UTM diferente de Google e Meta no período.";
   }
@@ -49,7 +53,10 @@ function emptyMessage(origin: TrackingMediaOrigin) {
   return `Sem visitas com origem ${trackingMediaOriginLabel(origin)} no período.`;
 }
 
-function OriginTitle({ origin }: { origin: TrackingMediaOrigin }) {
+function OriginTitle({ origin }: { origin: ReportMediaFilter }) {
+  if (origin === "all") {
+    return <span>Coleta do site · Todas as origens</span>;
+  }
   if (origin === "google" || origin === "meta") {
     return (
       <>
@@ -134,7 +141,7 @@ export function TrackingPlatformPanel({
   eventsByName,
   range,
 }: {
-  origin: TrackingMediaOrigin;
+  origin: ReportMediaFilter;
   attribution: AttributionBreakdownRow[];
   eventsByName: EventBreakdownRow[];
   range?: TrackingWindow;
@@ -292,7 +299,11 @@ export function TrackingPlatformPanel({
         <div className="overflow-hidden rounded-xl border border-border bg-surface">
           <div className="border-b border-border px-3.5 py-2.5">
             <h3 className="text-xs font-medium">
-              {origin === "none" ? "Eventos sem UTM" : "Eventos nesta origem"}
+              {origin === "none"
+                ? "Eventos sem UTM"
+                : origin === "all"
+                  ? "Eventos"
+                  : "Eventos nesta origem"}
             </h3>
             {range ? (
               <p className="mt-0.5 text-[10px] text-muted">
@@ -303,7 +314,7 @@ export function TrackingPlatformPanel({
           <EventMixList
             rows={eventsByName}
             range={range}
-            mediaOrigin={origin}
+            mediaOrigin={origin === "all" ? undefined : origin}
           />
         </div>
       ) : null}
