@@ -88,9 +88,12 @@ export function windowFromDays(
   };
 }
 
-export function trackingWindowFor(period: ReportPeriod): TrackingWindow {
+export function trackingWindowFor(
+  period: ReportPeriod,
+  today = localDateKey(),
+): TrackingWindow {
   if (period.kind === "range") return { from: period.from, to: period.to };
-  return windowFromDays(period.days);
+  return windowFromDays(period.days, today);
 }
 
 export function formatDateKeyLabel(key: DateKey) {
@@ -158,6 +161,12 @@ export function reportPeriodHref(period: ReportPeriod | number, pathname = "/rel
   return `${pathname}${reportPeriodQuery(asPeriod(period))}`;
 }
 
-export function reportExportHref(period: ReportPeriod | number) {
-  return `/relatorios/exportar${reportPeriodQuery(asPeriod(period))}`;
+export function reportExportHref(
+  period: ReportPeriod | number,
+  mediaFilter: string = "all",
+) {
+  const base = `/relatorios/exportar${reportPeriodQuery(asPeriod(period))}`;
+  if (!mediaFilter || mediaFilter === "all") return base;
+  const sep = base.includes("?") ? "&" : "?";
+  return `${base}${sep}origem=${encodeURIComponent(mediaFilter)}`;
 }

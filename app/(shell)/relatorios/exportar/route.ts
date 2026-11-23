@@ -7,6 +7,22 @@ import { authEnabled } from "@/lib/auth-config";
 import { csvAttachment } from "@/lib/csv";
 import { getClientPageContext } from "@/lib/client-page";
 import { localDateKey, parseReportPeriod } from "@/lib/report-period";
+import type { ReportMediaFilter } from "@/lib/utm-platform";
+
+const MEDIA_FILTERS = new Set<ReportMediaFilter>([
+  "all",
+  "google",
+  "meta",
+  "other",
+  "none",
+]);
+
+function parseMediaFilter(value: string | null): ReportMediaFilter {
+  if (value && MEDIA_FILTERS.has(value as ReportMediaFilter)) {
+    return value as ReportMediaFilter;
+  }
+  return "all";
+}
 
 export async function GET(request: Request) {
   await connection();
@@ -27,6 +43,7 @@ export async function GET(request: Request) {
     },
     localDateKey(),
   );
+  const mediaFilter = parseMediaFilter(params.get("origem"));
   const { planActive, clientId, title } = await getClientPageContext();
   const analytics = await loadClientAnalytics(clientId, planActive, period);
   const slug = title
@@ -35,6 +52,10 @@ export async function GET(request: Request) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  const filename = `fractal-relatorio${slug ? `-${slug}` : ""}.csv`;
-  return csvAttachment(filename, analyticsToCsv(analytics));
+  const filterSlug = mediaFilter === "all" ? "" : `-${mediaFilter}`;
+  const filename = `fractal-relatorio${slug ? `-${slug}` : ""}${filterSlug}.csv`;
+  return csvAttachment(
+    filename,
+    analyticsToCsv(analytics, { mediaFilter }),
+  );
 }

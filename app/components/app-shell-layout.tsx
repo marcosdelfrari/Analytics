@@ -11,6 +11,7 @@ export type AppShellMainProps = {
   subtitle: string;
   planActive?: boolean;
   headerSkeleton?: boolean;
+  headerActions?: ReactNode;
   children: ReactNode;
 };
 
@@ -18,13 +19,15 @@ function AppHeader({
   title,
   subtitle,
   headerSkeleton = false,
+  headerActions,
 }: {
   title: string;
   subtitle: string;
   headerSkeleton?: boolean;
+  headerActions?: ReactNode;
 }) {
   return (
-    <header className="shrink-0 border-b border-border-subtle bg-background px-4 py-3 md:flex md:min-h-14 md:items-center md:px-6 md:py-0">
+    <header className="shrink-0 border-b border-border-subtle bg-background px-4 py-3 md:flex md:min-h-14 md:items-center md:gap-3 md:px-6 md:py-0">
       <div className="min-w-0 flex-1">
         {headerSkeleton ? (
           <div className="space-y-2 py-1" aria-hidden>
@@ -44,6 +47,11 @@ function AppHeader({
           </>
         )}
       </div>
+      {headerActions ? (
+        <div className="mt-2 flex shrink-0 items-center justify-end gap-2 md:mt-0">
+          {headerActions}
+        </div>
+      ) : null}
     </header>
   );
 }
@@ -54,6 +62,7 @@ export function AppShellMain({
   subtitle,
   planActive = true,
   headerSkeleton = false,
+  headerActions,
   children,
 }: AppShellMainProps) {
   return (
@@ -62,6 +71,7 @@ export function AppShellMain({
         title={title}
         subtitle={subtitle}
         headerSkeleton={headerSkeleton}
+        headerActions={headerActions}
       />
       <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:p-6 md:pb-6">
         {planActive ? (

@@ -3,9 +3,11 @@ import {
   dateKeyToUtc,
   eachDateKey,
   formatRangeLabel,
+  isDateKey,
+  localDateKey,
   trackingWindowFor,
   windowFromDays,
-  isDateKey,
+  type DateKey,
   type ReportPeriod,
   type TrackingWindow,
 } from "@/lib/report-period";
@@ -48,21 +50,45 @@ export { toEventShareRows } from "@/lib/tracking-analytics-shared";
 
 const TOP_EVENT_SERIES = 5;
 const TRACKING_CACHE_SECONDS = 45;
+export const SITE_TRACKING_CACHE_TAG = "site-tracking";
 
-export function trackingPeriodCacheKey(period: ReportPeriod | number): string {
-  if (typeof period === "number") return `n:${period}`;
-  if (period.kind === "days") return `d:${period.days}`;
+/** Inclui a data do dia em períodos relativos para o cache renovar automaticamente à meia-noite. */
+export function trackingPeriodCacheKey(
+  period: ReportPeriod | number,
+  today = localDateKey(),
+): string {
+  if (typeof period === "number") return `n:${period}@${today}`;
+  if (period.kind === "days") return `d:${period.days}@${today}`;
   return `r:${period.from}:${period.to}`;
 }
 
-export function trackingPeriodFromCacheKey(key: string): ReportPeriod | number {
-  if (key.startsWith("n:")) return Number(key.slice(2));
-  if (key.startsWith("d:")) return { kind: "days", days: Number(key.slice(2)) };
+export function trackingPeriodFromCacheKey(key: string): {
+  period: ReportPeriod | number;
+  asOf: DateKey;
+} {
+  const asOfFallback = localDateKey();
+  const daysMatch = /^d:(\d+)(?:@(\d{4}-\d{2}-\d{2}))?$/.exec(key);
+  if (daysMatch) {
+    const asOf =
+      daysMatch[2] && isDateKey(daysMatch[2]) ? daysMatch[2] : asOfFallback;
+    return { period: { kind: "days", days: Number(daysMatch[1]) }, asOf };
+  }
+  const numberMatch = /^n:(\d+)(?:@(\d{4}-\d{2}-\d{2}))?$/.exec(key);
+  if (numberMatch) {
+    const asOf =
+      numberMatch[2] && isDateKey(numberMatch[2])
+        ? numberMatch[2]
+        : asOfFallback;
+    return { period: Number(numberMatch[1]), asOf };
+  }
   const rangeMatch = /^r:(\d{4}-\d{2}-\d{2}):(\d{4}-\d{2}-\d{2})$/.exec(key);
   if (rangeMatch && isDateKey(rangeMatch[1]) && isDateKey(rangeMatch[2])) {
-    return { kind: "range", from: rangeMatch[1], to: rangeMatch[2] };
+    return {
+      period: { kind: "range", from: rangeMatch[1], to: rangeMatch[2] },
+      asOf: asOfFallback,
+    };
   }
-  return 14;
+  return { period: 14, asOf: asOfFallback };
 }
 
 function formatDayLabel(value: Date) {
@@ -245,12 +271,13 @@ function emptyAnalytics(): SiteTrackingAnalytics {
 async function loadSiteTrackingAnalyticsOverviewImpl(
   companyId: string,
   period: ReportPeriod | number = 14,
+  asOf = localDateKey(),
 ): Promise<SiteTrackingAnalytics> {
   const empty = emptyAnalytics();
   const site = await trackingSiteForCompany(companyId);
   if (!site) return empty;
 
-  const window = trackingWindowFor(resolvePeriod(period));
+  const window = trackingWindowFor(resolvePeriod(period), asOf);
   const [rows, eventsByName] = await Promise.all([
     listDailyMetrics(site.id, window),
     listEventBreakdownFromHits(site.id, window),
@@ -285,12 +312,13 @@ async function loadSiteTrackingAnalyticsOverviewImpl(
 async function loadSiteTrackingAnalyticsFullImpl(
   companyId: string,
   period: ReportPeriod | number = 14,
+  asOf = localDateKey(),
 ): Promise<SiteTrackingAnalytics> {
   const empty = emptyAnalytics();
   const site = await trackingSiteForCompany(companyId);
   if (!site) return empty;
 
-  const window = trackingWindowFor(resolvePeriod(period));
+  const window = trackingWindowFor(resolvePeriod(period), asOf);
   const [
     rows,
     eventsByName,
@@ -366,23 +394,21 @@ async function loadSiteTrackingAnalyticsFullImpl(
 }
 
 const loadSiteTrackingAnalyticsFullCached = unstable_cache(
-  async (companyId: string, periodKey: string) =>
-    loadSiteTrackingAnalyticsFullImpl(
-      companyId,
-      trackingPeriodFromCacheKey(periodKey),
-    ),
+  async (companyId: string, periodKey: string) => {
+    const { period, asOf } = trackingPeriodFromCacheKey(periodKey);
+    return loadSiteTrackingAnalyticsFullImpl(companyId, period, asOf);
+  },
   ["site-tracking-full"],
-  { revalidate: TRACKING_CACHE_SECONDS },
+  { revalidate: TRACKING_CACHE_SECONDS, tags: [SITE_TRACKING_CACHE_TAG] },
 );
 
 const loadSiteTrackingAnalyticsOverviewCached = unstable_cache(
-  async (companyId: string, periodKey: string) =>
-    loadSiteTrackingAnalyticsOverviewImpl(
-      companyId,
-      trackingPeriodFromCacheKey(periodKey),
-    ),
+  async (companyId: string, periodKey: string) => {
+    const { period, asOf } = trackingPeriodFromCacheKey(periodKey);
+    return loadSiteTrackingAnalyticsOverviewImpl(companyId, period, asOf);
+  },
   ["site-tracking-overview"],
-  { revalidate: TRACKING_CACHE_SECONDS },
+  { revalidate: TRACKING_CACHE_SECONDS, tags: [SITE_TRACKING_CACHE_TAG] },
 );
 
 export async function loadSiteTrackingAnalytics(

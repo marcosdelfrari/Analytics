@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition, type ReactNode } from "react";
+import Link from "next/link";
 import { EventAnalysisPanel } from "@/app/components/event-analysis-panel";
 import { PlatformLogoLabel } from "@/app/components/platform-logo";
 import { ReportPlatformPanel } from "@/app/components/report-platform-panel";
@@ -13,6 +14,7 @@ import { TrackingBreakdownTables } from "@/app/components/tracking-breakdown-tab
 import { TrackingPlatformPanel } from "@/app/components/tracking-platform-panel";
 import { TrackingReportPanel } from "@/app/components/tracking-report-panel";
 import type { ReportsPublishedAdsData } from "@/lib/reports-ads-props";
+import { reportExportHref, type ReportPeriod } from "@/lib/report-period";
 import { trackingTotalsForFilter } from "@/lib/tracking-filter-totals";
 import type { SiteTrackingAnalytics } from "@/lib/tracking-analytics-shared";
 import type { Platform } from "@/lib/types";
@@ -71,13 +73,13 @@ function trackingUnavailable(message: string) {
 }
 
 function ReportsSectionTabsInner({
+  period,
   toolbarStart,
-  toolbarEnd,
   tracking,
   publishedAds,
 }: {
+  period: ReportPeriod;
   toolbarStart: ReactNode;
-  toolbarEnd?: ReactNode;
   tracking: SiteTrackingAnalytics | null;
   publishedAds: ReportsPublishedAdsData;
 }) {
@@ -186,9 +188,14 @@ function ReportsSectionTabsInner({
           <div className="flex min-w-0 flex-wrap items-center gap-2.5">
             {toolbarStart}
           </div>
-          {toolbarEnd ? (
-            <div className="flex shrink-0 items-center gap-3">{toolbarEnd}</div>
-          ) : null}
+          <div className="flex shrink-0 items-center gap-3">
+            <Link
+              href={reportExportHref(period, platform)}
+              className="rounded-lg border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-foreground transition hover:bg-surface-elevated"
+            >
+              Exportar CSV
+            </Link>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center justify-start gap-2 border-t border-border px-3 py-2">
@@ -279,21 +286,21 @@ function ReportsSectionTabsInner({
 }
 
 export function ReportsSectionTabs({
+  period,
   toolbarStart,
-  toolbarEnd,
   tracking,
   publishedAds,
 }: {
+  period: ReportPeriod;
   toolbarStart: ReactNode;
-  toolbarEnd?: ReactNode;
   tracking: SiteTrackingAnalytics | null;
   publishedAds: ReportsPublishedAdsData;
 }) {
   return (
     <ReportsNavigationProvider>
       <ReportsSectionTabsInner
+        period={period}
         toolbarStart={toolbarStart}
-        toolbarEnd={toolbarEnd}
         tracking={tracking}
         publishedAds={publishedAds}
       />

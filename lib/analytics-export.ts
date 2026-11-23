@@ -1,6 +1,7 @@
 import type { ClientAnalytics } from "@/lib/analytics";
 import { toCsv } from "@/lib/csv";
 import { platformLabel } from "@/lib/types";
+import type { ReportMediaFilter } from "@/lib/utm-platform";
 
 const headers = [
   "base",
@@ -19,11 +20,34 @@ const headers = [
   "eventos",
 ];
 
-export function analyticsToCsv(analytics: ClientAnalytics) {
+export type AnalyticsExportOptions = {
+  mediaFilter?: ReportMediaFilter;
+};
+
+function isAdsPlatform(
+  filter: ReportMediaFilter,
+): filter is "google" | "meta" {
+  return filter === "google" || filter === "meta";
+}
+
+export function analyticsToCsv(
+  analytics: ClientAnalytics,
+  options: AnalyticsExportOptions = {},
+) {
+  const mediaFilter = options.mediaFilter ?? "all";
   const base = analytics.demo ? "demonstração" : "publicado";
   const rows: Array<Array<string | number | null>> = [];
 
-  for (const summary of analytics.dashboard.summaries) {
+  const summaries =
+    mediaFilter === "all"
+      ? analytics.dashboard.summaries
+      : isAdsPlatform(mediaFilter)
+        ? analytics.dashboard.summaries.filter(
+            (item) => item.platform === mediaFilter,
+          )
+        : [];
+
+  for (const summary of summaries) {
     rows.push([
       base,
       "resumo",
@@ -42,26 +66,37 @@ export function analyticsToCsv(analytics: ClientAnalytics) {
     ]);
   }
 
-  for (const point of analytics.evolution) {
-    rows.push([
-      base,
-      "evolução",
-      "",
-      point.label,
-      "",
-      "",
-      "",
-      "",
-      point.spend,
-      "",
-      "",
-      point.conversions,
-      "",
-      "",
-    ]);
+  const reports =
+    mediaFilter === "all"
+      ? analytics.dashboard.reports
+      : isAdsPlatform(mediaFilter)
+        ? analytics.dashboard.reports.filter(
+            (item) => item.platform === mediaFilter,
+          )
+        : [];
+
+  if (mediaFilter === "all") {
+    for (const point of analytics.evolution) {
+      rows.push([
+        base,
+        "evolução",
+        "",
+        point.label,
+        "",
+        "",
+        "",
+        "",
+        point.spend,
+        "",
+        "",
+        point.conversions,
+        "",
+        "",
+      ]);
+    }
   }
 
-  for (const report of analytics.dashboard.reports) {
+  for (const report of reports) {
     rows.push([
       base,
       "relatório",
@@ -82,25 +117,33 @@ export function analyticsToCsv(analytics: ClientAnalytics) {
 
   const tracking = analytics.siteTracking;
   if (tracking?.ready) {
-    for (const point of tracking.points) {
-      rows.push([
-        base,
-        "tráfego diário",
-        "",
-        point.label,
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        point.pageviews,
-        point.events,
-      ]);
+    const slice =
+      mediaFilter === "all" ? null : tracking.byPlatform[mediaFilter];
+    const attribution = slice?.attribution ?? tracking.byAttribution;
+    const eventsByName = slice?.eventsByName ?? tracking.eventsByName;
+
+    if (mediaFilter === "all") {
+      for (const point of tracking.points) {
+        rows.push([
+          base,
+          "tráfego diário",
+          "",
+          point.label,
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          point.pageviews,
+          point.events,
+        ]);
+      }
     }
-    for (const row of tracking.byAttribution) {
+
+    for (const row of attribution) {
       rows.push([
         base,
         "atribuição",
@@ -118,44 +161,48 @@ export function analyticsToCsv(analytics: ClientAnalytics) {
         row.events,
       ]);
     }
-    for (const row of tracking.byPath) {
-      rows.push([
-        base,
-        "página",
-        "",
-        tracking.period,
-        row.path,
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        row.pageviews,
-        row.events,
-      ]);
+
+    if (mediaFilter === "all") {
+      for (const row of tracking.byPath) {
+        rows.push([
+          base,
+          "página",
+          "",
+          tracking.period,
+          row.path,
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          row.pageviews,
+          row.events,
+        ]);
+      }
+      for (const row of tracking.byPathFlow) {
+        if (!row.fromPath.trim()) continue;
+        rows.push([
+          base,
+          "navegação",
+          "",
+          tracking.period,
+          `${row.fromPath} → ${row.path}`,
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          row.count,
+        ]);
+      }
     }
-    for (const row of tracking.byPathFlow) {
-      if (!row.fromPath.trim()) continue;
-      rows.push([
-        base,
-        "navegação",
-        "",
-        tracking.period,
-        `${row.fromPath} → ${row.path}`,
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        row.count,
-      ]);
-    }
-    for (const row of tracking.eventsByName) {
+
+    for (const row of eventsByName) {
       rows.push([
         base,
         "evento",
@@ -175,7 +222,14 @@ export function analyticsToCsv(analytics: ClientAnalytics) {
     }
   }
 
-  for (const campaign of analytics.campaigns) {
+  const campaigns =
+    mediaFilter === "all"
+      ? analytics.campaigns
+      : isAdsPlatform(mediaFilter)
+        ? analytics.campaigns.filter((item) => item.platform === mediaFilter)
+        : [];
+
+  for (const campaign of campaigns) {
     rows.push([
       base,
       "campanha",
