@@ -10,7 +10,7 @@ export function PlatformCard({ summary }: { summary: PlatformSummary }) {
       : summary.period;
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-3.5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="rounded-xl border border-border bg-surface p-3.5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <PlatformLogoLabel platform={summary.platform} size={16} />

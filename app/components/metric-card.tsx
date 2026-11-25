@@ -21,7 +21,7 @@ interface MetricCardProps {
 
 const iconStyles: Record<MetricIcon, { wrap: string; icon: ReactNode }> = {
   spend: {
-    wrap: "bg-amber-50 text-amber-600 ring-amber-100",
+    wrap: "bg-google-yellow/15 text-google-yellow ring-google-yellow/25",
     icon: (
       <svg viewBox="0 0 16 16" fill="none" aria-hidden className="h-3.5 w-3.5">
         <circle cx="8" cy="8" r="5.5" stroke="currentColor" strokeWidth="1.35" />
@@ -35,7 +35,7 @@ const iconStyles: Record<MetricIcon, { wrap: string; icon: ReactNode }> = {
     ),
   },
   conversion: {
-    wrap: "bg-emerald-50 text-emerald-600 ring-emerald-100",
+    wrap: "bg-positive/15 text-positive ring-positive/25",
     icon: (
       <svg viewBox="0 0 16 16" fill="none" aria-hidden className="h-3.5 w-3.5">
         <path
@@ -49,7 +49,7 @@ const iconStyles: Record<MetricIcon, { wrap: string; icon: ReactNode }> = {
     ),
   },
   ctr: {
-    wrap: "bg-sky-50 text-sky-600 ring-sky-100",
+    wrap: "bg-meta/15 text-meta ring-meta/25",
     icon: (
       <svg viewBox="0 0 16 16" fill="none" aria-hidden className="h-3.5 w-3.5">
         <path
@@ -63,7 +63,7 @@ const iconStyles: Record<MetricIcon, { wrap: string; icon: ReactNode }> = {
     ),
   },
   cost: {
-    wrap: "bg-violet-50 text-violet-600 ring-violet-100",
+    wrap: "bg-surface-elevated text-muted-foreground ring-border",
     icon: (
       <svg viewBox="0 0 16 16" fill="none" aria-hidden className="h-3.5 w-3.5">
         <rect
@@ -80,7 +80,7 @@ const iconStyles: Record<MetricIcon, { wrap: string; icon: ReactNode }> = {
     ),
   },
   pageview: {
-    wrap: "bg-blue-50 text-blue-600 ring-blue-100",
+    wrap: "bg-google/15 text-google ring-google/25",
     icon: (
       <svg viewBox="0 0 16 16" fill="none" aria-hidden className="h-3.5 w-3.5">
         <path
@@ -93,7 +93,7 @@ const iconStyles: Record<MetricIcon, { wrap: string; icon: ReactNode }> = {
     ),
   },
   event: {
-    wrap: "bg-orange-50 text-orange-600 ring-orange-100",
+    wrap: "bg-surface-elevated text-accent-muted ring-border",
     icon: (
       <svg viewBox="0 0 16 16" fill="none" aria-hidden className="h-3.5 w-3.5">
         <path
@@ -106,6 +106,22 @@ const iconStyles: Record<MetricIcon, { wrap: string; icon: ReactNode }> = {
     ),
   },
 };
+
+function cardSurfaceClass(
+  highlighted: boolean,
+  accentTone: boolean,
+  compact: boolean,
+) {
+  if (highlighted) {
+    return "border-positive/25 bg-surface bg-gradient-to-br from-positive/20 via-positive/10 to-transparent";
+  }
+  if (accentTone) {
+    return "border-meta/25 bg-surface bg-gradient-to-br from-meta/15 via-meta/5 to-transparent";
+  }
+  return compact
+    ? "border-border bg-surface"
+    : "border-border bg-surface";
+}
 
 export function MetricCard({
   label,
@@ -120,25 +136,18 @@ export function MetricCard({
   const highlighted = tone === "positive";
   const accentTone = tone === "accent";
   const iconDef = icon ? iconStyles[icon] : null;
+  const surface = cardSurfaceClass(highlighted, accentTone, compact);
 
   if (compact) {
     return (
-      <div
-        className={`rounded-xl border px-3.5 py-2.5 shadow-sm ${
-          highlighted
-            ? "border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-white"
-            : accentTone
-              ? "border-blue-200/70 bg-gradient-to-br from-blue-50/60 via-white to-white"
-              : "border-border bg-surface"
-        }`}
-      >
+      <div className={`rounded-xl border px-3.5 py-2.5 ${surface}`}>
         <div className="flex items-start justify-between gap-2">
           <p
-            className={`truncate text-[10px] font-medium uppercase tracking-wider ${
+            className={`truncate text-[10px] uppercase tracking-wider ${
               highlighted
-                ? "text-emerald-700/80"
+                ? "text-positive/75"
                 : accentTone
-                  ? "text-blue-700/75"
+                  ? "text-meta/80"
                   : "text-muted"
             }`}
           >
@@ -152,13 +161,13 @@ export function MetricCard({
             </span>
           ) : null}
         </div>
-        <h3
-          className={`mt-1 truncate font-semibold tracking-tight ${
-            compact ? "text-lg" : "text-2xl"
-          } ${highlighted ? "text-emerald-700" : "text-foreground"}`}
+        <p
+          className={`mt-1 truncate font-mono text-lg font-medium tracking-tight ${
+            highlighted ? "text-positive" : "text-foreground"
+          }`}
         >
           {value}
-        </h3>
+        </p>
         {(change !== undefined || hint) && (
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             {change !== undefined && (
@@ -172,9 +181,7 @@ export function MetricCard({
               </span>
             )}
             {hint ? (
-              <span className="truncate text-[10px] text-muted-foreground">
-                {hint}
-              </span>
+              <span className="truncate text-[10px] text-muted">{hint}</span>
             ) : null}
           </div>
         )}
@@ -183,22 +190,14 @@ export function MetricCard({
   }
 
   return (
-    <div
-      className={`relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-shadow hover:shadow-md ${
-        highlighted
-          ? "border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-white"
-          : accentTone
-            ? "border-blue-200/70 bg-gradient-to-br from-blue-50/80 via-white to-white"
-            : "border-border bg-surface"
-      }`}
-    >
+    <div className={`rounded-2xl border p-4 ${surface}`}>
       <div className="flex items-start justify-between gap-3">
         <p
-          className={`text-[11px] font-medium uppercase tracking-wider ${
+          className={`text-[11px] uppercase tracking-wider ${
             highlighted
-              ? "text-emerald-700/80"
+              ? "text-positive/75"
               : accentTone
-                ? "text-blue-700/75"
+                ? "text-meta/80"
                 : "text-muted"
           }`}
         >
@@ -206,19 +205,15 @@ export function MetricCard({
         </p>
         {iconDef ? (
           <span
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ${iconDef.wrap}`}
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${iconDef.wrap}`}
           >
             {iconDef.icon}
           </span>
         ) : null}
       </div>
       <p
-        className={`mt-3 text-3xl font-semibold tracking-tight ${
-          highlighted
-            ? "text-emerald-700"
-            : accentTone
-              ? "text-blue-700"
-              : "text-foreground"
+        className={`mt-2 font-mono text-2xl font-medium tracking-tight ${
+          highlighted ? "text-positive" : "text-foreground"
         }`}
       >
         {value}
@@ -226,19 +221,15 @@ export function MetricCard({
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {change !== undefined && (
           <span
-            className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-medium ${
-              changePositive
-                ? "bg-emerald-50 text-emerald-700"
-                : "bg-red-50 text-red-600"
+            className={`font-mono text-[11px] ${
+              changePositive ? "text-positive" : "text-negative"
             }`}
           >
             {changePositive ? "+" : ""}
             {change.toFixed(1)}%
           </span>
         )}
-        {hint ? (
-          <span className="text-[11px] text-muted-foreground">{hint}</span>
-        ) : null}
+        {hint ? <span className="text-[11px] text-muted">{hint}</span> : null}
       </div>
     </div>
   );

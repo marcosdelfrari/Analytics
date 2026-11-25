@@ -110,27 +110,3 @@ input[type="reset"]:disabled {
 *::-webkit-scrollbar-corner {
   background: transparent;
 }
-
-/* Painel autenticado: visual claro (referência Insights & Analytics). */
-.theme-app {
-  --background: #f1f3f6;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --muted-foreground: #64748b;
-  --border: #e2e8f0;
-  --border-subtle: #edf0f5;
-  --surface: #ffffff;
-  --surface-elevated: #f8fafc;
-  --accent: #3b82f6;
-  --accent-muted: #bfdbfe;
-  --positive: #10b981;
-  --negative: #ef4444;
-  --scrollbar-thumb: #cbd5e1;
-  --scrollbar-thumb-hover: #94a3b8;
-  color: var(--foreground);
-}
-
-.theme-app ::selection {
-  background: #dbeafe;
-  color: #0f172a;
-}

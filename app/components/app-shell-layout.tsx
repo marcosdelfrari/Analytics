@@ -27,7 +27,7 @@ function AppHeader({
   headerActions?: ReactNode;
 }) {
   return (
-    <header className="shrink-0 border-b border-border-subtle bg-surface/80 px-4 py-3 backdrop-blur-md md:flex md:min-h-14 md:items-center md:gap-3 md:px-6 md:py-0">
+    <header className="shrink-0 border-b border-border-subtle bg-background px-4 py-3 md:flex md:min-h-14 md:items-center md:gap-3 md:px-6 md:py-0">
       <div className="min-w-0 flex-1">
         {headerSkeleton ? (
           <div className="space-y-2 py-1" aria-hidden>

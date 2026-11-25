@@ -35,7 +35,7 @@ export function DashboardHome({
               Mídia paga
             </h2>
             {hasPublishedMedia ? (
-              <span className="rounded-full border border-border bg-surface-elevated px-2.5 py-0.5 font-mono text-[11px] text-muted-foreground shadow-sm">
+              <span className="rounded-full border border-border bg-surface-elevated px-2.5 py-0.5 font-mono text-[11px] text-muted-foreground">
                 {dashboard.period}
               </span>
             ) : (
@@ -89,13 +89,13 @@ export function DashboardHome({
                   <PlatformCard key={summary.platform} summary={summary} />
                 ))}
               </div>
-              <div className="rounded-2xl border border-border bg-surface p-3 shadow-sm sm:p-4">
+              <div className="rounded-2xl border border-border bg-surface p-3 sm:p-4">
                 <EvolutionChart points={evolution} />
               </div>
             </div>
           </>
         ) : (
-          <p className="rounded-2xl border border-border bg-surface px-4 py-3.5 text-[12px] leading-relaxed text-muted-foreground shadow-sm">
+          <p className="rounded-2xl border border-border bg-surface px-4 py-3.5 text-[12px] leading-relaxed text-muted-foreground">
             Investimento e CPA aparecem aqui quando houver relatório de Google ou
             Meta publicado no painel. Enquanto isso, acompanhe visitas e conversões
             do site abaixo.
@@ -104,7 +104,7 @@ export function DashboardHome({
       </section>
 
       {siteTracking ? (
-        <section className="rounded-3xl border border-border bg-surface p-5 shadow-sm sm:p-7">
+        <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
           <TrackingReportPanel
             tracking={siteTracking}
             variant="overview"
