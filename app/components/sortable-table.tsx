@@ -1,12 +1,19 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import {
   defaultSortDirection,
-  sortByAccessor,
   type SortDirection,
 } from "@/lib/sort-table";
+
+function subscribeNoop() {
+  return () => {};
+}
+
+function useIsClient() {
+  return useSyncExternalStore(subscribeNoop, () => true, () => false);
+}
 
 export function useColumnSort<K extends string>(
   initialKey: K,
@@ -51,13 +58,9 @@ export function SortableTh<K extends string>({
   const indicator = active ? (direction === "asc" ? "↑" : "↓") : "↕";
   const hintId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const [hintOpen, setHintOpen] = useState(false);
   const [hintPos, setHintPos] = useState({ top: 0, left: 0 });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   function updateHintPosition() {
     const rect = buttonRef.current?.getBoundingClientRect();
@@ -96,6 +99,13 @@ export function SortableTh<K extends string>({
 
   return (
     <th
+      aria-sort={
+        active
+          ? direction === "asc"
+            ? "ascending"
+            : "descending"
+          : "none"
+      }
       className={`px-3.5 py-2 font-medium ${
         align === "right" ? "text-right" : "text-left"
       }`}
@@ -111,13 +121,6 @@ export function SortableTh<K extends string>({
           onMouseLeave={hideHint}
           onFocus={showHint}
           onBlur={hideHint}
-          aria-sort={
-            active
-              ? direction === "asc"
-                ? "ascending"
-                : "descending"
-              : "none"
-          }
           aria-describedby={hint && hintOpen ? hintId : undefined}
           className={`inline-flex max-w-full items-center gap-1 text-[10px] uppercase tracking-wider transition hover:text-foreground ${
             active ? "text-foreground" : "text-muted"
@@ -155,6 +158,13 @@ export function SortableThCampaign<K extends string>({
 
   return (
     <th
+      aria-sort={
+        active
+          ? direction === "asc"
+            ? "ascending"
+            : "descending"
+          : "none"
+      }
       className={`px-4 py-2.5 font-medium ${
         align === "right" ? "text-right" : "text-left"
       }`}
@@ -162,13 +172,6 @@ export function SortableThCampaign<K extends string>({
       <button
         type="button"
         onClick={() => onSort(columnKey)}
-        aria-sort={
-          active
-            ? direction === "asc"
-              ? "ascending"
-              : "descending"
-            : "none"
-        }
         className={`inline-flex max-w-full items-center gap-1 text-[11px] uppercase tracking-wider transition hover:text-foreground ${
           active ? "text-foreground" : "text-muted"
         } ${align === "right" ? "ml-auto" : ""}`}

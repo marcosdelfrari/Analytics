@@ -3,7 +3,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -22,10 +21,12 @@ export function ReportsNavigationProvider({ children }: { children: ReactNode })
   const searchParams = useSearchParams();
   const query = searchParams.toString();
   const [navigationPending, setNavigationPending] = useState(false);
+  const [seenQuery, setSeenQuery] = useState(query);
 
-  useEffect(() => {
+  if (query !== seenQuery) {
+    setSeenQuery(query);
     setNavigationPending(false);
-  }, [query]);
+  }
 
   const value = useMemo(
     () => ({

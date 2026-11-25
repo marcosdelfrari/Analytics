@@ -626,6 +626,7 @@ function UserConfigModalWithInitialTab({
 }) {
   return (
     <UserConfigModal
+      key={`${grant.id}:${initialTab}`}
       grant={grant}
       organization={organization}
       allowOwnerRole={allowOwnerRole}

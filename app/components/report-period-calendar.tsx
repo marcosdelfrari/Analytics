@@ -77,21 +77,28 @@ export function ReportPeriodCalendar({
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") closeCalendar();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  useEffect(() => {
-    if (!open) {
-      setDraftStart(null);
-      setHover(null);
-      return;
-    }
+  function openCalendar() {
     const [year, month] = to.split("-").map(Number);
     if (year && month) setVisible({ year, month });
-  }, [open, to]);
+    setOpen(true);
+  }
+
+  function closeCalendar() {
+    setDraftStart(null);
+    setHover(null);
+    setOpen(false);
+  }
+
+  function toggleCalendar() {
+    if (open) closeCalendar();
+    else openCalendar();
+  }
 
   const cells = useMemo(() => {
     const blanks = mondayOffset(visible.year, visible.month);
@@ -128,7 +135,7 @@ export function ReportPeriodCalendar({
   }, [draftStart, from, hover, to, today, visible.month, visible.year]);
 
   function applyRange(nextFrom: DateKey, nextTo: DateKey) {
-    setOpen(false);
+    closeCalendar();
     if (nextFrom === from && nextTo === to) return;
     beginNavigation();
     startNavigate(() => {
@@ -164,7 +171,7 @@ export function ReportPeriodCalendar({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={`Alterar período: ${label}`}
-        onClick={() => setOpen((current) => !current)}
+        onClick={toggleCalendar}
         className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] transition hover:bg-background hover:ring-1 hover:ring-border"
       >
         <span className="font-medium text-foreground">{label}</span>
@@ -176,7 +183,7 @@ export function ReportPeriodCalendar({
             type="button"
             aria-label="Fechar calendário"
             className="fixed inset-0 z-40 cursor-default bg-transparent"
-            onClick={() => setOpen(false)}
+            onClick={closeCalendar}
           />
           <div
             role="dialog"

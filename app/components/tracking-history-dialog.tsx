@@ -4,10 +4,19 @@ import {
   useEffect,
   useId,
   useState,
+  useSyncExternalStore,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+
+function subscribeNoop() {
+  return () => {};
+}
+
+function useIsClient() {
+  return useSyncExternalStore(subscribeNoop, () => true, () => false);
+}
 import { formatNumber } from "@/lib/format";
 import { formatRangeLabel, type TrackingWindow } from "@/lib/report-period";
 import { isSiteConversionEvent } from "@/lib/tracking-events";
@@ -93,14 +102,22 @@ export function TrackingHistoryDialog({
   onClose: () => void;
 }) {
   const titleId = useId();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const [data, setData] = useState<HistoryPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const requestKey =
+    target.type === "page"
+      ? `page:${target.path}:${range.from}:${range.to}`
+      : `event:${target.name}:${target.origin ?? ""}:${range.from}:${range.to}`;
+  const [seenRequestKey, setSeenRequestKey] = useState(requestKey);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  if (requestKey !== seenRequestKey) {
+    setSeenRequestKey(requestKey);
+    setData(null);
+    setError(null);
+    setLoading(true);
+  }
 
   const isPage = target.type === "page";
   const value = isPage ? target.path : target.name;
@@ -132,9 +149,6 @@ export function TrackingHistoryDialog({
     }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
-    setData(null);
 
     void fetch(`/api/tracking/history?${params.toString()}`, {
       cache: "no-store",

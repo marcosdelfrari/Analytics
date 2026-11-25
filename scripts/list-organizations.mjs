@@ -51,7 +51,8 @@ const orphanUsers = await pool.query(
    ORDER BY u.email`,
 );
 
-console.log(`\nUsuários sem nenhum grant: ${usersNoGrant.rows[0].n}`);
+console.log(`\nGrants órfãos (org inexistente): ${orphanGrants.rows[0].n}`);
+console.log(`Usuários sem nenhum grant: ${usersNoGrant.rows[0].n}`);
 if (orphanUsers.rows.length > 0) {
   console.log("  (contas órfãs — não vinculadas a Lótus nem Varte):");
   for (const row of orphanUsers.rows) {

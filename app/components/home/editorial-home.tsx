@@ -524,6 +524,7 @@ export function EditorialHome() {
             <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
             <img
               {...heroImgRest}
+              alt={commonHeroProps.alt}
               loading="eager"
               fetchPriority="high"
               decoding="async"
@@ -788,6 +789,7 @@ export function EditorialHome() {
                   <source media="(max-width: 767px)" srcSet={sectionMobileSrcSet} />
                   <img
                     {...sectionImgRest}
+                    alt={commonSectionArtProps.alt}
                     loading="lazy"
                     decoding="async"
                     className="h-full w-full object-cover object-[center_32%] select-none md:object-[center_42%] lg:object-center"

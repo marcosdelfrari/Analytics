@@ -87,7 +87,7 @@ export function WebMcpTools() {
               target.scrollIntoView({ behavior: "smooth", block: "start" });
               return { ok: true, section };
             }
-            window.location.assign(`/#${section}`);
+            window.history.pushState(null, "", `/#${section}`);
             return { ok: true, section };
           },
         },

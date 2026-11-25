@@ -39,8 +39,6 @@ type AttributionRow = {
   conversions?: bigint;
 };
 
-type AttributionPathRow = AttributionRow & { path: string };
-
 const SQL_HIT_UTM_SOURCE = `COALESCE(NULLIF(TRIM(LEFT(params->>'utm_source', 200)), ''), '(sem origem)')`;
 const SQL_HIT_UTM_MEDIUM = `COALESCE(NULLIF(TRIM(LEFT(params->>'utm_medium', 200)), ''), '(sem meio)')`;
 const SQL_HIT_UTM_CAMPAIGN = `COALESCE(NULLIF(TRIM(LEFT(params->>'utm_campaign', 200)), ''), '(sem campanha)')`;
@@ -120,20 +118,6 @@ function mapAttribution(rows: AttributionRow[]) {
     campaign: row.campaign,
     term: row.term,
     content: row.content,
-    pageviews: Number(row.pageviews),
-    events: Number(row.events),
-    conversions: Number(row.conversions ?? 0),
-  }));
-}
-
-function mapAttributionWithPath(rows: AttributionPathRow[]) {
-  return rows.map((row) => ({
-    source: row.source,
-    medium: row.medium,
-    campaign: row.campaign,
-    term: row.term,
-    content: row.content,
-    path: row.path,
     pageviews: Number(row.pageviews),
     events: Number(row.events),
     conversions: Number(row.conversions ?? 0),

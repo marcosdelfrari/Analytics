@@ -88,25 +88,6 @@ export function UserConfigModal({
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setName(grant.userName);
-    setScopeMode(getInitialScopeMode(grant));
-    setSelectedCompanyIds(
-      grant.allCompanies || grant.isOrgProprietario
-        ? organization.companies.map((c) => c.id)
-        : [...grant.companyIds],
-    );
-    const updatedRoles: Record<string, OrgMemberRoleType> = {};
-    for (const company of organization.companies) {
-      updatedRoles[company.id] = grant.companyRoles[company.id] ?? "analyst";
-    }
-    setCompanyRoles(updatedRoles);
-    setHasPasswordState(grant.hasPassword);
-    setConfirmRemove(false);
-    setErrorMessage(null);
-    setSuccessMessage(null);
-  }, [grant, organization.companies]);
-
-  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !isPending) {
         onClose();

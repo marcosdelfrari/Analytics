@@ -20,7 +20,6 @@ import { isSiteConversionEvent } from "@/lib/tracking-events";
 import {
   trackingMediaOriginLabel,
   type ReportMediaFilter,
-  type TrackingMediaOrigin,
 } from "@/lib/utm-platform";
 
 function conversionsTotal(eventsByName: EventBreakdownRow[]) {

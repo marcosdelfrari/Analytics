@@ -181,17 +181,21 @@ export function LeadFormBuilder({
     FormData
   >(upsertLeadFormAction, null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const savedFormId =
+    state && "ok" in state && state.ok ? state.formId : null;
+
+  if (savedFormId && (selectedId !== savedFormId || draft.id !== savedFormId)) {
+    setSelectedId(savedFormId);
+    setDraft((current) => ({ ...current, id: savedFormId }));
+  }
 
   useEffect(() => {
-    if (state && "ok" in state && state.ok) {
-      setSelectedId(state.formId);
-      setDraft((current) => ({ ...current, id: state.formId }));
-      router.replace(
-        `/organizacao/formularios?org=${organizationId}&form=${state.formId}`,
-      );
-      router.refresh();
-    }
-  }, [state, router, organizationId]);
+    if (!savedFormId) return;
+    router.replace(
+      `/organizacao/formularios?org=${organizationId}&form=${savedFormId}`,
+    );
+    router.refresh();
+  }, [savedFormId, router, organizationId]);
 
   const payload = useMemo(() => JSON.stringify(draft), [draft]);
 

@@ -16,7 +16,6 @@ import {
   authenticateWithPassword,
   checkEmailForPasswordLogin,
   ensureAdminFromEnv,
-  findAccountById,
   registerWithPassword,
   setPasswordForAuthenticatedUser,
 } from "@/lib/users-store";

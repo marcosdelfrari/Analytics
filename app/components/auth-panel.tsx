@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   useActionState,
-  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -210,19 +209,25 @@ export function LoginPanel({
   const [needsPasswordSetup, setNeedsPasswordSetup] = useState(
     Boolean(checkState?.needsPasswordSetup),
   );
+  const authError = loginState?.error || checkState?.error || null;
+  const [seenAuthError, setSeenAuthError] = useState(authError);
+  const checkedEmail = checkState?.verifiedEmail ?? null;
+  const [seenCheckedEmail, setSeenCheckedEmail] = useState(checkedEmail);
 
-  useEffect(() => {
-    if (loginState?.error || checkState?.error) {
-      setShowEmailForm(true);
-    }
-  }, [loginState?.error, checkState?.error]);
+  if (authError && authError !== seenAuthError) {
+    setSeenAuthError(authError);
+    setShowEmailForm(true);
+  } else if (authError !== seenAuthError) {
+    setSeenAuthError(authError);
+  }
 
-  useEffect(() => {
-    if (checkState?.verifiedEmail) {
-      setVerifiedEmail(checkState.verifiedEmail);
-      setNeedsPasswordSetup(Boolean(checkState.needsPasswordSetup));
-    }
-  }, [checkState?.verifiedEmail, checkState?.needsPasswordSetup]);
+  if (checkedEmail && checkedEmail !== seenCheckedEmail) {
+    setSeenCheckedEmail(checkedEmail);
+    setVerifiedEmail(checkedEmail);
+    setNeedsPasswordSetup(Boolean(checkState?.needsPasswordSetup));
+  } else if (checkedEmail !== seenCheckedEmail) {
+    setSeenCheckedEmail(checkedEmail);
+  }
 
   const passwordStepError = loginState?.error;
   const passwordStepPending = loginPending;

@@ -1125,6 +1125,7 @@ export function OrganizationFlowPanel({
   const router = useRouter();
   const [showAllOrgs, setShowAllOrgs] = useState(defaultShowAll);
   const [extraLinks, setExtraLinks] = useState<Record<string, string[]>>({});
+  const [linksOrgId, setLinksOrgId] = useState(organization.id);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<{
@@ -1134,9 +1135,10 @@ export function OrganizationFlowPanel({
   const [isPending, startTransition] = useTransition();
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
+  if (organization.id !== linksOrgId) {
+    setLinksOrgId(organization.id);
     setExtraLinks({});
-  }, [organization.id]);
+  }
 
   useEffect(() => {
     return () => {
@@ -1300,6 +1302,7 @@ export function OrganizationFlowPanel({
 
       {editingUser && (
         <UserConfigModal
+          key={editingUser.grant.id}
           grant={
             (
               displayedOrgs

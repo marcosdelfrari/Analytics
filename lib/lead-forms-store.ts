@@ -187,7 +187,7 @@ export async function saveLeadForm(input: LeadFormDraft) {
   });
   if (!org) return { error: "Organização não encontrada." } as const;
 
-  let companyId: string | null = input.companyId?.trim() || null;
+  const companyId: string | null = input.companyId?.trim() || null;
   if (companyId) {
     const belongs = org.companies.some((company) => company.id === companyId);
     if (!belongs) {

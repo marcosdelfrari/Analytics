@@ -1,6 +1,6 @@
 export type Platform = "google" | "meta";
 
-import type { AccountRole, OrgMemberRole } from "@/lib/access-roles";
+import type { AccountRole } from "@/lib/access-roles";
 
 export { AccountRole, OrgMemberRole, isSystemAdminAccount } from "@/lib/access-roles";
 export type { Role } from "@/lib/access-roles";

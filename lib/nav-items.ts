@@ -225,8 +225,9 @@ const mobileReportsItem = (): NavItem => ({
 /** Barra inferior: analista/proprietário = Início + Relatórios + Menu; admin = Admin + Menu. */
 export function mobilePrimaryNav(
   mode: ShellMode,
-  _context: NavContext = {},
+  _context: NavContext = {}, // reserved for parity with desktop nav helpers
 ): NavItem[] {
+  void _context;
   if (mode === "agency") {
     return [
       { href: "/admin", label: "Admin", icon: "platform", exact: true },

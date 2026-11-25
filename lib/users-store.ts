@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { adminEmail, roleForEmail } from "@/lib/access-code";
-import { AccountRole, isSystemAdminAccount } from "@/lib/access-roles";
+import { isSystemAdminAccount } from "@/lib/access-roles";
 import { createClientWorkspace } from "@/lib/organizations-store";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
