@@ -44,11 +44,14 @@ export function dateKeyToUtc(key: DateKey) {
   return new Date(`${key}T00:00:00.000Z`);
 }
 
+/** Dia civil no fuso do produto (igual ao worker de coleta). */
 export function localDateKey(date = new Date()): DateKey {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date) as DateKey;
 }
 
 export function addDaysToKey(key: DateKey, days: number): DateKey {

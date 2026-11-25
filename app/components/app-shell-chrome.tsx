@@ -95,9 +95,9 @@ export function AppShellChrome({
     <SidebarContext.Provider
       value={{ sidebarCollapsed, toggleSidebar, setSidebarCollapsed }}
     >
-      <div className="flex h-dvh min-h-0 flex-col overflow-hidden md:flex-row">
+      <div className="theme-app flex h-dvh min-h-0 flex-col overflow-hidden bg-background md:flex-row">
         <aside
-          className={`hidden h-full max-h-dvh shrink-0 flex-col border-r border-border-subtle bg-background transition-[width] duration-200 ease-out md:flex ${
+          className={`hidden h-full max-h-dvh shrink-0 flex-col border-r border-border-subtle bg-surface shadow-sm transition-[width] duration-200 ease-out md:flex ${
             sidebarCollapsed ? "w-[52px]" : "w-64"
           }`}
         >
